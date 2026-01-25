@@ -43,7 +43,7 @@ function registerCommands(context) {
             { label: '$(file-text) Open CoBridge File', action: 'open' },
             { label: '$(output) Show Logs', action: 'logs' }
         ];
-        const selection = await vscode.window.showQuickPick(items, { placeHolder: 'AI Context Sync Management' });
+        const selection = await vscode.window.showQuickPick(items, { placeHolder: 'CoBridge Management' });
         if (selection) {
             if (selection.action === 'start')
                 startServer();

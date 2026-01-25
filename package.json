@@ -1,11 +1,17 @@
 {
-  "name": "context-bridge",
-  "displayName": "ContextBridge",
+  "name": "co-bridge",
+  "displayName": "CoBridge",
   "description": "Seamlessly sync your AI conversations to your local IDE.",
-  "version": "1.0.1",
-  "publisher": "assistant",
+  "version": "0.0.2",
+  "publisher": "windfall",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Winddfall/CoBridge-vscode-extension.git"
+  },
+  "license": "MIT",
+  "icon": "icon.png",
   "engines": {
-    "vscode": "^1.75.0"
+    "vscode": "^1.104.3"
   },
   "categories": [
     "Other"
@@ -26,9 +32,9 @@
       }
     ],
     "configuration": {
-      "title": "ContextBridge",
+      "title": "CoBridge",
       "properties": {
-        "aiContextSync.port": {
+        "AIContextSync.port": {
           "type": "number",
           "default": 3030,
           "description": "Port to listen for browser sync data."
@@ -43,7 +49,7 @@
   },
   "devDependencies": {
     "@types/node": "16.x",
-    "@types/vscode": "^1.108.1",
+    "@types/vscode": "^1.104.3",
     "typescript": "^4.9.5"
   }
 }
