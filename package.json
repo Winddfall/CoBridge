@@ -1,0 +1,49 @@
+{
+  "name": "context-bridge",
+  "displayName": "ContextBridge",
+  "description": "Seamlessly sync your AI conversations to your local IDE.",
+  "version": "1.0.1",
+  "publisher": "assistant",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "ai-context-sync.startServer",
+        "title": "AI Sync: Start Receiving Server"
+      },
+      {
+        "command": "ai-context-sync.stopServer",
+        "title": "AI Sync: Stop Receiving Server"
+      }
+    ],
+    "configuration": {
+      "title": "ContextBridge",
+      "properties": {
+        "aiContextSync.port": {
+          "type": "number",
+          "default": 3030,
+          "description": "Port to listen for browser sync data."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "16.x",
+    "@types/vscode": "^1.108.1",
+    "typescript": "^4.9.5"
+  }
+}
