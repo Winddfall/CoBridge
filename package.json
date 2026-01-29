@@ -1,17 +1,17 @@
 {
   "name": "co-bridge",
   "displayName": "CoBridge",
-  "description": "Seamlessly sync your AI conversations to your local IDE.",
-  "version": "0.0.2",
+  "description": "Seamlessly sync your web AI conversations to your local IDE.",
+  "version": "0.0.3",
   "publisher": "windfall",
   "repository": {
     "type": "git",
     "url": "https://github.com/Winddfall/CoBridge-vscode-extension.git"
   },
   "license": "MIT",
-  "icon": "icon.png",
+  "icon": "public/icon.png",
   "engines": {
-    "vscode": "^1.104.3"
+    "vscode": "^1.50.0"
   },
   "categories": [
     "Other"
@@ -49,7 +49,7 @@
   },
   "devDependencies": {
     "@types/node": "16.x",
-    "@types/vscode": "^1.104.3",
+    "@types/vscode": "^1.50.0",
     "typescript": "^4.9.5"
   }
 }

@@ -39,8 +39,8 @@ function registerCommands(context) {
     // 菜单命令
     let menuCmd = vscode.commands.registerCommand('ai-context-sync.showMenu', async () => {
         const items = [
-            { label: server ? '$(stop) Stop CoBridge Server' : '$(play) Start Sync Server', action: server ? 'stop' : 'start' },
-            { label: '$(file-text) Open CoBridge File', action: 'open' },
+            { label: server ? '$(stop) Stop Server' : '$(play) Start Server', action: server ? 'stop' : 'start' },
+            { label: '$(file-text) Open Context File', action: 'open' },
             { label: '$(output) Show Logs', action: 'logs' }
         ];
         const selection = await vscode.window.showQuickPick(items, { placeHolder: 'CoBridge Management' });
@@ -160,9 +160,11 @@ async function saveContext(data) {
         return;
     const rootPath = workspaceFolders[0].uri.fsPath;
     const vscodePath = path.join(rootPath, '.vscode');
-    const mdPath = path.join(vscodePath, 'AI_CONTEXT_SYNC.md');
+    const githubPath = path.join(rootPath, '.github');
+    const contextPath = path.join(vscodePath, 'AI_CONTEXT_SYNC.md');
     const traeRulesPath = path.join(rootPath, '.traerules'); // Trae 的规则文件
     const cursorRulesPath = path.join(rootPath, '.cursorrules'); // Cursor 的规则文件
+    const vscodeRulesPath = path.join(githubPath, 'copilot-instructions.md'); // GitHub Copilot 的规则文件
     const gitignorePath = path.join(rootPath, '.gitignore');
     // 动态创建.gitignore
     if (!fs.existsSync(gitignorePath)) {
@@ -172,9 +174,13 @@ async function saveContext(data) {
     if (!fs.existsSync(vscodePath)) {
         fs.mkdirSync(vscodePath, { recursive: true });
     }
-    // 创建或更新缓存文件
-    if (!fs.existsSync(mdPath)) {
-        fs.writeFileSync(mdPath, '# AI Context Sync \n\n');
+    // 动态创建 .github 目录（如果不存在）
+    if (!fs.existsSync(githubPath)) {
+        fs.mkdirSync(githubPath, { recursive: true });
+    }
+    // 创建上下文文件
+    if (!fs.existsSync(contextPath)) {
+        fs.writeFileSync(contextPath, '# AI Context Sync \n\n');
     }
     // 生成 Markdown
     let md = `# 🧠 AI Context (${new Date().toLocaleString()})\n\n`;
@@ -198,10 +204,10 @@ async function saveContext(data) {
         md += `**${role}**: ${msg.text}\n\n`;
     });
     // 写入AI_CONTEXT_SYNC.md
-    fs.writeFileSync(mdPath, md, 'utf8');
+    fs.writeFileSync(contextPath, md, 'utf8');
     // 更新 .traerules (简单追加)
     if (!fs.existsSync(traeRulesPath)) {
-        fs.writeFileSync(traeRulesPath, '# Trae Rules\n务必参考历史上下文：.vscode/AI_CONTEXT_SYNC.md\n', 'utf8');
+        fs.writeFileSync(traeRulesPath, '# Trae Rules\nAlways refer to the historical context when answering：.vscode/AI_CONTEXT_SYNC.md\n', 'utf8');
     }
     else {
         const rules = fs.readFileSync(traeRulesPath, 'utf8');
@@ -211,12 +217,22 @@ async function saveContext(data) {
     }
     // 更新.cursorrules
     if (!fs.existsSync(cursorRulesPath)) {
-        fs.writeFileSync(cursorRulesPath, '# Cursor Rules\n历史上下文：.vscode/AI_CONTEXT_SYNC.md\n', 'utf8');
+        fs.writeFileSync(cursorRulesPath, '# Cursor Rules\nAlways refer to the historical context when answering：.vscode/AI_CONTEXT_SYNC.md\n', 'utf8');
     }
     else {
         const rules = fs.readFileSync(cursorRulesPath, 'utf8');
         if (!rules.includes('AI_CONTEXT_SYNC.md')) {
             fs.appendFileSync(cursorRulesPath, '\nAI_CONTEXT_SYNC.md\n');
+        }
+    }
+    // 更新 GitHub Copilot 规则文件
+    if (!fs.existsSync(vscodeRulesPath)) {
+        fs.writeFileSync(vscodeRulesPath, '# Copilot Instructions\nAlways refer to the historical context when answering：.vscode/AI_CONTEXT_SYNC.md\n', 'utf8');
+    }
+    else {
+        const rules = fs.readFileSync(vscodeRulesPath, 'utf8');
+        if (!rules.includes('AI_CONTEXT_SYNC.md')) {
+            fs.appendFileSync(vscodeRulesPath, '\nAI_CONTEXT_SYNC.md\n');
         }
     }
     /* 添加到 .gitignore 避免污染 */
@@ -237,6 +253,12 @@ async function saveContext(data) {
     content = fs.readFileSync(gitignorePath, 'utf8');
     if (!content.includes('.cursorrules')) {
         fs.appendFileSync(gitignorePath, ignoreCursorrules);
+    }
+    // git忽略 GitHub Copilot 规则文件
+    const ignoreVscodeRules = '\n# GitHub Copilot Instructions\n.github/copilot-instructions.md\n'; // 标记：忽略 GitHub Copilot 规则文件
+    content = fs.readFileSync(gitignorePath, 'utf8');
+    if (!content.includes('.github/copilot-instructions.md')) {
+        fs.appendFileSync(gitignorePath, ignoreVscodeRules);
     }
     outputChannel.appendLine('✅ Files updated: AI_CONTEXT_SYNC.md & .traerules');
 }
