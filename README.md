@@ -6,7 +6,7 @@
 
 ## 中文说明
 
-CoBridge 是一个 VS Code 插件，与 Gemini Voyager 配套使用，旨在无缝同步浏览器中的 AI 对话记录到本地 IDE，帮助 AI 助手（如 Copilot, Trae, Cursor 等）获取最新的开发上下文。
+CoBridge 是一个 VS Code 插件，与 **Gemini Voyager** 配套使用，旨在无缝同步浏览器中的 AI 对话记录到本地 IDE，帮助 AI 助手（如 Copilot, Trae, Cursor 等）获取最新的开发上下文。
 
 ### 🚀 快速入门 (Quick Start)
 
@@ -61,7 +61,7 @@ CoBridge 是一个 VS Code 插件，与 Gemini Voyager 配套使用，旨在无�
 
 ## English Description
 
-CoBridge is a VS Code extension designed to seamlessly sync AI conversation records from your browser to your local IDE, helping AI assistants (like Trae, Cursor, etc.) get the latest development context.
+CoBridge is a VS Code extension that works with **Gemini Voyager** to seamlessly sync AI conversation records from your browser to your local IDE, helping AI assistants (like Copilot, Trae, Cursor, etc.) get the latest development context.
 
 ### 🚀 Quick Start
 
