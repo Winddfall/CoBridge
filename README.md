@@ -1,5 +1,10 @@
 # CoBridge
 
+[![Version](https://img.shields.io/visual-studio-marketplace/v/windfall.co-bridge?label=version&style=flat-square)](https://marketplace.visualstudio.com/items?itemName=windfall.co-bridge)
+[![Installs](https://img.shields.io/visual-studio-marketplace/i/windfall.co-bridge?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=windfall.co-bridge)
+[![License](https://img.shields.io/github/license/Winddfall/CoBridge?style=flat-square)](https://github.com/Winddfall/CoBridge/blob/master/LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/Winddfall/CoBridge?style=flat-square)](https://github.com/Winddfall/CoBridge/stargazers)
+
 [中文](#中文说明) | [English](#english-description)
 
 ---
@@ -73,7 +78,7 @@ CoBridge is a VS Code extension that works with **Gemini Voyager** to seamlessly
    
    - You can see the `CoBridge: On` icon in the bottom right status bar.
    
-     ![running](images/running.gif)
+     ![running](images/running.png)
    
    - Click the icon to manually **Start/Stop** the server, **View Logs**, or **Open Sync File**.
    

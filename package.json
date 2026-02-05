@@ -2,11 +2,11 @@
   "name": "co-bridge",
   "displayName": "CoBridge",
   "description": "Seamlessly sync your web AI conversations to your local IDE.",
-  "version": "0.0.3",
+  "version": "0.0.6",
   "publisher": "windfall",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Winddfall/CoBridge-vscode-extension.git"
+    "url": "https://github.com/Winddfall/CoBridge.git"
   },
   "license": "MIT",
   "icon": "public/icon.png",
@@ -14,7 +14,17 @@
     "vscode": "^1.50.0"
   },
   "categories": [
-    "Other"
+    "Machine Learning",
+    "AI",
+    "Productivity"
+  ],
+  "keywords": [
+    "Gemini Voyager",
+    "AI",
+    "Gemini",
+    "Sync",
+    "Context",
+    "LLM"
   ],
   "activationEvents": [
     "*"

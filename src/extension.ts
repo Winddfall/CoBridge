@@ -27,7 +27,18 @@ export function activate(context: vscode.ExtensionContext) {
         // 3. 注册命令
         registerCommands(context);
 
-        // 4. 自动启动服务器
+        // 4. 监听配置变更
+        context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(e => {
+            if (e.affectsConfiguration('AIContextSync.port')) {
+                outputChannel.appendLine('⚙️ Port configuration changed, restarting server...');
+                if (server) {
+                    stopServer();
+                    startServer();
+                }
+            }
+        }));
+
+        // 5. 自动启动服务器
         startServer();
 
         // 5. 成功提示
@@ -87,7 +98,7 @@ function startServer() {
         return;
     }
 
-    const config = vscode.workspace.getConfiguration('aiContextSync');
+    const config = vscode.workspace.getConfiguration('AIContextSync');
     const port = config.get<number>('port') || 3030;
 
     try {
