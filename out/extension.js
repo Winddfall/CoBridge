@@ -51,6 +51,7 @@ function registerCommands(context) {
         const items = [
             { label: server ? '$(stop) Stop Server' : '$(play) Start Server', action: server ? 'stop' : 'start' },
             { label: '$(file-text) Open Context File', action: 'open' },
+            { label: '$(trash) Clear Context', action: 'clear' },
             { label: '$(output) Show Logs', action: 'logs' }
         ];
         const selection = await vscode.window.showQuickPick(items, { placeHolder: 'CoBridge Management' });
@@ -63,12 +64,38 @@ function registerCommands(context) {
                 outputChannel.show();
             else if (selection.action === 'open')
                 openSyncFile();
+            else if (selection.action === 'clear')
+                clearContext();
         }
     });
     // 独立命令
     let startCmd = vscode.commands.registerCommand('ai-context-sync.startServer', startServer);
     let stopCmd = vscode.commands.registerCommand('ai-context-sync.stopServer', stopServer);
-    context.subscriptions.push(menuCmd, startCmd, stopCmd);
+    let clearCmd = vscode.commands.registerCommand('ai-context-sync.clearContext', clearContext);
+    context.subscriptions.push(menuCmd, startCmd, stopCmd, clearCmd);
+}
+// 清理上下文文件
+async function clearContext() {
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (!workspaceFolders) {
+        vscode.window.showErrorMessage('No workspace open.');
+        return;
+    }
+    const root = workspaceFolders[0].uri.fsPath;
+    const filePath = path.join(root, '.vscode', 'AI_CONTEXT_SYNC.md');
+    if (fs.existsSync(filePath)) {
+        try {
+            fs.writeFileSync(filePath, '# AI Context Sync \n\n', 'utf8');
+            outputChannel.appendLine('🗑️ Context file cleared.');
+            vscode.window.showInformationMessage('AI Context Sync file has been cleared.');
+        }
+        catch (err) {
+            vscode.window.showErrorMessage(`Failed to clear context file: ${err.message}`);
+        }
+    }
+    else {
+        vscode.window.showInformationMessage('No context file to clear.');
+    }
 }
 // 打开文件
 function openSyncFile() {

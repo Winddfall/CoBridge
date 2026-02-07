@@ -14,17 +14,15 @@
     "vscode": "^1.50.0"
   },
   "categories": [
-    "Machine Learning",
     "AI",
-    "Productivity"
+    "Chat"
   ],
   "keywords": [
     "Gemini Voyager",
-    "AI",
     "Gemini",
     "Sync",
     "Context",
-    "LLM"
+    "Productivity"
   ],
   "activationEvents": [
     "*"
@@ -39,6 +37,10 @@
       {
         "command": "ai-context-sync.stopServer",
         "title": "AI Sync: Stop Receiving Server"
+      },
+      {
+        "command": "ai-context-sync.clearContext",
+        "title": "AI Sync: Clear Sync Context"
       }
     ],
     "configuration": {
