@@ -1,116 +1,124 @@
-# CoBridge
+# CoBridge — The Dimensional Bridge for AI "Shared Memory" ✨
+
+[English](README.md) | [简体中文](docs/README_CN.md) | [繁體中文](docs/README_ZH_TW.md) | [日本語](docs/README_JA.md) | [Français](docs/README_FR.md) | [Español](docs/README_ES.md) | [Português](docs/README_PT.md) | [한국어](docs/README_KO.md) | [Русский](docs/README_RU.md) | [العربية](docs/README_AR.md)
 
 [![Version](https://img.shields.io/visual-studio-marketplace/v/windfall.co-bridge?label=version&style=flat-square)](https://marketplace.visualstudio.com/items?itemName=windfall.co-bridge)
-[![Installs](https://img.shields.io/visual-studio-marketplace/i/windfall.co-bridge?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=windfall.co-bridge)
+[![VS Code Installs](https://img.shields.io/visual-studio-marketplace/i/windfall.co-bridge?style=flat-square&label=VS%20Code&logo=visual-studio-code&logoColor=white)](https://marketplace.visualstudio.com/items?itemName=windfall.co-bridge)
+[![Open VSX Installs](https://img.shields.io/open-vsx/dt/windfall/co-bridge?style=flat-square&label=Open%20VSX)](https://open-vsx.org/extension/windfall/co-bridge)
 [![License](https://img.shields.io/github/license/Winddfall/CoBridge?style=flat-square)](https://github.com/Winddfall/CoBridge/blob/master/LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/Winddfall/CoBridge?style=flat-square)](https://github.com/Winddfall/CoBridge/stargazers)
+[![GitHub stars](https://img.shields.io/github/stars/Winddfall/CoBridge?style=flat-square&logo=github)](https://github.com/Winddfall/CoBridge/stargazers)
+[![Last Commit](https://img.shields.io/github/last-commit/Winddfall/CoBridge?style=flat-square)](https://github.com/Winddfall/CoBridge/commits/master)
 
-[中文](#中文说明) | [English](#english-description)
+> [!IMPORTANT]
+> **CoBridge explicitly requires the [Gemini Voyager](https://github.com/Nagi-ovo/gemini-voyager) browser extension to work.**
+> CoBridge handles context reception in the IDE, while Gemini Voyager captures context from the web interface. Together, they enable seamless context synchronization!
 
----
+## ⚡️ Supported Ecosystem
 
-## 中文说明
+![VS Code](https://img.shields.io/badge/Visual%20Studio%20Code-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white)
+![GitHub Copilot](https://img.shields.io/badge/GitHub%20Copilot-6f42c1?style=for-the-badge&logo=githubcopilot&logoColor=white)
+![Cursor](https://img.shields.io/badge/Cursor-000000?style=for-the-badge&logo=cursor&logoColor=white)
+![Trae](https://img.shields.io/badge/Trae-3B82F6?style=for-the-badge&logo=openai&logoColor=white)
 
-CoBridge 是一个 VS Code 插件，与 **Gemini Voyager** 配套使用，旨在无缝同步浏览器中的 AI 对话记录到本地 IDE，帮助 AI 助手（如 Copilot, Trae, Cursor 等）获取最新的开发上下文。
+**Brainstorming with AI on the web, coding in the IDE — yet they seem to have forgotten each other?**
 
-### 🚀 快速入门 (Quick Start)
+CoBridge is that "Dimensional Bridge": it instantly transports your chat history from the browser to your IDE, allowing AI assistants like Copilot, Trae, and Cursor to understand your thought process.
 
-1. **安装插件**：在 VS Code 插件市场搜索并安装 `CoBridge`。
-
-2. **启动服务**：
-   
-   - 插件安装后会在后台自动启动服务（默认端口 `3030`）。
-   
-   - 你可以在 VS Code 右下角状态栏看到 `CoBridge: On` 图标。
-   
-     ![running](images/running.png)
-   
-   - 点击该图标可以手动 **启动/停止** 服务、**查看日志** 或 **打开同步文件**。
-   
-     ![management](images/management.png)
-   
-3. **开始同步**：确保你的浏览器端已配置好发送端（配套的浏览器扩展或脚本），对话内容将自动保存至当前工作区的 `.vscode/AI_CONTEXT_SYNC.md`。
-
-### ⚙️ 配置说明 (Settings)
-
-如果默认端口 `3030` 被占用或需要更改，可以按照以下步骤操作：
-
-1. 打开 VS Code 设置 (`Ctrl + ,` 或 `Cmd + ,`)。
-2. 搜索 `AIContextSync.port`。
-3. 将端口号修改为你需要的数值（例如 `3031`）。
-4. 修改后建议重启或在状态栏菜单中手动重启服务以使配置生效。
-
-![port](images/port.png)
-
-### 📋 前置要求 (Prerequisites)
-
-- **VS Code 版本**：`^1.104.3` 或更高版本。
-- **浏览器端**：需要安装能够抓取 AI 对话并发送至本地接口（`http://127.0.0.1:端口/sync`）的浏览器插件或脚本。
-- **网络环境**：确保本地环回地址 `127.0.0.1` 未被防火墙拦截。
-
-### ⚠️ 已知限制 (Known Issues)
-
-- **AI 平台支持**：
-  - ✅ **已测试支持**：Gemini
-  - ❌ **暂不支持**：部分具有强反爬或复杂 DOM 结构的 AI 平台可能需要针对性更新发送端。
-- **内容限制**：目前仅支持同步文本对话，暂不支持同步图片、文件等二进制附件。
-- **文件更新**：插件会自动更新 `.traerules` 和 `.cursorrules`，将同步文件包含在 AI 助手的上下文引用中。
+> Brain in the cloud, hands on local — breathing in sync.
 
 ---
 
-**提示**：CoBridge 会自动将 `.vscode/AI_CONTEXT_SYNC.md`、`.traerules` 和 `.cursorrules` 添加到 `.gitignore`，以防止这些本地上下文文件被误提交到 Git 仓库。本插件不会以任何形式污染你的项目仓库。
+## 🚀 Three Steps to Take Off
 
-<br>
+### 1. Install CoBridge
 
----
+Open the VS Code Extension Marketplace, search for **CoBridge**, and click install. It's that simple.
 
-## English Description
+### 2. Confirm Service Status
 
-CoBridge is a VS Code extension that works with **Gemini Voyager** to seamlessly sync AI conversation records from your browser to your local IDE, helping AI assistants (like Copilot, Trae, Cursor, etc.) get the latest development context.
+After installation, glance at the status bar in the bottom right corner — seeing `CoBridge: On` means the bridge is ready (default port `3030`).
 
-### 🚀 Quick Start
+![Running Status](images/running.png)
 
-1. **Install Extension**: Search and install `CoBridge` in the VS Code Marketplace.
+Clicking this icon allows you to:
+- Manually **Start/Stop** the service
+- **View Logs** (Check here if issues arise)
+- **Open Sync File** (See what the AI remembers)
+- **Clear Sync File** (Wipe the AI's memory)
 
-2. **Start Service**:
-   
-   - The service starts automatically in the background after installation (default port `3030`).
-   
-   - You can see the `CoBridge: On` icon in the bottom right status bar.
-   
-     ![running](images/running.png)
-   
-   - Click the icon to manually **Start/Stop** the server, **View Logs**, or **Open Sync File**.
-   
-     ![management](images/management.png)
-   
-3. **Start Syncing**: Ensure your browser side is configured with a sender (companion browser extension or script). Conversations will be automatically saved to `.vscode/AI_CONTEXT_SYNC.md` in your current workspace.
+![Management Menu](images/management.png)
 
-### ⚙️ Settings
+### 3. Start "Memory Teleportation"
 
-If the default port `3030` is occupied or needs to be changed:
+Ensure **Gemini Voyager** in your browser has "Context Sync" enabled. Click **Sync to IDE**, and the conversation content will automatically land in:
 
-1. Open VS Code Settings (`Ctrl + ,` or `Cmd + ,`).
-2. Search for `AIContextSync.port`.
-3. Change the port number to your desired value (e.g., `3031`).
-4. It is recommended to restart the service manually via the status bar menu for changes to take effect.
+```
+.cobridge/AI_CONTEXT.md
+```
 
-![port](images/port.png)
-
-### 📋 Prerequisites
-
-- **VS Code Version**: `^1.104.3` or higher.
-- **Browser Side**: Requires a browser extension or script capable of capturing AI conversations and sending them to the local interface (`http://127.0.0.1:PORT/sync`).
-- **Network**: Ensure the local loopback address `127.0.0.1` is not blocked by a firewall.
-
-### ⚠️ Known Issues
-
-- **AI Platform Support**:
-  - ✅ **Tested**: Gemini
-  - ❌ **Not Supported**: AI platforms with strong anti-crawling or complex DOM structures may require specific updates to the sender.
-- **Content Limits**: Currently supports syncing text conversations only; images, files, and other binary attachments are not supported.
-- **File Updates**: The extension automatically updates `.traerules` and `.cursorrules` to include the sync file in the AI assistant's context.
+From now on, your IDE assistant will never look at you blankly and ask, "What did you say before?"
 
 ---
 
-**Note**: CoBridge automatically adds `.vscode/AI_CONTEXT_SYNC.md`, `.traerules`, and `.cursorrules` to `.gitignore` to prevent these local context files from being accidentally committed. This extension will not pollute your project repository in any way.
+## ⚙️ Port Occupied? Change It!
+
+If the default port `3030` is "hogged" by another program, changing it is easy:
+
+1. Open VS Code Settings (`Ctrl + ,` / `Cmd + ,`)
+2. Search for `AIContextSync.port`
+3. Change the port number to your preference (e.g., `3031`)
+4. Restart the service from the status bar menu, and you're done!
+
+**Since VS Code workspace settings override user settings, please modify the port number in your Workspace Settings.**
+
+![Port Settings](images/port.png)
+
+---
+
+## 📋 Prerequisites
+
+| Requirement | Description |
+|------|------|
+| **VS Code** | `1.50.0` or higher |
+| **Browser Extension** | Requires the companion [Gemini Voyager](https://github.com/Nagi-ovo/gemini-voyager) to capture conversations |
+| **Network** | Ensure `127.0.0.1` is not blocked by a firewall |
+
+---
+
+## 🎯 Principles
+
+- **Zero Pollution**: CoBridge automatically adds the sync file to `.gitignore`, ensuring it never pollutes your Git repository. Your "whispers" stay with you.
+- **Friendly Format**: Full Markdown output, making it as smooth for your IDE AI to read as a manual.
+- **Auto Configuration**: It also helps update rule files, allowing various AI assistants to seamlessly read the context.
+
+---
+
+## ⚠️ Known Quirks
+
+| Status | Description |
+|------|------|
+| ✅ **Supported** | Gemini |
+| ✅ **Table Support** | Table synchronization is supported |
+| ✅ **Image Support** | Image synchronization is supported |
+| ❌ **Not Supported** | Platforms with strict anti-scraping or complex DOM structures (PRs welcome!) |
+| ❌ **File Attachments** | Not yet supported |
+
+---
+
+## 🌟 TL;DR
+
+**LLMs will no longer have amnesia. Discuss solutions thoroughly on the web, and implement them directly in the IDE.**
+
+If this project helped you, please give us a Star ⭐ on [GitHub](https://github.com/Winddfall/CoBridge).
+
+## 💡 Issues
+
+If you have new requirements, welcome to raise an issue on [GitHub](https://github.com/Winddfall/CoBridge/issues).
+
+## 🤝 Contributing
+
+If you have good suggestions or find a bug, Pull Requests are welcome!
+
+## 📄 License
+
+This project is licensed under the MIT License.
