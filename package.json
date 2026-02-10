@@ -2,7 +2,7 @@
   "name": "co-bridge",
   "displayName": "CoBridge",
   "description": "Seamlessly sync your web AI conversations to your local IDE.",
-  "version": "0.0.6",
+  "version": "1.0.0",
   "publisher": "windfall",
   "repository": {
     "type": "git",
