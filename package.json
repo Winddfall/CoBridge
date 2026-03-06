@@ -2,7 +2,7 @@
   "name": "co-bridge",
   "displayName": "CoBridge",
   "description": "Seamlessly sync your web AI conversations to your local IDE.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "publisher": "windfall",
   "repository": {
     "type": "git",
@@ -31,16 +31,24 @@
   "contributes": {
     "commands": [
       {
-        "command": "ai-context-sync.startServer",
-        "title": "AI Sync: Start Receiving Server"
+        "command": "cobridge.showMenu",
+        "title": "CoBridge: Show Menu"
       },
       {
-        "command": "ai-context-sync.stopServer",
-        "title": "AI Sync: Stop Receiving Server"
+        "command": "cobridge.startServer",
+        "title": "CoBridge: Start Server"
       },
       {
-        "command": "ai-context-sync.clearContext",
-        "title": "AI Sync: Clear Sync Context"
+        "command": "cobridge.stopServer",
+        "title": "CoBridge: Stop Server"
+      },
+      {
+        "command": "cobridge.openContext",
+        "title": "CoBridge: Open Context File"
+      },
+      {
+        "command": "cobridge.clearContext",
+        "title": "CoBridge: Clear Context File"
       }
     ],
     "configuration": {

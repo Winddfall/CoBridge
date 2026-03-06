@@ -7,112 +7,129 @@ import { saveBase64AsPng, ensureDirectory, ensureFile, updateRulesFile, appendTo
  * 消息数据接口
  */
 export interface MessageData {
-    url: string;
-    className: string;
-    images: string[] | null;
-    text: string;
-    is_ai_likely: boolean;
-    is_user_likely: boolean;
-    rect: {
-        top: number;
-        left: number;
-        width: number;
-    };
+    url: string; // 上下文来源网页url
+    className: string; // dom元素的class
+    text: string; // 文本
+    images: string[] | null; // 图片
+    is_ai_likely: boolean; // 是否是AI
+    is_user_likely: boolean; // 是否是用户
 }
 
 /**
  * 保存上下文到文件系统
- * - 将上下文文件存放在 .cobridge 文件夹里
+ * - 将上下文文件转md格式存放在 .cobridge 文件夹里
  * - 更新 .traerules、.cursorrules、.github/copilot-instructions.md
  * - 添加到 .gitignore 防止污染
  */
-export async function saveContext(data: MessageData[], outputChannel: vscode.OutputChannel): Promise<void> {
-    const workspaceFolders = vscode.workspace.workspaceFolders;
-    if (!workspaceFolders) return;
+// 函数内包含异步操作
+export async function saveContext(data: MessageData[]): Promise<void> {
+    // 工作区路径
+    const WORKSPACE_FOLDERS = vscode.workspace.workspaceFolders;
+    if (!WORKSPACE_FOLDERS) {
+        vscode.window.showErrorMessage('No workspace open.');
+        return;
+    }
 
-    const rootPath = workspaceFolders[0].uri.fsPath;
-    const cobridgePath = path.join(rootPath, '.cobridge');
-    const githubPath = path.join(rootPath, '.github');
-    const imagesPath = path.join(cobridgePath, 'images');
-    const contextPath = path.join(cobridgePath, 'AI_CONTEXT.md');
-    const traeRulesPath = path.join(rootPath, '.traerules');
-    const cursorRulesPath = path.join(rootPath, '.cursorrules');
-    const vscodeRulesPath = path.join(githubPath, 'copilot-instructions.md');
-    const gitignorePath = path.join(rootPath, '.gitignore');
+    const ROOT_PATH = WORKSPACE_FOLDERS[0].uri.fsPath; // 工作区根目录
+    const COBRIDGE_PATH = path.join(ROOT_PATH, '.cobridge'); // .cobridge 目录
+    const GITHUB_PATH = path.join(ROOT_PATH, '.github'); // .github 目录
+    const TRAE_RULES_PATH = path.join(ROOT_PATH, '.traerules'); // .traerules 文件
+    const CURSOR_RULES_PATH = path.join(ROOT_PATH, '.cursorrules'); // .cursorrules 文件
+    const GITIGNORE_PATH = path.join(ROOT_PATH, '.gitignore'); // .gitignore 文件
+    const IMAGES_PATH = path.join(COBRIDGE_PATH, 'images'); // images 目录
+    const CONTEXT_PATH = path.join(COBRIDGE_PATH, 'AI_CONTEXT.md'); // AI_CONTEXT.md 文件
+    const COPILOT_RULES_PATH = path.join(GITHUB_PATH, 'copilot-instructions.md'); // copilot-instructions.md 文件
 
-    // 创建必要的目录
-    ensureDirectory(cobridgePath);
-    ensureDirectory(githubPath);
-    ensureDirectory(imagesPath);
-    ensureFile(contextPath, '# AI Context Sync \n\n');
-
-    // 生成 Markdown
-    let md = `# 🧠 AI Context (${new Date().toLocaleString()})\n\n`;
+    // 创建必要的目录和文件
+    ensureDirectory(COBRIDGE_PATH);
+    ensureDirectory(GITHUB_PATH);
+    ensureDirectory(IMAGES_PATH);
+    ensureFile(CONTEXT_PATH, '# AI Context Sync \n\n');
 
     let messages: MessageData[] = [];
     if (Array.isArray(data)) {
         messages = data;
     }
 
+    const context_md = writeDownContext(messages, IMAGES_PATH);
+
+    // 写入 AI_CONTEXT.md
+    fs.writeFileSync(CONTEXT_PATH, context_md, 'utf8');
+
+    // 更新规则文件
+    updateAllRulesFile(TRAE_RULES_PATH, CURSOR_RULES_PATH, COPILOT_RULES_PATH);
+
+    // 更新 .gitignore
+    updateGitignore(GITIGNORE_PATH);
+}
+
+// 写入上下文
+function writeDownContext(messages: MessageData[], imagesPath: string): string {
+    // 上下文标题
+    let context_md = `# 🧠 AI Context (${new Date().toLocaleString()})\n\n`;
+    // 遍历每条消息
+    // msg是MessageData类型，msgIndex是消息的索引
     messages.forEach((msg: MessageData, msgIndex: number) => {
-        let imageIndex = 0;
-        let role = 'Unknown';
+        let imageIndex = 0; // 每条信息的图片索引初始值
+        let role = 'Unknown'; // 角色
         if (msg.is_user_likely) {
-            role = 'User';
+            role = '👤User';
         } else if (msg.is_ai_likely) {
-            role = 'AI';
+            role = '✨AI';
         }
 
         // 构建消息内容
-        md += `**${role}:**\n\n`;
-
-        // 如果消息包含图片，先保存图片并添加引用
-        if (msg.images && Array.isArray(msg.images)) {
+        context_md += `**${role}:**\n\n`;
+        // 如果消息包含图片，保存图片并添加引用
+        if (msg.images) {
+            // 遍历每张图片
             for (const img of msg.images) {
                 imageIndex++;
                 const imageName = `context_img_${msgIndex + 1}_${imageIndex}.png`;
-                const imageFullPath = path.join(imagesPath, imageName);
-
+                const imageFullPath = path.join(imagesPath, imageName); // 图片完整路径
                 // 保存图片文件
                 saveBase64AsPng(img, imageFullPath);
-
                 // 在 Markdown 中添加图片引用（使用相对路径）
-                md += `![上下文图片 ${imageIndex}](./images/${imageName})\n\n`;
+                context_md += `![context_img_${msgIndex + 1}_${imageIndex}](./images/${imageName})\n\n`;
             }
         }
-
         // 添加文本内容
         if (msg.text && msg.text.trim()) {
-            md += `${msg.text}\n\n`;
+            context_md += `${msg.text}\n\n`;
         }
-
-        md += `---\n\n`;
+        context_md += `---\n\n`;
     });
+    return context_md;
+}
 
-    // 写入 AI_CONTEXT.md
-    fs.writeFileSync(contextPath, md, 'utf8');
-
-    // 更新规则文件
+/**
+ * 更新所有规则文件
+ */
+function updateAllRulesFile(traeRulesPath: string, cursorRulesPath: string, copilotRulesPath: string) {
     updateRulesFile(
         traeRulesPath,
         '# Trae Rules\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n',
         'AI_CONTEXT.md',
-        '\nAI_CONTEXT.md\n'
+        '\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n'
     );
     updateRulesFile(
         cursorRulesPath,
         '# Cursor Rules\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n',
         'AI_CONTEXT.md',
-        '\nAI_CONTEXT.md\n'
+        '\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n'
     );
     updateRulesFile(
-        vscodeRulesPath,
+        copilotRulesPath,
         '# Copilot Instructions\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n',
         'AI_CONTEXT.md',
-        '\nAI_CONTEXT.md\n'
+        '\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n'
     );
+}
 
-    // 更新 .gitignore
+/**
+ * 更新 .gitignore
+ */
+function updateGitignore(gitignorePath: string) {
     appendToGitignore(gitignorePath, '.cobridge', 'AI Context');
     appendToGitignore(gitignorePath, '.traerules', '.traerules');
     appendToGitignore(gitignorePath, '.cursorrules', '.cursorrules');
@@ -146,19 +163,21 @@ export async function clearContext(outputChannel: vscode.OutputChannel): Promise
 }
 
 /**
- * 打开同步文件
+ * 打开上下文文件
  */
-export function openSyncFile(): void {
+export function openContextFile(): void {
     const workspaceFolders = vscode.workspace.workspaceFolders;
     if (!workspaceFolders) {
         vscode.window.showErrorMessage('No workspace open.');
         return;
     }
+
     const root = workspaceFolders[0].uri.fsPath;
     const filePath = path.join(root, '.cobridge', 'AI_CONTEXT.md');
+
     if (fs.existsSync(filePath)) {
         vscode.window.showTextDocument(vscode.Uri.file(filePath));
     } else {
-        vscode.window.showErrorMessage('No sync file found yet.');
+        vscode.window.showErrorMessage('No context file found yet.');
     }
 }

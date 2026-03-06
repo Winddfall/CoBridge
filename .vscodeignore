@@ -1,0 +1,24 @@
+# 1. 排除开发环境配置
+.vscode/**
+.vscode-test/**
+.github/**
+.git/**
+.gitignore
+.vscodeignore
+
+# 2. 排除所有源代码 (VS Code 运行的是编译后的 JS)
+src/**
+tsconfig.json
+package-lock.json
+
+# 3. 排除测试和文档
+out/test/**
+docs/**
+vsc-extension-quickstart.md
+
+# 4. 排除项目特定的非运行资源
+# 如果你的图片只用于市场展示而非插件 UI 内部使用，可以排除
+images/**
+
+# 5. 排除 node_modules (vsce 会自动处理大部分生产依赖，但可以手动优化)
+**/node_modules/**

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { startServer, stopServer } from './services/syncServer';
-import { clearContext } from './services/contextService';
+import { clearContext, openContextFile } from './services/contextService';
 import { showMenuCommand } from './commands/menuCommand';
 
 let outputChannel: vscode.OutputChannel;
@@ -10,21 +10,25 @@ export function activate(context: vscode.ExtensionContext) {
     try {
         console.log('CoBridge: Activating...');
 
-        // 1. 初始化 Output Channel
+        // 初始化 Output Channel
         outputChannel = vscode.window.createOutputChannel("CoBridge");
         outputChannel.appendLine('🚀 CoBridge is starting...');
 
-        // 2. 初始化状态栏
+        // 初始化状态栏
         statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-        statusBarItem.command = 'ai-context-sync.showMenu';
+        statusBarItem.command = 'cobridge.showMenu';
+        // 登记待回收资源
         context.subscriptions.push(statusBarItem);
+        // 更新状态栏
         updateStatusBarItem(false);
 
-        // 3. 注册命令
+        // 注册命令
         registerCommands(context);
 
-        // 4. 监听配置变更
+        // 监听配置变更
+        // 如果配置改变就重启服务器
         context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(e => {
+            // 如果端口配置改变就重启服务器
             if (e.affectsConfiguration('AIContextSync.port')) {
                 outputChannel.appendLine('⚙️ Port configuration changed, restarting server...');
                 stopServer(outputChannel, updateStatusBarItem);
@@ -32,12 +36,8 @@ export function activate(context: vscode.ExtensionContext) {
             }
         }));
 
-        // 5. 自动启动服务器
+        // 自动启动服务器
         startServer(outputChannel, updateStatusBarItem);
-
-        // 6. 成功提示
-        vscode.window.showInformationMessage('CoBridge is ready!');
-
     } catch (error: any) {
         console.error('Activation failed:', error);
         vscode.window.showErrorMessage(`CoBridge Activation Error: ${error.message}`);
@@ -46,31 +46,36 @@ export function activate(context: vscode.ExtensionContext) {
 
 function registerCommands(context: vscode.ExtensionContext) {
     // 菜单命令
-    const menuCmd = vscode.commands.registerCommand('ai-context-sync.showMenu', () => {
+    const menuCmd = vscode.commands.registerCommand('cobridge.showMenu', () => {
         showMenuCommand(outputChannel, updateStatusBarItem);
     });
 
     // 独立命令
-    const startCmd = vscode.commands.registerCommand('ai-context-sync.startServer', () => {
+    const startCmd = vscode.commands.registerCommand('cobridge.startServer', () => {
         startServer(outputChannel, updateStatusBarItem);
     });
 
-    const stopCmd = vscode.commands.registerCommand('ai-context-sync.stopServer', () => {
+    const stopCmd = vscode.commands.registerCommand('cobridge.stopServer', () => {
         stopServer(outputChannel, updateStatusBarItem);
     });
 
-    const clearCmd = vscode.commands.registerCommand('ai-context-sync.clearContext', () => {
+    const openCmd = vscode.commands.registerCommand('cobridge.openContext', () => {
+        openContextFile();
+    });
+
+    const clearCmd = vscode.commands.registerCommand('cobridge.clearContext', () => {
         clearContext(outputChannel);
     });
 
-    context.subscriptions.push(menuCmd, startCmd, stopCmd, clearCmd);
+    // 登记待回收资源
+    context.subscriptions.push(menuCmd, startCmd, stopCmd, openCmd, clearCmd);
 }
 
 /**
  * 更新状态栏显示
  */
-function updateStatusBarItem(active: boolean): void {
-    if (active) {
+function updateStatusBarItem(isActive: boolean): void {
+    if (isActive) {
         statusBarItem.text = '$(sync~spin) CoBridge: On';
         statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');
         statusBarItem.tooltip = 'CoBridge Server is Running';

@@ -4,9 +4,9 @@ import * as fs from 'fs';
  * 确保目录存在，如果不存在则递归创建
  * @param dirPath 目录路径
  */
-export function ensureDirectory(dirPath: string): void {
+export function ensureDirectory(dirPath: string) {
     if (!fs.existsSync(dirPath)) {
-        fs.mkdirSync(dirPath, { recursive: true });
+        fs.mkdirSync(dirPath, { recursive: true }); // recursive: true 表示递归创建目录
     }
 }
 
@@ -15,7 +15,7 @@ export function ensureDirectory(dirPath: string): void {
  * @param filePath 文件路径
  * @param defaultContent 默认内容
  */
-export function ensureFile(filePath: string, defaultContent: string): void {
+export function ensureFile(filePath: string, defaultContent: string) {
     if (!fs.existsSync(filePath)) {
         fs.writeFileSync(filePath, defaultContent, 'utf8');
     }
@@ -34,9 +34,12 @@ export function updateRulesFile(
     keyword: string,
     appendContent: string
 ): void {
+    // 如果不存在这个规则文件
     if (!fs.existsSync(filePath)) {
         fs.writeFileSync(filePath, defaultContent, 'utf8');
-    } else {
+    } 
+    // 如果存在这个规则文件，检查是否包含关键字
+    else {
         const content = fs.readFileSync(filePath, 'utf8');
         if (!content.includes(keyword)) {
             fs.appendFileSync(filePath, appendContent);
@@ -51,6 +54,7 @@ export function updateRulesFile(
  * @param comment 注释说明
  */
 export function appendToGitignore(gitignorePath: string, pattern: string, comment: string): void {
+    // 确保文件存在
     ensureFile(gitignorePath, '# Git Ignore File\n');
     const content = fs.readFileSync(gitignorePath, 'utf8');
     if (!content.includes(pattern)) {
