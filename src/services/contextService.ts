@@ -36,6 +36,7 @@ export async function saveContext(data: MessageData[]): Promise<void> {
     const TRAE_RULES_PATH = path.join(ROOT_PATH, '.traerules'); // .traerules 文件
     const CURSOR_RULES_PATH = path.join(ROOT_PATH, '.cursorrules'); // .cursorrules 文件
     const CLAUDE_CODE_RULES_PATH = path.join(ROOT_PATH, 'CLAUDE.md') // CLAUDE.md 文件
+    const CODEX_RULES_PATH = path.join(ROOT_PATH, 'AGENTS.md'); // Codex AGENTS.md 文件
     const ANTIGRAVITY_RULES_DIR = path.join(ROOT_PATH, '.agents', 'rules'); // .agents/rules 目录
     const ANTIGRAVITY_RULES_PATH = path.join(ANTIGRAVITY_RULES_DIR, 'system.md'); // .agents/rules/system.md 文件
     const GITIGNORE_PATH = path.join(ROOT_PATH, '.gitignore'); // .gitignore 文件
@@ -61,7 +62,13 @@ export async function saveContext(data: MessageData[]): Promise<void> {
     fs.writeFileSync(CONTEXT_PATH, context_md, 'utf8');
 
     // 更新所有 Agent 规则文件
-    updateAllRulesFile(TRAE_RULES_PATH, CURSOR_RULES_PATH, COPILOT_RULES_PATH, ANTIGRAVITY_RULES_PATH, CLAUDE_CODE_RULES_PATH);
+    updateAllRulesFile(TRAE_RULES_PATH, 
+        CURSOR_RULES_PATH, 
+        COPILOT_RULES_PATH, 
+        ANTIGRAVITY_RULES_PATH, 
+        CLAUDE_CODE_RULES_PATH, 
+        CODEX_RULES_PATH
+    );
 
     // 更新 .gitignore
     updateGitignore(GITIGNORE_PATH);
@@ -113,36 +120,44 @@ function updateAllRulesFile(traeRulesPath: string,
     cursorRulesPath: string, 
     copilotRulesPath: string, 
     antigravityRulesPath: string,
-    claudecodeRulesPath: string) {
+    claudecodeRulesPath: string,
+    codexRulesPath: string
+) {
     updateRulesFile(
         traeRulesPath,
-        '# Trae Rules\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n',
+        '# Trae Rules\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n',
         'AI_CONTEXT.md',
-        '\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n'
+        '\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n'
     );
     updateRulesFile(
         cursorRulesPath,
-        '# Cursor Rules\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n',
+        '# Cursor Rules\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n',
         'AI_CONTEXT.md',
-        '\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n'
+        '\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n'
     );
     updateRulesFile(
         copilotRulesPath,
-        '# Copilot Instructions\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n',
+        '# Copilot Instructions\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n',
         'AI_CONTEXT.md',
-        '\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n'
+        '\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n'
     );
     updateRulesFile(
         antigravityRulesPath,
-        '---\ntrigger: always_on\n---\n# Antigravity Rules\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n',
+        '---\ntrigger: always_on\n---\n# Antigravity Rules\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n',
         'AI_CONTEXT.md',
-        '\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n'
+        '\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n'
     );
     updateRulesFile(
         claudecodeRulesPath,
-        '# Claude Code Rules\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n',
+        '# Claude Code Rules\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n',
         'AI_CONTEXT.md',
-        '\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n'
+        '\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n'
+    );
+    updateRulesFile(
+        codexRulesPath,
+        '# Codex Rules\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n',
+        'AI_CONTEXT.md',
+        '\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n'
     );
 }
 
@@ -156,6 +171,7 @@ function updateGitignore(gitignorePath: string) {
     appendToGitignore(gitignorePath, '.github/copilot-instructions.md', 'GitHub Copilot Instructions');
     appendToGitignore(gitignorePath, '.agents/rules/system.md', 'Antigravity Rules');
     appendToGitignore(gitignorePath, 'CLAUDE.md', 'Claude Code Rules');
+    appendToGitignore(gitignorePath, 'AGENTS.md', 'Codex Rules');
 }
 
 /**
