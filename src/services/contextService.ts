@@ -35,6 +35,9 @@ export async function saveContext(data: MessageData[]): Promise<void> {
     const GITHUB_PATH = path.join(ROOT_PATH, '.github'); // .github 目录
     const TRAE_RULES_PATH = path.join(ROOT_PATH, '.traerules'); // .traerules 文件
     const CURSOR_RULES_PATH = path.join(ROOT_PATH, '.cursorrules'); // .cursorrules 文件
+    const CLAUDE_CODE_RULES_PATH = path.join(ROOT_PATH, 'CLAUDE.md') // CLAUDE.md 文件
+    const ANTIGRAVITY_RULES_DIR = path.join(ROOT_PATH, '.agents', 'rules'); // .agents/rules 目录
+    const ANTIGRAVITY_RULES_PATH = path.join(ANTIGRAVITY_RULES_DIR, 'system.md'); // .agents/rules/system.md 文件
     const GITIGNORE_PATH = path.join(ROOT_PATH, '.gitignore'); // .gitignore 文件
     const IMAGES_PATH = path.join(COBRIDGE_PATH, 'images'); // images 目录
     const CONTEXT_PATH = path.join(COBRIDGE_PATH, 'AI_CONTEXT.md'); // AI_CONTEXT.md 文件
@@ -43,6 +46,7 @@ export async function saveContext(data: MessageData[]): Promise<void> {
     // 创建必要的目录和文件
     ensureDirectory(COBRIDGE_PATH);
     ensureDirectory(GITHUB_PATH);
+    ensureDirectory(ANTIGRAVITY_RULES_DIR);
     ensureDirectory(IMAGES_PATH);
     ensureFile(CONTEXT_PATH, '# AI Context Sync \n\n');
 
@@ -56,8 +60,8 @@ export async function saveContext(data: MessageData[]): Promise<void> {
     // 写入 AI_CONTEXT.md
     fs.writeFileSync(CONTEXT_PATH, context_md, 'utf8');
 
-    // 更新规则文件
-    updateAllRulesFile(TRAE_RULES_PATH, CURSOR_RULES_PATH, COPILOT_RULES_PATH);
+    // 更新所有 Agent 规则文件
+    updateAllRulesFile(TRAE_RULES_PATH, CURSOR_RULES_PATH, COPILOT_RULES_PATH, ANTIGRAVITY_RULES_PATH, CLAUDE_CODE_RULES_PATH);
 
     // 更新 .gitignore
     updateGitignore(GITIGNORE_PATH);
@@ -105,7 +109,11 @@ function writeDownContext(messages: MessageData[], imagesPath: string): string {
 /**
  * 更新所有规则文件
  */
-function updateAllRulesFile(traeRulesPath: string, cursorRulesPath: string, copilotRulesPath: string) {
+function updateAllRulesFile(traeRulesPath: string, 
+    cursorRulesPath: string, 
+    copilotRulesPath: string, 
+    antigravityRulesPath: string,
+    claudecodeRulesPath: string) {
     updateRulesFile(
         traeRulesPath,
         '# Trae Rules\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n',
@@ -124,6 +132,18 @@ function updateAllRulesFile(traeRulesPath: string, cursorRulesPath: string, copi
         'AI_CONTEXT.md',
         '\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n'
     );
+    updateRulesFile(
+        antigravityRulesPath,
+        '---\ntrigger: always_on\n---\n# Antigravity Rules\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n',
+        'AI_CONTEXT.md',
+        '\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n'
+    );
+    updateRulesFile(
+        claudecodeRulesPath,
+        '# Claude Code Rules\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n',
+        'AI_CONTEXT.md',
+        '\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n'
+    );
 }
 
 /**
@@ -134,6 +154,8 @@ function updateGitignore(gitignorePath: string) {
     appendToGitignore(gitignorePath, '.traerules', '.traerules');
     appendToGitignore(gitignorePath, '.cursorrules', '.cursorrules');
     appendToGitignore(gitignorePath, '.github/copilot-instructions.md', 'GitHub Copilot Instructions');
+    appendToGitignore(gitignorePath, '.agents/rules/system.md', 'Antigravity Rules');
+    appendToGitignore(gitignorePath, 'CLAUDE.md', 'Claude Code Rules');
 }
 
 /**

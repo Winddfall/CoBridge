@@ -54,7 +54,7 @@ export function updateRulesFile(
  * @param comment 注释说明
  */
 export function appendToGitignore(gitignorePath: string, pattern: string, comment: string): void {
-    // 确保文件存在
+    // 确保 .gitignore 文件存在
     ensureFile(gitignorePath, '# Git Ignore File\n');
     const content = fs.readFileSync(gitignorePath, 'utf8');
     if (!content.includes(pattern)) {

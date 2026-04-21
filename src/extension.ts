@@ -44,6 +44,9 @@ export function activate(context: vscode.ExtensionContext) {
     }
 }
 
+/**
+ * 注册命令
+ */
 function registerCommands(context: vscode.ExtensionContext) {
     // 菜单命令
     const menuCmd = vscode.commands.registerCommand('cobridge.showMenu', () => {
