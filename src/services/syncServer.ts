@@ -111,7 +111,7 @@ function handleRequest(
     if (req.method === 'POST' && req.url === '/sync') {
         let body = '';
         // 接收请求体
-        req.on('data', chunk => body += chunk); // 流式传输
+        req.on('data', (chunk: string) => body += chunk); // 流式传输
         // 请求结束
         req.on('end', async () => {
             try {
