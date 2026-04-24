@@ -70,6 +70,7 @@
   "devDependencies": {
     "@types/node": "^20.19.39",
     "@types/vscode": "^1.50.0",
+    "sponsorkit": "^17.1.0",
     "typescript": "^6.0.3"
   }
 }
