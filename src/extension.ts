@@ -16,7 +16,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         // 初始化状态栏
         statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-        statusBarItem.command = 'cobridge.showMenu';
+        statusBarItem.command = 'cobridge.showMenu'; // 点击状态栏时执行的命令
         // 登记待回收资源
         context.subscriptions.push(statusBarItem);
         // 更新状态栏
@@ -45,7 +45,7 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 /**
- * 注册命令
+ * 注册命令：把命令名和函数绑定
  */
 function registerCommands(context: vscode.ExtensionContext) {
     // 菜单命令

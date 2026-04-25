@@ -41,7 +41,7 @@ export function startServer(
         return;
     }
 
-    /* 如果服务器还没开启 */
+    /* 如果服务器还没开启且已经打开工作区 */
     // 确认端口
     const config = vscode.workspace.getConfiguration('AIContextSync');
     const port = config.get<number>('port') || 3030; // 默认值兜底：如果||左边是undefined，则取右边
