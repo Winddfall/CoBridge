@@ -143,7 +143,7 @@ VS Code 확장 마켓플레이스를 열고 **CoBridge**를 검색하여 설치�
 
 <div align="center">
   
-  <p><b>WeChat / Alipay / Afdian을 통해 후원:</b></p>
+  <p><b>WeChat / Alipay / Afdian 을 통해 후원:</b></p>
   <table align="center" border="0" cellpadding="0" cellspacing="0">
     <tr>
       <td align="center">
@@ -155,11 +155,11 @@ VS Code 확장 마켓플레이스를 열고 **CoBridge**를 검색하여 설치�
         <sub><b>Alipay</b></sub>
       </td>
       <td align="center">
-        <a href="https://afdian.com/a/Winddfall" target="_blank">
+        <a href="https://afdian.com/a/Wind_fall" target="_blank">
           <picture>
-            <source media="(prefers-color-scheme: dark)" srcset="https://afdian-connect.deno.dev/profile.svg?slug=Winddfall&bg_color=%230d1117&text_color=%23dedbd7&border_color=%232e343d" />
-            <source media="(prefers-color-scheme: light)" srcset="https://afdian-connect.deno.dev/profile.svg?slug=Winddfall" />
-            <img alt="Winddfall's Profile" src="https://afdian-connect.deno.dev/profile.svg?slug=Winddfall" height="160" />
+            <source media="(prefers-color-scheme: dark)" srcset="https://afdian-connect.deno.dev/profile.svg?slug=Wind_fall&bg_color=%230d1117&text_color=%23dedbd7&border_color=%232e343d" />
+            <source media="(prefers-color-scheme: light)" srcset="https://afdian-connect.deno.dev/profile.svg?slug=Wind_fall" />
+            <img alt="Wind_fall's Profile" src="https://afdian-connect.deno.dev/profile.svg?slug=Wind_fall" height="160" />
           </picture>
         </a><br>
         <sub><b>Afdian</b></sub>
