@@ -154,11 +154,11 @@ Your support will be directly used to maintain subsequent iterations of the proj
         <sub><b>Alipay</b></sub>
       </td>
       <td align="center">
-        <a href="https://afdian.com/a/Wind-fall" target="_blank">
+        <a href="https://afdian.com/a/Wind_fall" target="_blank">
           <picture>
-            <source media="(prefers-color-scheme: dark)" srcset="https://afdian-connect.deno.dev/profile.svg?slug=Wind-fall&bg_color=%230d1117&text_color=%23dedbd7&border_color=%232e343d" />
-            <source media="(prefers-color-scheme: light)" srcset="https://afdian-connect.deno.dev/profile.svg?slug=Winddfall" />
-            <img alt="Wind-fall's Profile" src="https://afdian-connect.deno.dev/profile.svg?slug=Wind-fall" height="160" />
+            <source media="(prefers-color-scheme: dark)" srcset="https://afdian-connect.deno.dev/profile.svg?slug=Wind_fall&bg_color=%230d1117&text_color=%23dedbd7&border_color=%232e343d" />
+            <source media="(prefers-color-scheme: light)" srcset="https://afdian-connect.deno.dev/profile.svg?slug=Wind_fall" />
+            <img alt="Wind_fall's Profile" src="https://afdian-connect.deno.dev/profile.svg?slug=Wind_fall" height="160" />
           </picture>
         </a><br>
         <sub><b>Afdian</b></sub>
