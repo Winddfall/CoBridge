@@ -19,7 +19,7 @@ export function activate(context: vscode.ExtensionContext) {
         statusBarItem.command = 'cobridge.showMenu'; // 点击状态栏时执行的命令
         // 登记待回收资源
         context.subscriptions.push(statusBarItem);
-        // 更新状态栏
+        // 更新状态栏系统
         updateStatusBarItem(false);
 
         // 注册命令

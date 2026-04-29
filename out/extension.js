@@ -49,10 +49,10 @@ function activate(context) {
         outputChannel.appendLine('🚀 CoBridge is starting...');
         // 初始化状态栏
         statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-        statusBarItem.command = 'cobridge.showMenu';
+        statusBarItem.command = 'cobridge.showMenu'; // 点击状态栏时执行的命令
         // 登记待回收资源
         context.subscriptions.push(statusBarItem);
-        // 更新状态栏
+        // 更新状态栏系统
         updateStatusBarItem(false);
         // 注册命令
         registerCommands(context);
@@ -75,7 +75,7 @@ function activate(context) {
     }
 }
 /**
- * 注册命令
+ * 注册命令：把命令名和函数绑定
  */
 function registerCommands(context) {
     // 菜单命令
