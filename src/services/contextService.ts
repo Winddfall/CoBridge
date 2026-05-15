@@ -195,6 +195,7 @@ async function handleAntigravity(data: MessageData[]) {
     ensureDirectory(COBRIDGE_PATH);
     ensureDirectory(IMAGES_PATH);
     ensureFile(CONTEXT_PATH, '# AI Context Sync \n\n');
+    ensureDirectory(ANTIGRAVITY_RULES_DIR);
 
     let messages: MessageData[] = [];
     if (Array.isArray(data)) {
