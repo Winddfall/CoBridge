@@ -2,7 +2,7 @@
   "name": "co-bridge",
   "displayName": "CoBridge",
   "description": "Seamlessly sync your web AI conversations to your local IDE.",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "packageManager": "pnpm@8.15.4",
   "publisher": "windfall",
   "repository": {
@@ -50,6 +50,10 @@
       {
         "command": "cobridge.clearContext",
         "title": "CoBridge: Clear Context File"
+      },
+      {
+        "command": "cobridge.selectAgent",
+        "title": "CoBridge: Select Agent"
       }
     ],
     "configuration": {

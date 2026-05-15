@@ -5,7 +5,7 @@ import * as fs from 'fs';
  * @param base64String Base64 编码的图片字符串（包含 data:image/xxx;base64, 前缀）
  * @param outputPath 输出文件路径
  */
-export function saveBase64AsPng(base64String: string, outputPath: string): void {
+export async function saveBase64AsPng(base64String: string, outputPath: string): Promise<void> {
     // 去掉 Base64 头部（例如: "data:image/png;base64,"）
     const base64Image = base64String.split(';base64,').pop() || '';
 

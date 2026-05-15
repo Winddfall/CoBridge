@@ -33,6 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.agent = void 0;
 exports.activate = activate;
 exports.deactivate = deactivate;
 const vscode = __importStar(require("vscode"));
@@ -41,6 +42,7 @@ const contextService_1 = require("./services/contextService");
 const menuCommand_1 = require("./commands/menuCommand");
 let outputChannel;
 let statusBarItem;
+exports.agent = null;
 function activate(context) {
     try {
         console.log('CoBridge: Activating...');
@@ -101,16 +103,19 @@ function registerCommands(context) {
 /**
  * 更新状态栏显示
  */
-function updateStatusBarItem(isActive) {
+function updateStatusBarItem(isActive, agentName = null) {
     if (isActive) {
-        statusBarItem.text = '$(sync~spin) CoBridge: On';
+        statusBarItem.text = '$(sync~spin) CoBridge: ' + agentName;
         statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');
-        statusBarItem.tooltip = 'CoBridge Server is Running';
     }
     else {
-        statusBarItem.text = '$(circle-slash) CoBridge: Off';
+        if (agentName == null) {
+            statusBarItem.text = 'CoBridge: Select An Agent';
+        }
+        else {
+            statusBarItem.text = 'CoBridge: ' + agentName;
+        }
         statusBarItem.backgroundColor = undefined;
-        statusBarItem.tooltip = 'CoBridge Server is Stopped';
     }
     statusBarItem.show();
 }

@@ -1,7 +1,10 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import { isServerRunning } from '../services/syncServer';
 import { saveBase64AsPng, ensureDirectory, ensureFile, updateRulesFile, appendToGitignore } from '../utils';
+
+export let agent: string | null = null;
 
 /**
  * 消息数据接口
@@ -23,22 +26,38 @@ export interface MessageData {
  */
 // 函数内包含异步操作
 export async function saveContext(data: MessageData[]): Promise<void> {
+    switch (agent) {
+        case 'copilot':
+            handleCopilot(data);
+            break;
+        case 'trae':
+            handleTrae(data);
+            break;
+        case 'cursor':
+            handleCursor(data);
+            break;
+        case 'antigravity':
+            handleAntigravity(data);
+            break;
+        case 'claude code':
+            handleClaudeCode(data);
+            break;
+        case 'codex':
+            handleCodex(data);
+            break;
+    }
+}
+
+async function handleCopilot(data: MessageData[]) {
     // 工作区路径
     const WORKSPACE_FOLDERS = vscode.workspace.workspaceFolders;
     if (!WORKSPACE_FOLDERS) {
         vscode.window.showErrorMessage('No workspace open.');
         return;
     }
-
     const ROOT_PATH = WORKSPACE_FOLDERS[0].uri.fsPath; // 工作区根目录
     const COBRIDGE_PATH = path.join(ROOT_PATH, '.cobridge'); // .cobridge 目录
     const GITHUB_PATH = path.join(ROOT_PATH, '.github'); // .github 目录
-    const TRAE_RULES_PATH = path.join(ROOT_PATH, '.traerules'); // .traerules 文件
-    const CURSOR_RULES_PATH = path.join(ROOT_PATH, '.cursorrules'); // .cursorrules 文件
-    const CLAUDE_CODE_RULES_PATH = path.join(ROOT_PATH, 'CLAUDE.md') // CLAUDE.md 文件
-    const CODEX_RULES_PATH = path.join(ROOT_PATH, 'AGENTS.md'); // Codex AGENTS.md 文件
-    const ANTIGRAVITY_RULES_DIR = path.join(ROOT_PATH, '.agents', 'rules'); // .agents/rules 目录
-    const ANTIGRAVITY_RULES_PATH = path.join(ANTIGRAVITY_RULES_DIR, 'system.md'); // .agents/rules/system.md 文件
     const GITIGNORE_PATH = path.join(ROOT_PATH, '.gitignore'); // .gitignore 文件
     const IMAGES_PATH = path.join(COBRIDGE_PATH, 'images'); // images 目录
     const CONTEXT_PATH = path.join(COBRIDGE_PATH, 'AI_CONTEXT.md'); // AI_CONTEXT.md 文件
@@ -47,7 +66,6 @@ export async function saveContext(data: MessageData[]): Promise<void> {
     // 创建必要的目录和文件
     ensureDirectory(COBRIDGE_PATH);
     ensureDirectory(GITHUB_PATH);
-    ensureDirectory(ANTIGRAVITY_RULES_DIR);
     ensureDirectory(IMAGES_PATH);
     ensureFile(CONTEXT_PATH, '# AI Context Sync \n\n');
 
@@ -56,31 +74,242 @@ export async function saveContext(data: MessageData[]): Promise<void> {
         messages = data;
     }
 
-    const context_md = writeDownContext(messages, IMAGES_PATH);
+    const context_md = await writeDownContext(messages, IMAGES_PATH);
 
     // 写入 AI_CONTEXT.md
     fs.writeFileSync(CONTEXT_PATH, context_md, 'utf8');
 
-    // 更新所有 Agent 规则文件
-    updateAllRulesFile(TRAE_RULES_PATH, 
-        CURSOR_RULES_PATH, 
-        COPILOT_RULES_PATH, 
-        ANTIGRAVITY_RULES_PATH, 
-        CLAUDE_CODE_RULES_PATH, 
-        CODEX_RULES_PATH
+    // 更新 Agent 规则文件
+    updateRulesFile(
+        COPILOT_RULES_PATH,
+        '# Copilot Instructions\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n',
+        'AI_CONTEXT.md',
+        '\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n'
     );
 
     // 更新 .gitignore
-    updateGitignore(GITIGNORE_PATH);
+    appendToGitignore(GITIGNORE_PATH, '.cobridge', 'AI Context');
+    appendToGitignore(GITIGNORE_PATH, '.github/copilot-instructions.md', 'GitHub Copilot Instructions');
 }
 
-// 写入上下文
-function writeDownContext(messages: MessageData[], imagesPath: string): string {
+async function handleTrae(data: MessageData[]) {
+    // 工作区路径
+    const WORKSPACE_FOLDERS = vscode.workspace.workspaceFolders;
+    if (!WORKSPACE_FOLDERS) {
+        vscode.window.showErrorMessage('No workspace open.');
+        return;
+    }
+    const ROOT_PATH = WORKSPACE_FOLDERS[0].uri.fsPath; // 工作区根目录
+    const COBRIDGE_PATH = path.join(ROOT_PATH, '.cobridge'); // .cobridge 目录
+    const GITIGNORE_PATH = path.join(ROOT_PATH, '.gitignore'); // .gitignore 文件
+    const IMAGES_PATH = path.join(COBRIDGE_PATH, 'images'); // images 目录
+    const CONTEXT_PATH = path.join(COBRIDGE_PATH, 'AI_CONTEXT.md'); // AI_CONTEXT.md 文件
+    const TRAE_RULES_PATH = path.join(ROOT_PATH, '.traerules'); // .traerules 文件
+
+    // 创建必要的目录和文件
+    ensureDirectory(COBRIDGE_PATH);
+    ensureDirectory(IMAGES_PATH);
+    ensureFile(CONTEXT_PATH, '# AI Context Sync \n\n');
+
+    let messages: MessageData[] = [];
+    if (Array.isArray(data)) {
+        messages = data;
+    }
+
+    const context_md = await writeDownContext(messages, IMAGES_PATH);
+
+    // 写入 AI_CONTEXT.md
+    fs.writeFileSync(CONTEXT_PATH, context_md, 'utf8');
+
+    // 更新 Agent 规则文件
+    updateRulesFile(
+        TRAE_RULES_PATH,
+        '# Trae Rules\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n',
+        'AI_CONTEXT.md',
+        '\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n'
+    );
+
+    // 更新 .gitignore
+    appendToGitignore(GITIGNORE_PATH, '.cobridge', 'AI Context');
+    appendToGitignore(GITIGNORE_PATH, '.traerules', '.traerules');
+}
+
+async function handleCursor(data: MessageData[]) {
+    // 工作区路径
+    const WORKSPACE_FOLDERS = vscode.workspace.workspaceFolders;
+    if (!WORKSPACE_FOLDERS) {
+        vscode.window.showErrorMessage('No workspace open.');
+        return;
+    }
+    const ROOT_PATH = WORKSPACE_FOLDERS[0].uri.fsPath; // 工作区根目录
+    const COBRIDGE_PATH = path.join(ROOT_PATH, '.cobridge'); // .cobridge 目录
+    const GITIGNORE_PATH = path.join(ROOT_PATH, '.gitignore'); // .gitignore 文件
+    const IMAGES_PATH = path.join(COBRIDGE_PATH, 'images'); // images 目录
+    const CONTEXT_PATH = path.join(COBRIDGE_PATH, 'AI_CONTEXT.md'); // AI_CONTEXT.md 文件
+    const CURSOR_RULES_PATH = path.join(ROOT_PATH, '.cursorrules'); // .cursorrules 文件
+
+    // 创建必要的目录和文件
+    ensureDirectory(COBRIDGE_PATH);
+    ensureDirectory(IMAGES_PATH);
+    ensureFile(CONTEXT_PATH, '# AI Context Sync \n\n');
+
+    let messages: MessageData[] = [];
+    if (Array.isArray(data)) {
+        messages = data;
+    }
+
+    const context_md = await writeDownContext(messages, IMAGES_PATH);
+
+    // 写入 AI_CONTEXT.md
+    fs.writeFileSync(CONTEXT_PATH, context_md, 'utf8');
+
+    // 更新 Agent 规则文件
+    updateRulesFile(
+        CURSOR_RULES_PATH,
+        '# Cursor Rules\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n',
+        'AI_CONTEXT.md',
+        '\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n'
+    );
+
+    // 更新 .gitignore
+    appendToGitignore(GITIGNORE_PATH, '.cobridge', 'AI Context');
+    appendToGitignore(GITIGNORE_PATH, '.cursorrules', '.cursorrules');
+}
+
+async function handleAntigravity(data: MessageData[]) {
+    // 工作区路径
+    const WORKSPACE_FOLDERS = vscode.workspace.workspaceFolders;
+    if (!WORKSPACE_FOLDERS) {
+        vscode.window.showErrorMessage('No workspace open.');
+        return;
+    }
+    const ROOT_PATH = WORKSPACE_FOLDERS[0].uri.fsPath; // 工作区根目录
+    const COBRIDGE_PATH = path.join(ROOT_PATH, '.cobridge'); // .cobridge 目录
+    const GITIGNORE_PATH = path.join(ROOT_PATH, '.gitignore'); // .gitignore 文件
+    const IMAGES_PATH = path.join(COBRIDGE_PATH, 'images'); // images 目录
+    const CONTEXT_PATH = path.join(COBRIDGE_PATH, 'AI_CONTEXT.md'); // AI_CONTEXT.md 文件
+    const ANTIGRAVITY_RULES_DIR = path.join(ROOT_PATH, '.agents', 'rules'); // .agents/rules 目录
+    const ANTIGRAVITY_RULES_PATH = path.join(ANTIGRAVITY_RULES_DIR, 'system.md'); // .agents/rules/system.md 文件
+
+    // 创建必要的目录和文件
+    ensureDirectory(COBRIDGE_PATH);
+    ensureDirectory(IMAGES_PATH);
+    ensureFile(CONTEXT_PATH, '# AI Context Sync \n\n');
+
+    let messages: MessageData[] = [];
+    if (Array.isArray(data)) {
+        messages = data;
+    }
+
+    const context_md = await writeDownContext(messages, IMAGES_PATH);
+
+    // 写入 AI_CONTEXT.md
+    fs.writeFileSync(CONTEXT_PATH, context_md, 'utf8');
+
+    // 更新 Agent 规则文件
+    updateRulesFile(
+        ANTIGRAVITY_RULES_PATH,
+        '---\ntrigger: always_on\n---\n# Antigravity Rules\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n',
+        'AI_CONTEXT.md',
+        '\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n'
+    );
+
+    // 更新 .gitignore
+    appendToGitignore(GITIGNORE_PATH, '.cobridge', 'AI Context');
+    appendToGitignore(GITIGNORE_PATH, '.agents/rules/system.md', 'Antigravity Rules');
+}
+
+async function handleCodex(data: MessageData[]) {
+    // 工作区路径
+    const WORKSPACE_FOLDERS = vscode.workspace.workspaceFolders;
+    if (!WORKSPACE_FOLDERS) {
+        vscode.window.showErrorMessage('No workspace open.');
+        return;
+    }
+    const ROOT_PATH = WORKSPACE_FOLDERS[0].uri.fsPath; // 工作区根目录
+    const COBRIDGE_PATH = path.join(ROOT_PATH, '.cobridge'); // .cobridge 目录
+    const GITIGNORE_PATH = path.join(ROOT_PATH, '.gitignore'); // .gitignore 文件
+    const IMAGES_PATH = path.join(COBRIDGE_PATH, 'images'); // images 目录
+    const CONTEXT_PATH = path.join(COBRIDGE_PATH, 'AI_CONTEXT.md'); // AI_CONTEXT.md 文件
+    const CODEX_RULES_PATH = path.join(ROOT_PATH, 'AGENTS.md'); // Codex AGENTS.md 文件
+
+    // 创建必要的目录和文件
+    ensureDirectory(COBRIDGE_PATH);
+    ensureDirectory(IMAGES_PATH);
+    ensureFile(CONTEXT_PATH, '# AI Context Sync \n\n');
+
+    let messages: MessageData[] = [];
+    if (Array.isArray(data)) {
+        messages = data;
+    }
+
+    const context_md = await writeDownContext(messages, IMAGES_PATH);
+
+    // 写入 AI_CONTEXT.md
+    fs.writeFileSync(CONTEXT_PATH, context_md, 'utf8');
+
+    // 更新 Agent 规则文件
+    updateRulesFile(
+        CODEX_RULES_PATH,
+        '# Codex Rules\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n',
+        'AI_CONTEXT.md',
+        '\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n'
+    );
+
+    // 更新 .gitignore
+    appendToGitignore(GITIGNORE_PATH, '.cobridge', 'AI Context');
+    appendToGitignore(GITIGNORE_PATH, 'AGENTS.md', 'Codex Rules');
+}
+
+async function handleClaudeCode(data: MessageData[]) {
+    // 工作区路径
+    const WORKSPACE_FOLDERS = vscode.workspace.workspaceFolders;
+    if (!WORKSPACE_FOLDERS) {
+        vscode.window.showErrorMessage('No workspace open.');
+        return;
+    }
+    const ROOT_PATH = WORKSPACE_FOLDERS[0].uri.fsPath; // 工作区根目录
+    const COBRIDGE_PATH = path.join(ROOT_PATH, '.cobridge'); // .cobridge 目录
+    const GITIGNORE_PATH = path.join(ROOT_PATH, '.gitignore'); // .gitignore 文件
+    const IMAGES_PATH = path.join(COBRIDGE_PATH, 'images'); // images 目录
+    const CONTEXT_PATH = path.join(COBRIDGE_PATH, 'AI_CONTEXT.md'); // AI_CONTEXT.md 文件
+    const CLAUDE_CODE_RULES_PATH = path.join(ROOT_PATH, 'CLAUDE.md') // CLAUDE.md 文件
+
+    // 创建必要的目录和文件
+    ensureDirectory(COBRIDGE_PATH);
+    ensureDirectory(IMAGES_PATH);
+    ensureFile(CONTEXT_PATH, '# AI Context Sync \n\n');
+
+    let messages: MessageData[] = [];
+    if (Array.isArray(data)) {
+        messages = data;
+    }
+
+    const context_md = await writeDownContext(messages, IMAGES_PATH);
+
+    // 写入 AI_CONTEXT.md
+    fs.writeFileSync(CONTEXT_PATH, context_md, 'utf8');
+
+    // 更新 Agent 规则文件
+    updateRulesFile(
+        CLAUDE_CODE_RULES_PATH,
+        '# Claude Code Rules\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n',
+        'AI_CONTEXT.md',
+        '\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n'
+    );
+
+    // 更新 .gitignore
+    appendToGitignore(GITIGNORE_PATH, '.cobridge', 'AI Context');
+    appendToGitignore(GITIGNORE_PATH, 'CLAUDE.md', 'Claude Code Rules');
+}
+
+// 构建上下文
+async function writeDownContext(messages: MessageData[], imagesPath: string): Promise<string> {
     // 上下文标题
     let context_md = `# 🧠 AI Context (${new Date().toLocaleString()})\n\n`;
     // 遍历每条消息
     // msg是MessageData类型，msgIndex是消息的索引
-    messages.forEach((msg: MessageData, msgIndex: number) => {
+    messages.forEach(async (msg: MessageData, msgIndex: number) => {
         let imageIndex = 0; // 每条信息的图片索引初始值
         let role = 'Unknown'; // 角色
         if (msg.is_user_likely) {
@@ -99,7 +328,7 @@ function writeDownContext(messages: MessageData[], imagesPath: string): string {
                 const imageName = `context_img_${msgIndex + 1}_${imageIndex}.png`;
                 const imageFullPath = path.join(imagesPath, imageName); // 图片完整路径
                 // 保存图片文件
-                saveBase64AsPng(img, imageFullPath);
+                await saveBase64AsPng(img, imageFullPath);
                 // 在 Markdown 中添加图片引用（使用相对路径）
                 context_md += `![context_img_${msgIndex + 1}_${imageIndex}](./images/${imageName})\n\n`;
             }
@@ -111,67 +340,6 @@ function writeDownContext(messages: MessageData[], imagesPath: string): string {
         context_md += `---\n\n`;
     });
     return context_md;
-}
-
-/**
- * 更新所有规则文件
- */
-function updateAllRulesFile(traeRulesPath: string, 
-    cursorRulesPath: string, 
-    copilotRulesPath: string, 
-    antigravityRulesPath: string,
-    claudecodeRulesPath: string,
-    codexRulesPath: string
-) {
-    updateRulesFile(
-        traeRulesPath,
-        '# Trae Rules\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n',
-        'AI_CONTEXT.md',
-        '\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n'
-    );
-    updateRulesFile(
-        cursorRulesPath,
-        '# Cursor Rules\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n',
-        'AI_CONTEXT.md',
-        '\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n'
-    );
-    updateRulesFile(
-        copilotRulesPath,
-        '# Copilot Instructions\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n',
-        'AI_CONTEXT.md',
-        '\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n'
-    );
-    updateRulesFile(
-        antigravityRulesPath,
-        '---\ntrigger: always_on\n---\n# Antigravity Rules\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n',
-        'AI_CONTEXT.md',
-        '\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n'
-    );
-    updateRulesFile(
-        claudecodeRulesPath,
-        '# Claude Code Rules\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n',
-        'AI_CONTEXT.md',
-        '\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n'
-    );
-    updateRulesFile(
-        codexRulesPath,
-        '# Codex Rules\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n',
-        'AI_CONTEXT.md',
-        '\n## Context\nAlways refer to the historical context when answering：.cobridge/AI_CONTEXT.md\n'
-    );
-}
-
-/**
- * 更新 .gitignore
- */
-function updateGitignore(gitignorePath: string) {
-    appendToGitignore(gitignorePath, '.cobridge', 'AI Context');
-    appendToGitignore(gitignorePath, '.traerules', '.traerules');
-    appendToGitignore(gitignorePath, '.cursorrules', '.cursorrules');
-    appendToGitignore(gitignorePath, '.github/copilot-instructions.md', 'GitHub Copilot Instructions');
-    appendToGitignore(gitignorePath, '.agents/rules/system.md', 'Antigravity Rules');
-    appendToGitignore(gitignorePath, 'CLAUDE.md', 'Claude Code Rules');
-    appendToGitignore(gitignorePath, 'AGENTS.md', 'Codex Rules');
 }
 
 /**
@@ -218,4 +386,17 @@ export function openContextFile(): void {
     } else {
         vscode.window.showErrorMessage('No context file found yet.');
     }
+}
+
+/**
+ * 选择要同步的 Agent
+ */
+export function selectAgent(outputChannel: vscode.OutputChannel, agentName: string, 
+    statusBarCallback: (active: boolean, agentName: string) => void
+): void {
+    outputChannel.appendLine(`Selected Agent: ${agentName}`);
+    agent = agentName;
+    // 检查服务器状态
+    const serverRunning = isServerRunning();
+    statusBarCallback(serverRunning, agentName);
 }

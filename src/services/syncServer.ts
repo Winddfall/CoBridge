@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as http from 'http';
 import { saveContext, MessageData } from './contextService';
+import { agent } from './contextService';
 
 // 服务器：全局变量
 let server: http.Server | undefined; // :后面跟变量类型
@@ -16,7 +17,7 @@ export function getServer(): http.Server | undefined {
  * 检查服务器是否正在运行
  */
 export function isServerRunning(): boolean {
-    return server !== undefined;
+    return server != undefined;
 }
 
 /**
@@ -24,7 +25,7 @@ export function isServerRunning(): boolean {
  */
 export function startServer(
     outputChannel: vscode.OutputChannel, // 输出面板
-    statusBarCallback: (isActive: boolean) => void // 状态栏回调函数
+    statusBarCallback: (isActive: boolean, agentName: string | null) => void // 状态栏回调函数
 ): void {
     /* 如果服务器已经开启了 */
     if (server) {
@@ -38,6 +39,13 @@ export function startServer(
     if (!WORKSPACE_FOLDERS) {
         vscode.window.showErrorMessage('No workspace open.');
         outputChannel.appendLine('No workspace open.');
+        return;
+    }
+    
+    // 检查 agent
+    if (!agent) {
+        vscode.window.showErrorMessage('No agent selected. Please select an agent.');
+        outputChannel.appendLine('No agent selected. Please select an agent.');
         return;
     }
 
@@ -54,7 +62,7 @@ export function startServer(
             // 服务器启动之后就立刻执行这个函数
             const msg = `🚀 CoBridge Server running on port ${port}`;
             outputChannel.appendLine(msg); // 输出面板
-            statusBarCallback(true); // 状态栏显示运行
+            statusBarCallback(true, agent); // 状态栏显示运行
             vscode.window.showInformationMessage('CoBridge is ready!'); // 弹窗提示
         });
         // 监听错误
@@ -63,7 +71,7 @@ export function startServer(
             outputChannel.appendLine(msg);
             vscode.window.showErrorMessage(msg);
             server = undefined;
-            statusBarCallback(false); // 状态栏显示停止
+            statusBarCallback(false, null); // 状态栏显示停止
         });
     } catch (err: any) {
         vscode.window.showErrorMessage(`Failed to create server: ${err.message}`);
@@ -75,14 +83,14 @@ export function startServer(
  */
 export function stopServer(
     outputChannel: vscode.OutputChannel,
-    statusBarCallback: (active: boolean) => void
+    statusBarCallback: (active: boolean, agentName: string | null) => void
 ): void {
     /* 如果服务器已经开启了 */
     if (server) {
         server.close(); // 关闭服务器
         server = undefined; // 清空服务器变量
         outputChannel.appendLine('🛑 Server stopped.'); // 输出面板
-        statusBarCallback(false); // 状态栏回调
+        statusBarCallback(false, agent); // 状态栏回调
         vscode.window.showInformationMessage('CoBridge Server stopped.'); // 弹窗提示
     }
 }

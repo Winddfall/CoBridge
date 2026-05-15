@@ -1,10 +1,11 @@
 import * as vscode from 'vscode';
 import { startServer, stopServer } from './services/syncServer';
-import { clearContext, openContextFile } from './services/contextService';
+import { clearContext, openContextFile, selectAgent } from './services/contextService';
 import { showMenuCommand } from './commands/menuCommand';
 
 let outputChannel: vscode.OutputChannel;
 let statusBarItem: vscode.StatusBarItem;
+export let agent: string | null = null;
 
 export function activate(context: vscode.ExtensionContext) {
     try {
@@ -77,15 +78,17 @@ function registerCommands(context: vscode.ExtensionContext) {
 /**
  * 更新状态栏显示
  */
-function updateStatusBarItem(isActive: boolean): void {
+function updateStatusBarItem(isActive: boolean, agentName: string | null = null): void {
     if (isActive) {
-        statusBarItem.text = '$(sync~spin) CoBridge: On';
+        statusBarItem.text = '$(sync~spin) CoBridge: ' + agentName;
         statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');
-        statusBarItem.tooltip = 'CoBridge Server is Running';
     } else {
-        statusBarItem.text = '$(circle-slash) CoBridge: Off';
+        if (agentName == null) {
+            statusBarItem.text = 'CoBridge: Select An Agent';
+        } else {
+            statusBarItem.text = 'CoBridge: ' + agentName;
+        }
         statusBarItem.backgroundColor = undefined;
-        statusBarItem.tooltip = 'CoBridge Server is Stopped';
     }
     statusBarItem.show();
 }
