@@ -29,27 +29,43 @@ CoBridge é essa "Ponte Dimensional": ele teletransporta instantaneamente seu hi
 
 ---
 
-## 🚀 Três Passos para Decolar
+## 🚀 Quatro Passos para Decolar
 
 ### 1. Instalar CoBridge
 
-Abra o Marketplace de extensões do VS Code, pesquise por **CoBridge** e clique em instalar. É simples assim.
+Abra o mercado Open VSX, pesquise por [**CoBridge**](https://open-vsx.org/extension/windfall/co-bridge) e clique em instalar. É simples assim.
 
-### 2. Confirmar Status do Serviço
+Após a instalação, olhe para a barra de status no canto inferior direito — verá um ícone convidando você a selecionar um Agent.
+![Ícone instalado](../public/assets/installed.png)
 
-Após a instalação, olhe para a barra de status no canto inferior direito — ver `CoBridge: On` significa que a ponte está pronta (porta padrão `3030`).
-
-![Running Status](../public/assets/running.png)
-
-Clicar neste ícone permite que você:
+Clicar neste ícone abre um menu onde você pode:
 - **Iniciar/Parar** manualmente o serviço
 - **Ver Logs** (Verifique aqui se surgirem problemas)
 - **Abrir Arquivo de Sincronização** (Veja o que a IA lembra)
 - **Limpar Arquivo de Sincronização** (Limpar a memória da IA)
+- **Selecionar Agent** (Trocar de Agent)
 
-![Management Menu](../public/assets/management.png)
+### 2. Selecionar Agent
 
-### 3. Começar o "Teletransporte de Memória"
+Abra o menu e selecione o Agent que você está usando.
+
+![Menu de gestão](../public/assets/management.png)
+
+Atualmente são suportados **6** tipos de Agents de programação:
+
+![Selecionar Agent](../public/assets/select_agent.png)
+
+Uma vez selecionado, a barra de status exibirá o ícone do Agent correspondente:
+
+![Agent selecionado](../public/assets/agent_selected.png)
+
+### 3. Iniciar serviço
+
+Volte ao menu e clique em **Iniciar serviço**. O serviço será executado continuamente até que você o pare manualmente.
+
+![Status em execução](../public/assets/running.png)
+
+### 4. Começar o "Teletransporte de Memória"
 
 Certifique-se de que o **Voyager** no seu navegador tenha a "Sincronização de Contexto" ativada. Clique em **Sync to IDE**, e o conteúdo da conversa aterrissará automaticamente em:
 
@@ -108,7 +124,7 @@ Se a porta padrão `3030` estiver "sendo usada" por outro programa, alterá-la �
 
 | Status | Descrição |
 |------|------|
-| ✅ **Suportado** | Gemini |
+| ✅ **Suportado** | Gemini (Web) |
 | ✅ **Suporte a Tabelas** | A sincronização de tabelas é suportada |
 | ✅ **Suporte a Imagens** | A sincronização de imagens é suportada |
 | ❌ **Não Suportado** | Plataformas com anti-scraping rigoroso ou estruturas DOM complexas (PRs bem-vindos!) |

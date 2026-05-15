@@ -27,22 +27,22 @@ export interface MessageData {
 // 函数内包含异步操作
 export async function saveContext(data: MessageData[]): Promise<void> {
     switch (agent) {
-        case 'copilot':
+        case 'Copilot':
             handleCopilot(data);
             break;
-        case 'trae':
+        case 'Trae':
             handleTrae(data);
             break;
-        case 'cursor':
+        case 'Cursor':
             handleCursor(data);
             break;
-        case 'antigravity':
+        case 'Antigravity':
             handleAntigravity(data);
             break;
-        case 'claude code':
+        case 'Claude Code':
             handleClaudeCode(data);
             break;
-        case 'codex':
+        case 'Codex':
             handleCodex(data);
             break;
     }

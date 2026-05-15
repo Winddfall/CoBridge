@@ -1,6 +1,6 @@
-# CoBridge — Le pont dimensionnel pour la "mémoire partagée" de l'IA ✨
+# CoBridge — The Dimensional Bridge for AI "Shared Memory" ✨
 
-[English](../README.md) | [简体中文](README_CN.md) | [繁體中文](README_ZH_TW.md) | [日本語](README_JA.md) | [Français](README_FR.md) | [Español](README_ES.md) | [Português](README_PT.md) | [한국어](README_KO.md) | [Русский](README_RU.md) | [العربية](README_AR.md)
+[English](README.md) | [简体中文](docs/README_CN.md) | [繁體中文](docs/README_ZH_TW.md) | [日本語](docs/README_JA.md) | [Français](docs/README_FR.md) | [Español](docs/README_ES.md) | [Português](docs/README_PT.md) | [한국어](docs/README_KO.md) | [Русский](docs/README_RU.md) | [العربية](docs/README_AR.md)
 
 ![github copilot](https://img.shields.io/badge/GitHub%20Copilot-✓-6f42c1?style=flat-square&logo=githubcopilot)
 ![cursor](https://img.shields.io/badge/Cursor-✓-000000?style=flat-square&logo=cursor)
@@ -17,100 +17,99 @@
 [![Last Commit](https://img.shields.io/github/last-commit/Winddfall/CoBridge?style=flat-square)](https://github.com/Winddfall/CoBridge/commits/master)
 
 > [!IMPORTANT]
-> **CoBridge nécessite l'extension de navigateur [Voyager](https://github.com/Nagi-ovo/gemini-voyager) pour fonctionner.**
-> CoBridge gère la réception et la gestion du contexte dans l'IDE, tandis que Voyager capture et envoie le contenu des conversations depuis l'interface web. Ensemble, ils permettent à votre assistant IDE de vraiment comprendre votre historique de chat web !
+> **CoBridge requires the browser extension [Voyager](https://github.com/Nagi-ovo/gemini-voyager) to work.**
+> CoBridge handles context reception and management in the IDE, while Voyager captures and sends conversation content from the web interface. Together, they enable your IDE assistant to truly understand your web chat history!
 
-**Brainstorming avec une IA sur le web, faire écrire du code par des Agents dans l'IDE/CLI — mais ils semblent s'être oubliés ?**
+**Brainstorming with AI on the web, having Agents write code in the IDE/CLI — yet they seem to have forgotten each other?**
 
-CoBridge est ce "Pont Dimensionnel" : il téléporte instantanément votre historique de discussion du navigateur vers votre espace de travail local, permettant aux Agents comme Copilot, Cursor et Claude Code de comprendre votre processus de réflexion.
+CoBridge is that "Dimensional Bridge": it instantly transports your chat history from the browser to your local workspace, allowing Agents like Copilot, Cursor, and Claude Code to understand your thought process.
 
-> Le cerveau dans le cloud, les mains en local — respirant à l'unisson.
+> Brain in the cloud, hands on local — breathing in sync.
 
 ---
 
-## 🚀 Quatre étapes pour décoller
+## 🚀 Four Steps to Take Off
 
-### 1. Installer CoBridge
+### 1. Install CoBridge
 
-Ouvrez le marché Open VSX, recherchez [**CoBridge**](https://open-vsx.org/extension/windfall/co-bridge), et cliquez sur installer. C'est aussi simple que ça.
+Open the Open VSX Marketplace, search for [**CoBridge**](https://open-vsx.org/extension/windfall/co-bridge), and click install. It's that simple.
 
-Après l'installation, regardez la barre d'état en bas à droite — vous verrez une icône vous invitant à sélectionner un Agent.
-![Icône installée](../public/assets/installed.png)
+After installation, glance at the status bar in the bottom right corner — you'll see an icon prompting you to select an Agent.
+![Installed Icon](public/assets/installed.png)
 
-Cliquer sur cette icône ouvre un menu où vous pouvez :
-- **Démarrer/Arrêter** manuellement le service
-- **Voir les journaux** (Vérifiez ici si des problèmes surviennent)
-- **Ouvrir le fichier de synchronisation** (Voir ce que l'IA a retenu)
-- **Effacer le fichier de synchronisation** (Effacer la mémoire de l'IA)
-- **Sélectionner l'Agent** (Changer d'Agent)
+Clicking this icon opens a menu where you can:
+- Manually **Start/Stop** the service
+- **View Logs** (Check here if issues arise)
+- **Open Sync File** (See what the AI remembers)
+- **Clear Sync File** (Wipe the AI's memory)
+- **Select Agent** (Switch between Agents)
 
-### 2. Sélectionner l'Agent
+### 2. Select Agent
 
-Ouvrez le menu et sélectionnez l'Agent que vous utilisez.
+Open the menu and select the Agent you are using.
 
-![Menu de gestion](../public/assets/management.png)
+![Management Menu](public/assets/management.png)
 
-Actuellement **6** types d'Agents de programmation sont supportés :
+Currently supporting **6** types of programming Agents:
 
-![Sélectionner l'Agent](../public/assets/select_agent.png)
+![Select Agent](public/assets/select_agent.png)
 
-Une fois sélectionné, la barre d'état affichera l'icône de l'Agent correspondant :
+Once selected, the status bar will display the corresponding Agent icon:
 
-![Agent sélectionné](../public/assets/agent_selected.png)
+![Agent Selected](public/assets/agent_selected.png)
 
-### 3. Démarrer le service
+### 3. Start Service
 
-Retournez dans le menu et cliquez sur **Démarrer le service**. Le service fonctionnera en continu jusqu'à ce que vous l'arrêtiez manuellement.
+Go back to the menu and click **Start Service**. The service will run continuously until you manually stop it.
 
-![Statut en cours](../public/assets/running.png)
+![Running Status](public/assets/running.png)
 
-### 4. Commencer la "Téléportation de Mémoire"
+### 4. Start "Memory Teleportation"
 
-Assurez-vous que **Voyager** dans votre navigateur a activé la "Synchronisation du contexte". Cliquez sur **Sync to IDE**, et le contenu de la conversation atterrira automatiquement dans :
+Ensure **Voyager** in your browser has "Context Sync" enabled. Click **Sync to IDE**, and the conversation content will automatically land in:
 
 ```
 .cobridge/AI_CONTEXT.md
 ```
 
-Désormais, votre assistant IDE ne vous regardera plus jamais d'un air absent en demandant : "Qu'est-ce que tu disais avant ?"
+From now on, your Agent will never look at you blankly and ask, "What did you say before?"
 
 ---
 
-## ⚙️ Port occupé ? Changez-le !
+## ⚙️ Port Occupied? Change It!
 
-Si le port par défaut `3030` est "accaparé" par un autre programme, le changer est facile :
+If the default port `3030` is "hogged" by another program, changing it is easy:
 
-1. Ouvrez les paramètres VS Code (`Ctrl + ,` / `Cmd + ,`)
-2. Recherchez `AIContextSync.port`
-3. Changez le numéro de port selon votre préférence (par exemple, `3031`)
-4. Redémarrez le service depuis le menu de la barre d'état, et c'est fait !
+1. Open VS Code Settings (`Ctrl + ,` / `Cmd + ,`)
+2. Search for `AIContextSync.port`
+3. Change the port number to your preference (e.g., `3031`)
+4. Restart the service from the status bar menu, and you're done!
 
-**Comme les paramètres de l'espace de travail VS Code remplacent les paramètres utilisateur, veuillez modifier le numéro de port dans les paramètres de votre espace de travail.**
+**Since VS Code workspace settings override user settings, please modify the port number in your Workspace Settings.**
 
-![Paramètres de port](../public/assets/port.png)
+![Port Settings](public/assets/port.png)
 
 ---
 
-## 📋 Prérequis
+## 📋 Prerequisites
 
-| Exigence | Description |
+| Requirement | Description |
 |------|------|
-| **VS Code** | `1.50.0` ou version ultérieure |
-| **Extension de navigateur** | Nécessite l'extension complémentaire [Voyager](https://github.com/Nagi-ovo/gemini-voyager) pour capturer les conversations |
-| **Réseau** | Assurez-vous que `127.0.0.1` n'est pas bloqué par un pare-feu |
+| **VS Code** | `1.50.0` or higher |
+| **Browser Extension** | Requires the companion [Voyager](https://github.com/Nagi-ovo/gemini-voyager) to capture conversations |
+| **Network** | Ensure `127.0.0.1` is not blocked by a firewall |
 
 ---
 
-## 🎯 Principes
+## 🎯 Principles
 
-- **Zéro Pollution** : CoBridge ajoute automatiquement le fichier de synchronisation à `.gitignore`, garantissant qu'il ne pollue jamais votre dépôt Git. Vos "chuchotements" restent privés.
-- **Format Amical** : Sortie entièrement en Markdown, rendant la lecture aussi fluide pour votre IA d'IDE qu'un manuel.
-- **Configuration Auto** : Elle génère également automatiquement des fichiers de règles adaptés à divers Agents, leur permettant de lire le contexte de manière transparente sans encombrement.
+- **Zero Pollution**: CoBridge automatically adds the sync file to `.gitignore`, ensuring it never pollutes your Git repository. Your "whispers" stay with you.
+- **Friendly Format**: Full Markdown output, making it as smooth for your IDE AI to read as a manual.
+- **Auto Configuration**: It also automatically generates rule files adapted to various Agents, allowing them to seamlessly read context without bloat.
 
 ---
 
-## ⚡️ Écosystème pris en charge
-
+## ⚡️ Supported Ecosystem
 ![VS Code](https://img.shields.io/badge/Visual%20Studio%20Code-007ACC?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMSAxIDE0IDE0Ij48cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNMTAuODYzIDEzLjkxOWEuOC44IDAgMCAxLS42NDQuMDI1YS44LjggMCAwIDEtLjI3OS0uMTgzTDQuODE2IDkuMDYzbC0yLjIzMiAxLjcwM2EuNTQuNTQgMCAwIDEtLjY5MS0uMDMxbC0uNzE2LS42NTVhLjU0Ni41NDYgMCAwIDEgMC0uODA1TDMuMTEyIDcuNUwxLjE3NyA1LjcyNWEuNTQ2LjU0NiAwIDAgMSAwLS44MDVsLjcxNi0uNjU1YS41NC41NCAwIDAgMSAuNjkxLS4wMzFsMi4yMzIgMS43MDNMOS45NCAxLjIzOWEuODA1LjgwNSAwIDAgMSAuOTIzLS4xNTlsMi42NzcgMS4yOTVjLjI4MS4xMzYuNDYuNDIyLjQ2LjczNlY4aC0zLjI0OFY0LjUzNEw2Ljg2NCA3LjVsMy44ODggMi45NjZWOEgxNHYzLjg4OWMwIC4zMTQtLjE3OS42LS40Ni43MzZ6Ii8+PC9zdmc+)
 ![GitHub Copilot](https://img.shields.io/badge/GitHub%20Copilot-6f42c1?style=for-the-badge&logo=githubcopilot&logoColor=white)
 ![Cursor](https://img.shields.io/badge/Cursor-000000?style=for-the-badge&logo=cursor&logoColor=white)
@@ -121,70 +120,33 @@ Si le port par défaut `3030` est "accaparé" par un autre programme, le changer
 
 ---
 
-## ⚠️ Limitations connues
+## ⚠️ Known Quirks
 
-| Statut | Description |
+| Status | Description |
 |------|------|
-| ✅ **Supporté** | Gemini (Web) |
-| ✅ **Support des tableaux** | La synchronisation des tableaux est supportée |
-| ✅ **Support des images** | La synchronisation des images est supportée |
-| ❌ **Non Supporté** | Plateformes avec anti-scraping strict ou structures DOM complexes (PRs bienvenues !) |
-| ❌ **Pièces jointes** | Pas encore supporté |
+| ✅ **Supported** | Gemini (Web) |
+| ✅ **Table Support** | Table synchronization is supported |
+| ✅ **Image Support** | Image synchronization is supported |
+| ❌ **Not Supported** | Platforms with strict anti-scraping or complex DOM structures (PRs welcome!) |
+| ❌ **File Attachments** | Not yet supported |
 
 ---
 
-## 🌟 En résumé
+## 🌟 One Sentence Summary
 
-**Les LLM n'auront plus d'amnésie. Discutez des solutions à fond sur le web, et implémentez-les directement avec votre Agent.**
+**LLMs will no longer have amnesia: brainstorm thoroughly on the web, and implement directly with your Agent.**
 
-Si ce projet vous a aidé, n'hésitez pas à nous donner une étoile ⭐ sur [GitHub](https://github.com/Winddfall/CoBridge).
+If this project helped you, please give us a Star ⭐ on [GitHub](https://github.com/Winddfall/CoBridge).
 
-## 💡 Problèmes
+## 💡 Issues
 
-Si vous avez de nouvelles exigences, n'hésitez pas à ouvrir un ticket sur [GitHub](https://github.com/Winddfall/CoBridge/issues).
+If you have new requirements, welcome to raise an issue on [GitHub](https://github.com/Winddfall/CoBridge/issues).
 
-## 🤝 Contribuer
+## 🤝 Contributing
 
-Si vous avez de bonnes suggestions ou trouvez un bug, les Pull Requests sont les bienvenues !
+If you have good suggestions or find a bug, Pull Requests are welcome!
 
-## 🥤 Soutenir ce projet
-<div align="center">
-  <a href="https://github.com/winddfall/CoBridge">
-    <img src="https://raw.githubusercontent.com/winddfall/CoBridge/main/public/assets/sponsors.svg" width="1000px" />
-  </a>
-</div>
 
-Si ce projet a résolu vos problèmes de collaboration avec l'IA, n'hésitez pas à m'offrir un verre ! 🥤
+## 📄 License
 
-Votre soutien sera directement utilisé pour maintenir les itérations futures du projet❤️.
-
-<div align="center">
-
-  <p><b>Soutenir via WeChat / Alipay / Afdian :</b></p>
-  <table align="center" border="0" cellpadding="0" cellspacing="0">
-    <tr>
-      <td align="center">
-        <img src="../public/assets/wechat-sponsor.png" alt="WeChat Pay" height="160"><br>
-        <sub><b>WeChat Pay</b></sub>
-      </td>
-      <td align="center">
-        <img src="../public/assets/alipay-sponsor.jpg" alt="Alipay" height="160"><br>
-        <sub><b>Alipay</b></sub>
-      </td>
-      <td align="center">
-        <a href="https://afdian.com/a/Wind_fall" target="_blank">
-          <picture>
-            <source media="(prefers-color-scheme: dark)" srcset="https://afdian-connect.deno.dev/profile.svg?slug=Wind_fall&bg_color=%230d1117&text_color=%23dedbd7&border_color=%232e343d" />
-            <source media="(prefers-color-scheme: light)" srcset="https://afdian-connect.deno.dev/profile.svg?slug=Wind_fall" />
-            <img alt="Wind_fall's Profile" src="https://afdian-connect.deno.dev/profile.svg?slug=Wind_fall" height="160" />
-          </picture>
-        </a><br>
-        <sub><b>Afdian</b></sub>
-      </td>
-    </tr>
-  </table>
-</div>
-
-## 📄 Licence
-
-Ce projet est sous licence MIT.
+This project is licensed under the MIT License.

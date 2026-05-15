@@ -49,12 +49,12 @@ export async function showMenuCommand(
             case 'select':
                 // 选项
                 const agents = [
-                    { label: 'Github Copilot', action: 'copilot' },
-                    { label: 'Trae', action: 'trae' },
-                    { label: 'Cursor', action: 'cursor' },
-                    { label: 'Antigravity', action: 'antigravity' },
-                    { label: 'Claude Code', action: 'claude code' },
-                    { label: 'Codex', action: 'codex' },
+                    { label: 'Github Copilot', action: 'Copilot' },
+                    { label: 'Trae', action: 'Trae' },
+                    { label: 'Cursor', action: 'Cursor' },
+                    { label: 'Antigravity', action: 'Antigravity' },
+                    { label: 'Claude Code', action: 'Claude Code' },
+                    { label: 'Codex', action: 'Codex' },
                 ];
                 // 显示选项
                 const selection_agent = await vscode.window.showQuickPick(agents, {

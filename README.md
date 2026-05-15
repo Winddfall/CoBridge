@@ -18,7 +18,7 @@
 
 > [!IMPORTANT]
 > **CoBridge requires the browser extension [Voyager](https://github.com/Nagi-ovo/gemini-voyager) to work.**
-> CoBridge handles context reception in the IDE, while Voyager captures context from the web interface. Together, they enable seamless context synchronization!
+> CoBridge handles context reception and management in the IDE, while Voyager captures and sends conversation content from the web interface. Together, they enable your IDE assistant to truly understand your web chat history!
 
 **Brainstorming with AI on the web, having Agents write code in the IDE/CLI — yet they seem to have forgotten each other?**
 
@@ -28,27 +28,43 @@ CoBridge is that "Dimensional Bridge": it instantly transports your chat history
 
 ---
 
-## 🚀 Three Steps to Take Off
+## 🚀 Four Steps to Take Off
 
 ### 1. Install CoBridge
 
-Open the VS Code Extension Marketplace, search for **CoBridge**, and click install. It's that simple.
+Open the Open VSX Marketplace, search for [**CoBridge**](https://open-vsx.org/extension/windfall/co-bridge), and click install. It's that simple.
 
-### 2. Confirm Service Status
+After installation, glance at the status bar in the bottom right corner — you'll see an icon prompting you to select an Agent.
+![Installed Icon](public/assets/installed.png)
 
-After installation, glance at the status bar in the bottom right corner — seeing `CoBridge: On` means the bridge is ready (default port `3030`).
-
-![Running Status](public/assets/running.png)
-
-Clicking this icon allows you to:
+Clicking this icon opens a menu where you can:
 - Manually **Start/Stop** the service
 - **View Logs** (Check here if issues arise)
 - **Open Sync File** (See what the AI remembers)
 - **Clear Sync File** (Wipe the AI's memory)
+- **Select Agent** (Switch between Agents)
+
+### 2. Select Agent
+
+Open the menu and select the Agent you are using.
 
 ![Management Menu](public/assets/management.png)
 
-### 3. Start "Memory Teleportation"
+Currently supporting **6** types of programming Agents:
+
+![Select Agent](public/assets/select_agent.png)
+
+Once selected, the status bar will display the corresponding Agent icon:
+
+![Agent Selected](public/assets/agent_selected.png)
+
+### 3. Start Service
+
+Go back to the menu and click **Start Service**. The service will run continuously until you manually stop it.
+
+![Running Status](public/assets/running.png)
+
+### 4. Start "Memory Teleportation"
 
 Ensure **Voyager** in your browser has "Context Sync" enabled. Click **Sync to IDE**, and the conversation content will automatically land in:
 
@@ -56,7 +72,7 @@ Ensure **Voyager** in your browser has "Context Sync" enabled. Click **Sync to I
 .cobridge/AI_CONTEXT.md
 ```
 
-From now on, your IDE assistant will never look at you blankly and ask, "What did you say before?"
+From now on, your Agent will never look at you blankly and ask, "What did you say before?"
 
 ---
 
@@ -89,9 +105,10 @@ If the default port `3030` is "hogged" by another program, changing it is easy:
 
 - **Zero Pollution**: CoBridge automatically adds the sync file to `.gitignore`, ensuring it never pollutes your Git repository. Your "whispers" stay with you.
 - **Friendly Format**: Full Markdown output, making it as smooth for your IDE AI to read as a manual.
-- **Auto Configuration**: It also helps update rule files, allowing various AI assistants to seamlessly read the context.
+- **Auto Configuration**: It also automatically generates rule files adapted to various Agents, allowing them to seamlessly read context without bloat.
 
 ---
+
 ## ⚡️ Supported Ecosystem
 ![VS Code](https://img.shields.io/badge/Visual%20Studio%20Code-007ACC?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMSAxIDE0IDE0Ij48cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNMTAuODYzIDEzLjkxOWEuOC44IDAgMCAxLS42NDQuMDI1YS44LjggMCAwIDEtLjI3OS0uMTgzTDQuODE2IDkuMDYzbC0yLjIzMiAxLjcwM2EuNTQuNTQgMCAwIDEtLjY5MS0uMDMxbC0uNzE2LS42NTVhLjU0Ni41NDYgMCAwIDEgMC0uODA1TDMuMTEyIDcuNUwxLjE3NyA1LjcyNWEuNTQ2LjU0NiAwIDAgMSAwLS44MDVsLjcxNi0uNjU1YS41NC41NCAwIDAgMSAuNjkxLS4wMzFsMi4yMzIgMS43MDNMOS45NCAxLjIzOWEuODA1LjgwNSAwIDAgMSAuOTIzLS4xNTlsMi42NzcgMS4yOTVjLjI4MS4xMzYuNDYuNDIyLjQ2LjczNlY4aC0zLjI0OFY0LjUzNEw2Ljg2NCA3LjVsMy44ODggMi45NjZWOEgxNHYzLjg4OWMwIC4zMTQtLjE3OS42LS40Ni43MzZ6Ii8+PC9zdmc+)
 ![GitHub Copilot](https://img.shields.io/badge/GitHub%20Copilot-6f42c1?style=for-the-badge&logo=githubcopilot&logoColor=white)
@@ -107,7 +124,7 @@ If the default port `3030` is "hogged" by another program, changing it is easy:
 
 | Status | Description |
 |------|------|
-| ✅ **Supported** | Gemini |
+| ✅ **Supported** | Gemini (Web) |
 | ✅ **Table Support** | Table synchronization is supported |
 | ✅ **Image Support** | Image synchronization is supported |
 | ❌ **Not Supported** | Platforms with strict anti-scraping or complex DOM structures (PRs welcome!) |
@@ -115,9 +132,9 @@ If the default port `3030` is "hogged" by another program, changing it is easy:
 
 ---
 
-## 🌟 TL;DR
+## 🌟 One Sentence Summary
 
-**LLMs will no longer have amnesia. Discuss solutions thoroughly on the web, and implement them directly in the IDE.**
+**LLMs will no longer have amnesia: brainstorm thoroughly on the web, and implement directly with your Agent.**
 
 If this project helped you, please give us a Star ⭐ on [GitHub](https://github.com/Winddfall/CoBridge).
 
@@ -141,7 +158,7 @@ If this project solved your AI collaboration pain points, feel free to buy me a 
 Your support will be directly used to maintain subsequent iterations of the project❤️.
 
 <div align="center">
-  
+
   <p><b>Sponsor via WeChat / Alipay / Afdian:</b></p>
   <table align="center" border="0" cellpadding="0" cellspacing="0">
     <tr>
@@ -166,7 +183,6 @@ Your support will be directly used to maintain subsequent iterations of the proj
     </tr>
   </table>
 </div>
-
 
 ## 📄 License
 

@@ -21,3 +21,7 @@ public/assets/**
 
 # 5. 排除 node_modules (vsce 会自动处理大部分生产依赖，但可以手动优化)
 **/node_modules/**
+
+# 6. 排除不符合要求的md
+README.md
+!README-MARKETPLACE.md
