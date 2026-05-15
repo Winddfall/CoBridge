@@ -10,6 +10,7 @@
     "url": "https://github.com/Winddfall/CoBridge.git"
   },
   "license": "MIT",
+  "readme": "README_MARKETPLACE.md",
   "icon": "public/icon.png",
   "engines": {
     "vscode": "^1.50.0"

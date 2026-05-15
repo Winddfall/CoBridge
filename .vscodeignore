@@ -24,4 +24,4 @@ public/assets/**
 
 # 6. 排除不符合要求的md
 README.md
-!README-MARKETPLACE.md
+!README_MARKETPLACE.md
