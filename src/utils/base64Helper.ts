@@ -13,11 +13,14 @@ export async function saveBase64AsPng(base64String: string, outputPath: string):
     const buffer = Buffer.from(base64Image, 'base64');
 
     // 写入文件系统
-    fs.writeFile(outputPath, buffer, (err: any) => {
-        if (err) {
-            console.error('保存失败:', err);
-        } else {
-            console.log('图片已成功保存至:', outputPath);
-        }
-    });
+    try {
+        // fs.promises.writeFile 会返回一个 Promise
+        // await 会暂停执行，直到文件写完（或失败）
+        await fs.promises.writeFile(outputPath, buffer);
+        // 如果执行到这一行，说明保存成功
+        console.log('图片已成功保存至:', outputPath);
+    } catch (err) {
+        // 如果保存过程中出错，会直接跳到这里
+        console.error('保存失败:', err);
+    }
 }

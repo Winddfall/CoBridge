@@ -28,22 +28,22 @@ export interface MessageData {
 export async function saveContext(data: MessageData[]): Promise<void> {
     switch (agent) {
         case 'Copilot':
-            handleCopilot(data);
+            await handleCopilot(data);
             break;
         case 'Trae':
-            handleTrae(data);
+            await handleTrae(data);
             break;
         case 'Cursor':
-            handleCursor(data);
+            await handleCursor(data);
             break;
         case 'Antigravity':
-            handleAntigravity(data);
+            await handleAntigravity(data);
             break;
         case 'Claude Code':
-            handleClaudeCode(data);
+            await handleClaudeCode(data);
             break;
         case 'Codex':
-            handleCodex(data);
+            await handleCodex(data);
             break;
     }
 }
@@ -194,6 +194,7 @@ async function handleAntigravity(data: MessageData[]) {
     // 创建必要的目录和文件
     ensureDirectory(COBRIDGE_PATH);
     ensureDirectory(IMAGES_PATH);
+    ensureDirectory(ANTIGRAVITY_RULES_DIR);
     ensureFile(CONTEXT_PATH, '# AI Context Sync \n\n');
     ensureDirectory(ANTIGRAVITY_RULES_DIR);
 
@@ -310,7 +311,7 @@ async function writeDownContext(messages: MessageData[], imagesPath: string): Pr
     let context_md = `# 🧠 AI Context (${new Date().toLocaleString()})\n\n`;
     // 遍历每条消息
     // msg是MessageData类型，msgIndex是消息的索引
-    messages.forEach(async (msg: MessageData, msgIndex: number) => {
+    for (const [msgIndex, msg] of messages.entries()) {
         let imageIndex = 0; // 每条信息的图片索引初始值
         let role = 'Unknown'; // 角色
         if (msg.is_user_likely) {
@@ -339,7 +340,7 @@ async function writeDownContext(messages: MessageData[], imagesPath: string): Pr
             context_md += `${msg.text}\n\n`;
         }
         context_md += `---\n\n`;
-    });
+    };
     return context_md;
 }
 
