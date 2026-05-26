@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="popup.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="main-card">
+        <div class="header">
+            <h1>CoBridge</h1>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <button id="darkModeToggle" class="icon-toggle" title="Switch to dark mode" aria-label="Toggle dark mode">
+                    <!-- Moon icon (light mode) -->
+                    <svg id="icon-moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                    <!-- Sun icon (dark mode) -->
+                    <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                </button>
+                <button id="langToggle" class="icon-toggle" title="切换为中文" aria-label="Toggle language">
+                    <!-- Languages icon (lucide) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>
+                </button>
+            </div>
+        </div>
+        <div class="content">
+            <div class="port-row">
+                <label class="port-label" for="portInput" data-i18n="portLabel">服务端口</label>
+                <div id="status-indicator" class="status-offline">
+                    <span class="dot"></span>
+                    <span id="status-text">Agent Offline</span>
+                </div>
+            </div>
+            <input id="portInput" class="port-input" type="number" min="1" max="65535" placeholder="3030" value="3030">
+            <button id="syncBtn" class="primary-btn" data-i18n="syncBtn">Sync Context to Agent</button>
+            <div id="tip" class="tip-msg" data-i18n="tip">Tip: For long conversations, please scroll up to ensure all context is loaded.</div>
+            <div id="status" class="status-msg"></div>
+        </div>
+    </div>
+    <script type="module" src="popup.ts"></script>
+</body>
+</html>

@@ -1,0 +1,297 @@
+/* ── Design Tokens (from style/tailwind.css) ──────────────────── */
+:root {
+  --background: oklch(0.98 0.002 250);
+  --foreground: oklch(0.14 0.004 285);
+  --card: oklch(0.995 0.001 250);
+  --card-foreground: oklch(0.14 0.004 285);
+  --popover: oklch(0.995 0.001 250);
+  --popover-foreground: oklch(0.14 0.004 285);
+  --primary: oklch(0.55 0.17 155);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.95 0.004 250);
+  --secondary-foreground: oklch(0.38 0.006 250);
+  --muted: oklch(0.96 0.003 250);
+  --muted-foreground: oklch(0.5 0.01 250);
+  --accent: oklch(0.94 0.015 155);
+  --accent-foreground: oklch(0.14 0.004 285);
+  --destructive: oklch(0.6 0.22 25);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.92 0.004 250);
+  --input: oklch(0.92 0.004 250);
+  --ring: oklch(0.55 0.17 155);
+  --radius: 0.625rem;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --tip: #5763DD;
+}
+
+.dark {
+  --background: oklch(0.16 0.006 285);
+  --foreground: oklch(0.92 0.004 250);
+  --card: oklch(0.2 0.008 285);
+  --card-foreground: oklch(0.92 0.004 250);
+  --popover: oklch(0.2 0.008 285);
+  --popover-foreground: oklch(0.92 0.004 250);
+  --primary: oklch(0.7 0.16 155);
+  --primary-foreground: oklch(0.12 0.01 285);
+  --secondary: oklch(0.24 0.008 285);
+  --secondary-foreground: oklch(0.72 0.006 250);
+  --muted: oklch(0.2 0.006 285);
+  --muted-foreground: oklch(0.56 0.008 250);
+  --accent: oklch(0.26 0.015 155);
+  --accent-foreground: oklch(0.72 0.006 250);
+  --destructive: oklch(0.6 0.22 25);
+  --destructive-foreground: oklch(0.12 0.01 285);
+  --border: oklch(0.3 0.008 285);
+  --input: oklch(0.3 0.008 285);
+  --ring: oklch(0.7 0.16 155);
+  --tip: #D394F2;
+}
+
+/* ── View Transition (from style/tailwind.css) ───────────────── */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-new(root) {
+  z-index: 1;
+}
+
+/* ── Base ────────────────────────────────────────────────────── */
+* {
+  border-color: var(--border);
+  box-sizing: border-box;
+}
+
+body {
+  width: 320px;
+  padding: 5px;
+  margin: 10;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--background);
+  color: var(--foreground);
+  font-feature-settings: 'rlig' 1, 'calt' 1;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ── Main Card ───────────────────────────────────────────────── */
+.main-card {
+  background-color: var(--card);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px oklch(0 0 0 / 0.15);
+  overflow: hidden;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dark .main-card {
+  box-shadow: 0 10px 30px oklch(0 0 0 / 0.4);
+}
+
+/* ── Header ──────────────────────────────────────────────────── */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: var(--card);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  z-index: 10;
+  transition: background-color 0.3s ease;
+}
+
+h1 {
+  font-family: 'Gilroy', 'Inter', sans-serif;
+  font-size: 25px;
+  font-weight: 1000;
+  margin: 0;
+  white-space: nowrap;
+  letter-spacing: -0.05em;
+  background: linear-gradient(135deg, #5763DD, #D394F2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #5763DD;
+}
+
+/* ── Status Indicator ────────────────────────────────────────── */
+#status-indicator {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  background-color: var(--muted);
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background-color 0.3s ease;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.status-online {
+  background-color: var(--accent) !important;
+  color: oklch(0.55 0.17 155);
+}
+.status-online .dot { background-color: oklch(0.55 0.17 155); }
+
+.dark .status-online {
+  color: oklch(0.7 0.16 155);
+}
+.dark .status-online .dot { background-color: oklch(0.7 0.16 155); }
+
+.status-offline {
+  background-color: oklch(0.95 0.04 25) !important;
+  color: var(--destructive);
+}
+.status-offline .dot { background-color: var(--destructive); }
+
+.dark .status-offline {
+  background-color: oklch(0.25 0.04 25) !important;
+}
+
+/* ── Icon Toggle Buttons ─────────────────────────────────────── */
+.icon-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  color: var(--foreground);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.icon-toggle:hover {
+  background-color: var(--accent);
+}
+
+.icon-toggle svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ── Content ─────────────────────────────────────────────────── */
+.content {
+  padding: 20px 20px 10px 20px;
+  text-align: center;
+}
+
+/* ── Port Row ───────────────────────────────────────────────── */
+.port-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.port-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--foreground);
+  transition: color 0.3s ease;
+}
+
+.port-input {
+  width: 100%;
+  margin-bottom: 14px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--input);
+  border-radius: var(--radius-lg);
+  font-size: 15px;
+  color: var(--foreground);
+  background-color: var(--muted);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.3s ease, color 0.3s ease;
+  -moz-appearance: textfield;
+}
+
+.port-input::-webkit-outer-spin-button,
+.port-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.port-input:focus {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px oklch(0.55 0.17 155 / 0.12);
+  background-color: var(--card);
+}
+
+.dark .port-input:focus {
+  box-shadow: 0 0 0 3px oklch(0.7 0.16 155 / 0.2);
+}
+
+/* ── Primary Button ──────────────────────────────────────────── */
+.primary-btn {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, var(--primary), oklch(0.65 0.16 165));
+  color: var(--primary-foreground);
+  border: none;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 18px;
+  box-shadow: 0 4px 10px oklch(0.55 0.17 155 / 0.3);
+  transition: transform 0.2s, box-shadow 0.2s, background 0.3s ease;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+.primary-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px oklch(0.55 0.17 155 / 0.4);
+}
+
+.primary-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 5px oklch(0.55 0.17 155 / 0.3);
+}
+
+.primary-btn:disabled {
+  background: var(--muted);
+  color: var(--muted-foreground);
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* ── Tips ────────────────────────────────────────────────────── */
+.tip-msg {
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--muted-foreground);
+  line-height: 1.5;
+  text-align: left;
+  background-color: var(--muted);
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ── Status Message ──────────────────────────────────────────── */
+.status-msg {
+  margin-top: 5px;
+  font-size: 14px;
+  color: var(--tip);
+  min-height: 0;
+  line-height: 1.4;
+  transition: color 0.3s ease;
+}
+
+.status-msg:empty {
+  display: none;
+}

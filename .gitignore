@@ -1,44 +1,30 @@
 # Dependencies
 node_modules/
+packages/chrome-extension/node_modules
+packages/vscode-extension/node_modules
+packages/vscode-extension/out
 
-# Build output (TypeScript compiled files)
+# Build output
 out/
 dist/
-
-# VS Code extension package
-*.vsix
-
-# Logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+packages/chrome-extension/dist
 
 # OS generated files
 .DS_Store
 Thumbs.db
-Desktop.ini
 
 # Editor specific
 .idea/
 *.swp
 *.swo
-*~
 
 # Environment files
 .env
 .env.local
 .env.*.local
 
+# Logs
+*.log
+
 # TypeScript cache
 *.tsbuildinfo
-
-# Test coverage
-coverage/
-
-# Temporary files
-tmp/
-temp/
-*.tmp
-
-README-MARKETPLACE.md

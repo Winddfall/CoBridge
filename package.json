@@ -1,82 +1,11 @@
 {
-  "name": "co-bridge",
-  "displayName": "CoBridge",
-  "description": "Seamlessly sync your web AI conversations to your local IDE.",
-  "version": "1.0.5",
-  "packageManager": "pnpm@8.15.4",
-  "publisher": "windfall",
+  "name": "cobridge",
+  "private": true,
+  "description": "CoBridge - Sync web AI conversations to your local Agent.",
   "repository": {
     "type": "git",
     "url": "https://github.com/Winddfall/CoBridge.git"
   },
   "license": "MIT",
-  "readme": "README_MARKETPLACE.md",
-  "icon": "public/icon.png",
-  "engines": {
-    "vscode": "^1.50.0"
-  },
-  "categories": [
-    "AI",
-    "Chat"
-  ],
-  "keywords": [
-    "Gemini Voyager",
-    "Gemini",
-    "Sync",
-    "Context",
-    "Productivity"
-  ],
-  "activationEvents": [
-    "*"
-  ],
-  "main": "./out/extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "cobridge.showMenu",
-        "title": "CoBridge: Show Menu"
-      },
-      {
-        "command": "cobridge.startServer",
-        "title": "CoBridge: Start Server"
-      },
-      {
-        "command": "cobridge.stopServer",
-        "title": "CoBridge: Stop Server"
-      },
-      {
-        "command": "cobridge.openContext",
-        "title": "CoBridge: Open Context File"
-      },
-      {
-        "command": "cobridge.clearContext",
-        "title": "CoBridge: Clear Context File"
-      },
-      {
-        "command": "cobridge.selectAgent",
-        "title": "CoBridge: Select Agent"
-      }
-    ],
-    "configuration": {
-      "title": "CoBridge",
-      "properties": {
-        "AIContextSync.port": {
-          "type": "number",
-          "default": 3030,
-          "description": "Port to listen for browser sync data."
-        }
-      }
-    }
-  },
-  "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./"
-  },
-  "devDependencies": {
-    "@types/node": "^20.19.41",
-    "@types/vscode": "^1.50.0",
-    "sponsorkit": "^17.1.0",
-    "typescript": "^6.0.3"
-  }
+  "packageManager": "pnpm@8.15.4"
 }

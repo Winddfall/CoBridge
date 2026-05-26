@@ -1,0 +1,55 @@
+{
+  "manifest_version": 3,
+  "name": "CoBridge",
+  "version": "1.0.0",
+  "description": "Seamlessly sync your web AI conversations to your local Agent.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "declarativeNetRequest",
+    "storage"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1/*",
+    "http://localhost/*",
+
+    "*://*.googleusercontent.com/*",
+    "*://gemini.google.com/*",
+    "*://googleusercontent.com/*",
+    "*://*.google.com/*",
+
+    "*://www.doubao.com/*",
+
+    "*://chat.deepseek.com/*",
+
+    "*://claude.ai/*",
+
+    "*://chatgpt.com/*"
+  ],
+  "background": {
+    "service_worker": "src/background/background.ts"
+  },
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_icon": {
+      "48": "icons/48.png",
+      "128": "icons/128.png"
+    }
+  },
+  "icons": {
+    "48": "icons/48.png",
+    "128": "icons/128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://gemini.google.com/*",
+        "*://www.doubao.com/*",
+        "*://chat.deepseek.com/*",
+        "*://claude.ai/*",
+        "*://chatgpt.com/*"
+      ],
+      "js": ["src/content/contextSync.ts"]
+    }
+  ]
+}

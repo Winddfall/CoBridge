@@ -1,0 +1,20 @@
+{
+  "name": "chrome-extension",
+  "version": "1.0.0",
+  "description": "Seamlessly sync your web AI conversations to your local Agent.",
+  "main": "background.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "vite build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@crxjs/vite-plugin": "^2.0.0-beta.33",
+    "@types/chrome": "^0.1.42",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.13"
+  }
+}

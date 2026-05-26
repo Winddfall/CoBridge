@@ -27,4 +27,4 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: update sponsors.svg"
-          file_pattern: "sponsors.*"
+          file_pattern: "public/assets/sponsors.*"
