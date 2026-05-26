@@ -1,6 +1,6 @@
 <div align="center">
 
-# <img src="public/icon.svg" width="15%" alt="" align=center /> AI Memory Sync Across Dimensions ✨
+# <img src="public/icon.png" width="15%" alt="" align=center /> AI Memory Sync Across Dimensions ✨
 
 **Think in the browser. Land in the editor.**
 
