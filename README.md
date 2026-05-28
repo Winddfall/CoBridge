@@ -82,28 +82,30 @@ Open the Open VSX Marketplace, search for [**CoBridge**](https://open-vsx.org/ex
 
 ## 🚀 Quick Start
 ### Step 1: Select Your Agent
-![Installed Icon](public/assets/installed.png)
+
+<img src=public/assets/installed.png style="width:30%;" />
 
 Click the status bar icon to open the management menu:
 
-![Management Menu](public/assets/management.png)
+<img src=public/assets/management.png style="width:30%;" />
 
 Select the Agent you're currently using:
 
-![Select Agent](public/assets/select_agent.png)
+<img src=public/assets/select_agent.png style="width:30%;" />
 
 Once selected, the status bar displays the corresponding Agent icon:
 
-![Agent Selected](public/assets/agent_selected.png)
+<img src=public/assets/agent_selected.png style="width:30%;" />
 
 ### Step 2: Start the Service
 
 Click **Start Service** from the menu. The local server will run on port `3030` until you stop it.
 
-![Running Status](public/assets/running.png)
+<img src=public/assets/running.png style="width:30%;" />
 
 ### Step 3: Sync Your Conversations
-![同步对话](public/assets/browser_extension_en.png)
+
+<img src=public/assets/browser_extension_en.png style="width:30%;" />
 
 1. Open any supported AI chat page in your browser
 2. Click the CoBridge browser extension icon
@@ -125,7 +127,7 @@ If port `3030` is occupied:
 3. Change the port number (e.g., `3031`)
 4. Restart the service from the status bar menu
 
-![Port Settings](public/assets/port.png)
+<img src=public/assets/port.png style="width:30%;" />
 
 > **Note:** VS Code workspace settings override user settings. Modify the port in your Workspace Settings if needed.
 
