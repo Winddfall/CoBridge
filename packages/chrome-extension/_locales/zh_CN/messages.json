@@ -1,0 +1,62 @@
+{
+  "extName": {
+    "message": "CoBridge",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "将网页端 AI 对话无缝同步至本地 Agent。",
+    "description": "Extension description"
+  },
+  "portLabel": {
+    "message": "服务端口",
+    "description": "Label for the server port input"
+  },
+  "syncBtn": {
+    "message": "同步上下文至 Agent",
+    "description": "Button text to sync conversation"
+  },
+  "tip": {
+    "message": "长对话请向上滑动以确保加载所有上下文",
+    "description": "Tip message shown below the sync button"
+  },
+  "agentOnline": {
+    "message": "Agent 在线",
+    "description": "Status when agent server is reachable"
+  },
+  "agentOffline": {
+    "message": "Agent 离线",
+    "description": "Status when agent server is unreachable"
+  },
+  "startCoBridge": {
+    "message": "请在 Agent 中启动 CoBridge",
+    "description": "Prompt to start CoBridge when agent is offline"
+  },
+  "capturing": {
+    "message": "⏳ 正在捕获对话...",
+    "description": "Status while capturing conversation"
+  },
+  "syncSuccess": {
+    "message": "✅ 同步成功！",
+    "description": "Status after successful sync"
+  },
+  "unsupportedSite": {
+    "message": "请在支持的 AI 网站上使用",
+    "description": "Error when used on unsupported site"
+  },
+  "agentNotResponding": {
+    "message": "Agent 无响应。",
+    "description": "Error when agent server does not respond"
+  },
+  "darkTitle": {
+    "message": "切换为深色模式",
+    "description": "Tooltip for dark mode toggle button"
+  },
+  "lightTitle": {
+    "message": "切换为浅色模式",
+    "description": "Tooltip for light mode toggle button"
+  },
+  "langTitle": {
+    "message": "Switch to English",
+    "description": "Tooltip for language toggle button - shows what language it will switch to"
+  }
+}

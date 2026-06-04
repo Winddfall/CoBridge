@@ -1,0 +1,62 @@
+{
+  "extName": {
+    "message": "CoBridge",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Синхронизируйте ваши веб-диалоги с ИИ с локальным агентом.",
+    "description": "Extension description"
+  },
+  "portLabel": {
+    "message": "Порт",
+    "description": "Label for the server port input"
+  },
+  "syncBtn": {
+    "message": "Синхронизировать контекст с агентом",
+    "description": "Button text to sync conversation"
+  },
+  "tip": {
+    "message": "Для длинных диалогов прокрутите вверх, чтобы загрузить весь контекст.",
+    "description": "Tip message shown below the sync button"
+  },
+  "agentOnline": {
+    "message": "Агент онлайн",
+    "description": "Status when agent server is reachable"
+  },
+  "agentOffline": {
+    "message": "Агент офлайн",
+    "description": "Status when agent server is unreachable"
+  },
+  "startCoBridge": {
+    "message": "Запустите CoBridge в агенте",
+    "description": "Prompt to start CoBridge when agent is offline"
+  },
+  "capturing": {
+    "message": "⏳ Захват диалога...",
+    "description": "Status while capturing conversation"
+  },
+  "syncSuccess": {
+    "message": "✅ Синхронизация выполнена!",
+    "description": "Status after successful sync"
+  },
+  "unsupportedSite": {
+    "message": "Используйте на поддерживаемых сайтах ИИ.",
+    "description": "Error when used on unsupported site"
+  },
+  "agentNotResponding": {
+    "message": "Агент не отвечает.",
+    "description": "Error when agent server does not respond"
+  },
+  "darkTitle": {
+    "message": "Переключить на тёмную тему",
+    "description": "Tooltip for dark mode toggle button"
+  },
+  "lightTitle": {
+    "message": "Переключить на светлую тему",
+    "description": "Tooltip for light mode toggle button"
+  },
+  "langTitle": {
+    "message": "Переключить на русский",
+    "description": "Tooltip for language toggle button - shows what language it will switch to"
+  }
+}

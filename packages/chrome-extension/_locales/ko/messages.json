@@ -1,0 +1,62 @@
+{
+  "extName": {
+    "message": "CoBridge",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "웹 AI 대화를 로컬 에이전트에 원활하게 동기화합니다.",
+    "description": "Extension description"
+  },
+  "portLabel": {
+    "message": "포트",
+    "description": "Label for the server port input"
+  },
+  "syncBtn": {
+    "message": "에이전트에 컨텍스트 동기화",
+    "description": "Button text to sync conversation"
+  },
+  "tip": {
+    "message": "긴 대화의 경우 모든 컨텍스트가 로드되도록 위로 스크롤하세요.",
+    "description": "Tip message shown below the sync button"
+  },
+  "agentOnline": {
+    "message": "에이전트 온라인",
+    "description": "Status when agent server is reachable"
+  },
+  "agentOffline": {
+    "message": "에이전트 오프라인",
+    "description": "Status when agent server is unreachable"
+  },
+  "startCoBridge": {
+    "message": "에이전트에서 CoBridge를 시작하세요",
+    "description": "Prompt to start CoBridge when agent is offline"
+  },
+  "capturing": {
+    "message": "⏳ 대화 캡처 중...",
+    "description": "Status while capturing conversation"
+  },
+  "syncSuccess": {
+    "message": "✅ 동기화 성공!",
+    "description": "Status after successful sync"
+  },
+  "unsupportedSite": {
+    "message": "지원되는 AI 웹사이트에서 사용하세요.",
+    "description": "Error when used on unsupported site"
+  },
+  "agentNotResponding": {
+    "message": "에이전트가 응답하지 않습니다.",
+    "description": "Error when agent server does not respond"
+  },
+  "darkTitle": {
+    "message": "다크 모드로 전환",
+    "description": "Tooltip for dark mode toggle button"
+  },
+  "lightTitle": {
+    "message": "라이트 모드로 전환",
+    "description": "Tooltip for light mode toggle button"
+  },
+  "langTitle": {
+    "message": "한국어로 전환",
+    "description": "Tooltip for language toggle button - shows what language it will switch to"
+  }
+}

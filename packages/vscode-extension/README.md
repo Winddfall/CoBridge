@@ -52,9 +52,19 @@ Supports GitHub Copilot, Cursor, Claude Code and other IDE Agents
 ## 📥 Installation
 ### Store Install
 #### Step 1: Install the Browser Extension
-Install from the [Chrome Web Store]() (coming soon)
+<a href="https://chromewebstore.google.com/detail/cobridge/gkkjnfikooniljmfhoigdeaceppgglfn?hl=zh-CN&authuser=0" target="_blank">
+  <img src="https://img.shields.io/badge/Chrome%20Web%20Store-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Chrome Web Store" height="36">
+</a>
+
 #### Step 2: Install the VS Code Extension
-Open the Open VSX Marketplace, search for [**CoBridge**](https://open-vsx.org/extension/windfall/co-bridge), and click install.
+<div style="display: flex; gap: 10px;">
+  <a href="https://open-vsx.org/extension/windfall/co-bridge" target="_blank">
+    <img src="https://img.shields.io/badge/Open%20VSX%20Registry-B966E9?style=for-the-badge&logoColor=white" height="36" alt="Open VSX Registry">
+  </a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=windfall.co-bridge" target="_blank">
+    <img src="https://img.shields.io/badge/VScode%20marketplace-007ACC?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMSAxIDE0IDE0Ij48cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNMTAuODYzIDEzLjkxOWEuOC44IDAgMCAxLS42NDQuMDI1YS44LjggMCAwIDEtLjI3OS0uMTgzTDQuODE2IDkuMDYzbC0yLjIzMiAxLjcwM2EuNTQuNTQgMCAwIDEtLjY5MS0uMDMxbC0uNzE2LS42NTVhLjU0Ni41NDYgMCAwIDEgMC0uODA1TDMuMTEyIDcuNUwxLjE3NyA1LjcyNWEuNTQ2LjU0NiAwIDAgMSAwLS44MDVsLjcxNi0uNjU1YS41NC41NCAwIDAgMSAuNjkxLS4wMzFsMi4yMzIgMS43MDNMOS45NCAxLjIzOWEuODA1LjgwNSAwIDAgMSAuOTIzLS4xNTlsMi42NzcgMS4yOTVjLjI4MS4xMzYuNDYuNDIyLjQ2LjczNlY4aC0zLjI0OFY0LjUzNEw2Ljg2NCA3LjVsMy44ODggMi45NjZWOEgxNHYzLjg4OWMwIC4zMTQtLjE3OS42LS40Ni43MzZ6Ii8+PC9zdmc+&logoColor=white" height="36" alt="VScode marketplace">
+  </a>
+</div>
 
 ### Manual Install
 #### Install the Browser Extension

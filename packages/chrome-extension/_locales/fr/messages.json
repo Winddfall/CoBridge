@@ -1,0 +1,62 @@
+{
+  "extName": {
+    "message": "CoBridge",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Synchronisez vos conversations IA web vers votre agent local.",
+    "description": "Extension description"
+  },
+  "portLabel": {
+    "message": "Port",
+    "description": "Label for the server port input"
+  },
+  "syncBtn": {
+    "message": "Synchroniser le contexte vers l'agent",
+    "description": "Button text to sync conversation"
+  },
+  "tip": {
+    "message": "Pour les longues conversations, faites défiler vers le haut pour charger tout le contexte.",
+    "description": "Tip message shown below the sync button"
+  },
+  "agentOnline": {
+    "message": "Agent en ligne",
+    "description": "Status when agent server is reachable"
+  },
+  "agentOffline": {
+    "message": "Agent hors ligne",
+    "description": "Status when agent server is unreachable"
+  },
+  "startCoBridge": {
+    "message": "Veuillez démarrer CoBridge dans l'agent",
+    "description": "Prompt to start CoBridge when agent is offline"
+  },
+  "capturing": {
+    "message": "⏳ Capture du dialogue...",
+    "description": "Status while capturing conversation"
+  },
+  "syncSuccess": {
+    "message": "✅ Synchronisation réussie !",
+    "description": "Status after successful sync"
+  },
+  "unsupportedSite": {
+    "message": "Veuillez utiliser cette extension sur les sites IA pris en charge.",
+    "description": "Error when used on unsupported site"
+  },
+  "agentNotResponding": {
+    "message": "L'agent ne répond pas.",
+    "description": "Error when agent server does not respond"
+  },
+  "darkTitle": {
+    "message": "Passer en mode sombre",
+    "description": "Tooltip for dark mode toggle button"
+  },
+  "lightTitle": {
+    "message": "Passer en mode clair",
+    "description": "Tooltip for light mode toggle button"
+  },
+  "langTitle": {
+    "message": "Passer en français",
+    "description": "Tooltip for language toggle button - shows what language it will switch to"
+  }
+}

@@ -1,6 +1,6 @@
 {
-  "name": "chrome-extension",
-  "version": "1.0.0",
+  "name": "co-bridge",
+  "version": "1.0.1",
   "description": "Seamlessly sync your web AI conversations to your local Agent.",
   "main": "background.js",
   "scripts": {

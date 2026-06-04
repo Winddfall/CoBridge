@@ -1,0 +1,62 @@
+{
+  "extName": {
+    "message": "CoBridge",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Seamlessly sync your web AI conversations to your local Agent.",
+    "description": "Extension description"
+  },
+  "portLabel": {
+    "message": "Port",
+    "description": "Label for the server port input"
+  },
+  "syncBtn": {
+    "message": "Sync Context to Agent",
+    "description": "Button text to sync conversation"
+  },
+  "tip": {
+    "message": "For long conversations, please scroll up to ensure all context is loaded.",
+    "description": "Tip message shown below the sync button"
+  },
+  "agentOnline": {
+    "message": "Agent Online",
+    "description": "Status when agent server is reachable"
+  },
+  "agentOffline": {
+    "message": "Agent Offline",
+    "description": "Status when agent server is unreachable"
+  },
+  "startCoBridge": {
+    "message": "Please start CoBridge in Agent",
+    "description": "Prompt to start CoBridge when agent is offline"
+  },
+  "capturing": {
+    "message": "⏳ Capturing dialogue...",
+    "description": "Status while capturing conversation"
+  },
+  "syncSuccess": {
+    "message": "✅ Sync successfully!",
+    "description": "Status after successful sync"
+  },
+  "unsupportedSite": {
+    "message": "Please use this on Supported AI websites.",
+    "description": "Error when used on unsupported site"
+  },
+  "agentNotResponding": {
+    "message": "Agent not responding.",
+    "description": "Error when agent server does not respond"
+  },
+  "darkTitle": {
+    "message": "Switch to dark mode",
+    "description": "Tooltip for dark mode toggle button"
+  },
+  "lightTitle": {
+    "message": "Switch to light mode",
+    "description": "Tooltip for light mode toggle button"
+  },
+  "langTitle": {
+    "message": "切换为中文",
+    "description": "Tooltip for language toggle button - shows what language it will switch to"
+  }
+}

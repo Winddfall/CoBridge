@@ -1,73 +1,99 @@
 // ── i18n ──────────────────────────────────────────────────────
-type Lang = 'en' | 'zh';
+type Lang = 'en' | 'zh_CN' | 'zh_TW' | 'ja' | 'ko' | 'fr' | 'pt' | 'ru';
 
-const i18n: Record<Lang, Record<string, string>> = {
-    en: {
-        portLabel: 'Port',
-        syncBtn: 'Sync Context to Agent',
-        tip: 'For long conversations, please scroll up to ensure all context is loaded.',
-        agentOnline: 'Agent Online',
-        agentOffline: 'Agent Offline',
-        startCoBridge: 'Please start CoBridge in Agent',
-        capturing: '⏳ Capturing dialogue...',
-        syncSuccess: '✅ Sync successfully!',
-        unsupportedSite: 'Please use this on Supported AI websites.',
-        darkTitle: 'Switch to dark mode',
-        lightTitle: 'Switch to light mode',
-        langTitle: '切换为中文',
-    },
-    zh: {
-        portLabel: '服务端口',
-        syncBtn: '同步上下文至 Agent',
-        tip: '长对话请向上滑动以确保加载所有上下文',
-        agentOnline: 'Agent 在线',
-        agentOffline: 'Agent 离线',
-        startCoBridge: '请在 Agent 中启动 CoBridge',
-        capturing: '⏳ 正在捕获对话...',
-        syncSuccess: '✅ 同步成功！',
-        unsupportedSite: '请在支持的 AI 网站上使用',
-        darkTitle: '切换为深色模式',
-        lightTitle: '切换为浅色模式',
-        langTitle: 'Switch to English',
-    },
+const SUPPORTED_LANGS: Lang[] = ['en', 'zh_CN', 'zh_TW', 'ja', 'ko', 'fr', 'pt', 'ru'];
+
+// Import locale files directly so we can switch languages at runtime.
+// chrome.i18n.getMessage() is locked to the browser UI language and cannot
+// be overridden, so we need our own lookup on the same JSON data.
+import enMessages from '../../_locales/en/messages.json';
+import zhCNMessages from '../../_locales/zh_CN/messages.json';
+import zhTWMessages from '../../_locales/zh_TW/messages.json';
+import jaMessages from '../../_locales/ja/messages.json';
+import koMessages from '../../_locales/ko/messages.json';
+import frMessages from '../../_locales/fr/messages.json';
+import ptMessages from '../../_locales/pt/messages.json';
+import ruMessages from '../../_locales/ru/messages.json';
+
+type MessageEntry = { message: string; description?: string };
+type MessageBundle = Record<string, MessageEntry>;
+
+const LOCALES: Record<Lang, MessageBundle> = {
+    en: enMessages as MessageBundle,
+    zh_CN: zhCNMessages as MessageBundle,
+    zh_TW: zhTWMessages as MessageBundle,
+    ja: jaMessages as MessageBundle,
+    ko: koMessages as MessageBundle,
+    fr: frMessages as MessageBundle,
+    pt: ptMessages as MessageBundle,
+    ru: ruMessages as MessageBundle,
 };
+
+/** Map browser language codes to our supported languages */
+function matchBrowserLang(browserLang: string): Lang {
+    const lower = browserLang.toLowerCase();
+    // Traditional Chinese: zh-tw, zh-hant, zh-hk, zh-mo
+    if (lower.startsWith('zh-tw') || lower.startsWith('zh-hant') || lower.startsWith('zh-hk') || lower.startsWith('zh-mo')) return 'zh_TW';
+    // Simplified Chinese: zh, zh-cn, zh-hans, zh-sg
+    if (lower.startsWith('zh')) return 'zh_CN';
+    for (const lang of SUPPORTED_LANGS) {
+        if (lang.startsWith('zh')) continue; // already handled above
+        if (lower === lang || lower.startsWith(lang + '-')) return lang;
+    }
+    return 'en';
+}
 
 function getInitialLang(): Lang {
     const saved = localStorage.getItem('lang');
-    if (saved === 'en' || saved === 'zh') return saved;
-    return navigator.language.startsWith('zh') ? 'zh' : 'en';
+    if (saved && SUPPORTED_LANGS.includes(saved as Lang)) return saved as Lang;
+    return matchBrowserLang(navigator.language);
 }
 
 let currentLang: Lang = getInitialLang();
 let statusKey: string | null = null;
 let connectionKey: 'agentOnline' | 'agentOffline' = 'agentOffline';
 
+/** Get translated text for the current language (falls back to English, then key) */
+function t(key: string): string {
+    return LOCALES[currentLang]?.[key]?.message ?? LOCALES['en']?.[key]?.message ?? key;
+}
+
 function applyLang(lang: Lang) {
     currentLang = lang;
     localStorage.setItem('lang', lang);
 
+    // Apply text content from data-i18n attributes
     document.querySelectorAll<HTMLElement>('[data-i18n]').forEach((el) => {
         const key = el.dataset.i18n!;
-        if (i18n[lang][key]) el.textContent = i18n[lang][key];
+        const msg = t(key);
+        if (msg) el.textContent = msg;
+    });
+
+    // Apply title attributes from data-i18n-title attributes
+    document.querySelectorAll<HTMLElement>('[data-i18n-title]').forEach((el) => {
+        const key = el.dataset.i18nTitle!;
+        const msg = t(key);
+        if (msg) el.title = msg;
     });
 
     // Re-render dynamic connection status in the new language
     const statusText = document.getElementById('status-text');
-    if (statusText) statusText.textContent = i18n[lang][connectionKey];
+    if (statusText) statusText.textContent = t(connectionKey);
 
     // Re-render dynamic status message in the new language
-    if (statusKey && i18n[lang][statusKey]) {
+    if (statusKey) {
         const status = document.getElementById('status');
-        if (status) status.textContent = i18n[lang][statusKey];
+        if (status) status.textContent = t(statusKey);
     }
 
-    langToggle.title = i18n[lang].langTitle;
     updateDarkModeTitle();
 }
 
 const langToggle = document.getElementById('langToggle')!;
 langToggle.addEventListener('click', () => {
-    applyLang(currentLang === 'en' ? 'zh' : 'en');
+    const idx = SUPPORTED_LANGS.indexOf(currentLang);
+    const next = SUPPORTED_LANGS[(idx + 1) % SUPPORTED_LANGS.length];
+    applyLang(next);
 });
 
 // ── Dark Mode ────────────────────────────────────────────────
@@ -84,7 +110,7 @@ function getInitialDark(): boolean {
 let isDark = getInitialDark();
 
 function updateDarkModeTitle() {
-    darkModeToggle.title = isDark ? i18n[currentLang].lightTitle : i18n[currentLang].darkTitle;
+    darkModeToggle.title = isDark ? t('lightTitle') : t('darkTitle');
 }
 
 function applyTheme(dark: boolean) {
@@ -173,13 +199,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function setStatus(key: string | null, color?: string) {
         statusKey = key;
-        status.textContent = key ? i18n[currentLang][key] : '';
+        status.textContent = key ? t(key) : '';
         if (color) status.style.color = color;
     }
 
     function setConnection(key: 'agentOnline' | 'agentOffline') {
         connectionKey = key;
-        statusText.textContent = i18n[currentLang][key];
+        statusText.textContent = t(key);
         statusIndicator.className = key === 'agentOnline' ? 'status-online' : 'status-offline';
     }
 
@@ -243,7 +269,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     !tab.url.includes('chat.deepseek.com')
                 )
             ) {
-                throw new Error(i18n[currentLang].unsupportedSite);
+                throw new Error(t('unsupportedSite'));
             }
 
             const response = await chrome.tabs.sendMessage(tab.id, {
@@ -256,7 +282,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 throw new Error(response.message);
             }
         } catch (err) {
-            const errorMessage = err instanceof Error ? err.message : String(err);
+            const rawMessage = err instanceof Error ? err.message : String(err);
+            // Map known error strings to i18n keys
+            const errorMap: Record<string, string> = {
+                'Agent not responding.': 'agentNotResponding',
+            };
+            const errorKey = errorMap[rawMessage];
+            const errorMessage = errorKey ? t(errorKey) : rawMessage;
             statusKey = null;
             status.textContent = `❌ ${errorMessage}`;
             status.style.color = 'var(--destructive)';

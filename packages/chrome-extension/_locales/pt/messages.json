@@ -1,0 +1,62 @@
+{
+  "extName": {
+    "message": "CoBridge",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Sincronize suas conversas de IA da web com seu agente local.",
+    "description": "Extension description"
+  },
+  "portLabel": {
+    "message": "Porta",
+    "description": "Label for the server port input"
+  },
+  "syncBtn": {
+    "message": "Sincronizar contexto ao agente",
+    "description": "Button text to sync conversation"
+  },
+  "tip": {
+    "message": "Para conversas longas, role para cima para garantir que todo o contexto seja carregado.",
+    "description": "Tip message shown below the sync button"
+  },
+  "agentOnline": {
+    "message": "Agente online",
+    "description": "Status when agent server is reachable"
+  },
+  "agentOffline": {
+    "message": "Agente offline",
+    "description": "Status when agent server is unreachable"
+  },
+  "startCoBridge": {
+    "message": "Inicie o CoBridge no agente",
+    "description": "Prompt to start CoBridge when agent is offline"
+  },
+  "capturing": {
+    "message": "⏳ Capturando diálogo...",
+    "description": "Status while capturing conversation"
+  },
+  "syncSuccess": {
+    "message": "✅ Sincronização bem-sucedida!",
+    "description": "Status after successful sync"
+  },
+  "unsupportedSite": {
+    "message": "Use em sites de IA suportados.",
+    "description": "Error when used on unsupported site"
+  },
+  "agentNotResponding": {
+    "message": "O agente não está respondendo.",
+    "description": "Error when agent server does not respond"
+  },
+  "darkTitle": {
+    "message": "Mudar para modo escuro",
+    "description": "Tooltip for dark mode toggle button"
+  },
+  "lightTitle": {
+    "message": "Mudar para modo claro",
+    "description": "Tooltip for light mode toggle button"
+  },
+  "langTitle": {
+    "message": "Mudar para português",
+    "description": "Tooltip for language toggle button - shows what language it will switch to"
+  }
+}

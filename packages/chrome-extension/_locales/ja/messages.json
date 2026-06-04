@@ -1,0 +1,62 @@
+{
+  "extName": {
+    "message": "CoBridge",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "ウェブ上のAI会話をローカルエージェントにシームレスに同期します。",
+    "description": "Extension description"
+  },
+  "portLabel": {
+    "message": "ポート",
+    "description": "Label for the server port input"
+  },
+  "syncBtn": {
+    "message": "コンテキストをエージェントに同期",
+    "description": "Button text to sync conversation"
+  },
+  "tip": {
+    "message": "長い会話では、すべてのコンテキストを読み込むために上にスクロールしてください。",
+    "description": "Tip message shown below the sync button"
+  },
+  "agentOnline": {
+    "message": "エージェント オンライン",
+    "description": "Status when agent server is reachable"
+  },
+  "agentOffline": {
+    "message": "エージェント オフライン",
+    "description": "Status when agent server is unreachable"
+  },
+  "startCoBridge": {
+    "message": "エージェントで CoBridge を起動してください",
+    "description": "Prompt to start CoBridge when agent is offline"
+  },
+  "capturing": {
+    "message": "⏳ ダイアログを取得中...",
+    "description": "Status while capturing conversation"
+  },
+  "syncSuccess": {
+    "message": "✅ 同期成功！",
+    "description": "Status after successful sync"
+  },
+  "unsupportedSite": {
+    "message": "対応する AI ウェブサイトで使用してください。",
+    "description": "Error when used on unsupported site"
+  },
+  "agentNotResponding": {
+    "message": "エージェントが応答しません。",
+    "description": "Error when agent server does not respond"
+  },
+  "darkTitle": {
+    "message": "ダークモードに切り替え",
+    "description": "Tooltip for dark mode toggle button"
+  },
+  "lightTitle": {
+    "message": "ライトモードに切り替え",
+    "description": "Tooltip for light mode toggle button"
+  },
+  "langTitle": {
+    "message": "日本語に切り替え",
+    "description": "Tooltip for language toggle button - shows what language it will switch to"
+  }
+}
