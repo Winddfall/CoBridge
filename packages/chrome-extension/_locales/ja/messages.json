@@ -58,5 +58,65 @@
   "langTitle": {
     "message": "日本語に切り替え",
     "description": "Tooltip for language toggle button - shows what language it will switch to"
+  },
+  "searchTitle": {
+    "message": "履歴を検索",
+    "description": "Header for the search section"
+  },
+  "searchPlaceholder": {
+    "message": "会話を検索...",
+    "description": "Placeholder text for search input"
+  },
+  "noResults": {
+    "message": "結果が見つかりません",
+    "description": "Message when search returns no results"
+  },
+  "searching": {
+    "message": "検索中...",
+    "description": "Status while searching"
+  },
+  "justNow": {
+    "message": "たった今",
+    "description": "Time display for very recent items"
+  },
+  "scanBtn": {
+    "message": "スキャン",
+    "description": "Button to scan current page for conversations"
+  },
+  "scanTitle": {
+    "message": "現在のページをスキャン",
+    "description": "Tooltip for scan button"
+  },
+  "scanning": {
+    "message": "スキャン中...",
+    "description": "Status while scanning page"
+  },
+  "scanSuccess": {
+    "message": "スキャン完了",
+    "description": "Status after successful scan"
+  },
+  "scanFailed": {
+    "message": "スキャン失敗（非対応サイト？）",
+    "description": "Status when scan fails"
+  },
+  "turns": {
+    "message": "ターン",
+    "description": "Unit for conversation turns"
+  },
+  "noTurnsFound": {
+    "message": "このページに会話が見つかりません",
+    "description": "Status when scan finds no conversations"
+  },
+  "batchScanBtn": {
+    "message": "一括",
+    "description": "Button to batch scan recent conversations from history"
+  },
+  "batchScanTitle": {
+    "message": "サイドバーから50件の会話を一括スキャン",
+    "description": "Tooltip for batch scan button"
+  },
+  "batchSearching": {
+    "message": "サイドバーを読み取り中...",
+    "description": "Status while searching browser history"
   }
 }

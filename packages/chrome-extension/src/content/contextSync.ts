@@ -29,15 +29,10 @@ const ADAPTERS: Adapters = {
         user_selector: 'div.user-query-container',
         ai_selector: '.response-content'
     },
-    // deepseek
-    'deepseek': {
-        user_selector: '.ds-message',
-        ai_selector: '.ds-message'
-    },
     // claude
     'claude': {
-        user_selector: 'div[class="contents"]',
-        ai_selector: 'div[class="contents"]'
+        user_selector: 'div[data-testid="user-message"]',
+        ai_selector: 'div.font-claude-response'
     },
     // chatgpt
     'chatgpt': {
@@ -92,7 +87,7 @@ async function captureDialogue(): Promise<any[]> {
     };
 
     // 网页域名
-    const host = window.location.hostname; 
+    const host = window.location.hostname;
     // 确定消息容器的规则
     const { AIname, adapter } = getMatchedAdapter(host, ADAPTERS);
 
@@ -105,15 +100,14 @@ async function captureDialogue(): Promise<any[]> {
         switch (AIname) {
             case 'gemini':
             case 'chatgpt':
+            case 'claude':
                 // 需要分别提取用户和 AI 的消息容器
                 queries = Array.from(document.querySelectorAll<HTMLElement>(adapter.user_selector));
                 responses = Array.from(document.querySelectorAll<HTMLElement>(adapter.ai_selector));
                 break;
             case 'doubao':
-            case 'claude':
-            case 'deepseek':
                 // 一次性提取所有消息
-                messages = Array.from(document.querySelectorAll<HTMLElement>(adapter.user_selector));  
+                messages = Array.from(document.querySelectorAll<HTMLElement>(adapter.user_selector));
                 break;
         }
     };
@@ -202,8 +196,9 @@ async function captureDialogue(): Promise<any[]> {
         let conversation: any[] = [];
         switch (AIname) {
             case 'gemini':
-            case 'chatgpt':     
-                // 遍历消息容器，交替写入
+            case 'chatgpt':
+            case 'claude':
+                // 分别遍历用户和 AI 消息容器，交替写入
                 for (let i = 0; i < queries.length; i++) {
                     // 用户
                     console.log('query:', queries[i]);
@@ -215,9 +210,7 @@ async function captureDialogue(): Promise<any[]> {
                     if (response)   conversation.push(response);
                 }
                 break;
-            case 'doubao':   
-            case 'claude':
-            case 'deepseek':
+            case 'doubao':
                 // 豆包是一次性抓取所有消息，再交替写入
                 for (let i = 0; i < messages.length; i++) {
                     if (i % 2 === 0) {

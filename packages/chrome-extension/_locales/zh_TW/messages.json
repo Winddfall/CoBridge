@@ -58,5 +58,65 @@
   "langTitle": {
     "message": "Switch to English",
     "description": "Tooltip for language toggle button - shows what language it will switch to"
+  },
+  "searchTitle": {
+    "message": "搜尋歷史",
+    "description": "Header for the search section"
+  },
+  "searchPlaceholder": {
+    "message": "搜尋對話...",
+    "description": "Placeholder text for search input"
+  },
+  "noResults": {
+    "message": "未找到結果",
+    "description": "Message when search returns no results"
+  },
+  "searching": {
+    "message": "搜尋中...",
+    "description": "Status while searching"
+  },
+  "justNow": {
+    "message": "剛剛",
+    "description": "Time display for very recent items"
+  },
+  "scanBtn": {
+    "message": "掃描",
+    "description": "Button to scan current page for conversations"
+  },
+  "scanTitle": {
+    "message": "掃描當前頁面的對話",
+    "description": "Tooltip for scan button"
+  },
+  "scanning": {
+    "message": "掃描中...",
+    "description": "Status while scanning page"
+  },
+  "scanSuccess": {
+    "message": "已掃描",
+    "description": "Status after successful scan"
+  },
+  "scanFailed": {
+    "message": "掃描失敗（不支援的網站？）",
+    "description": "Status when scan fails"
+  },
+  "turns": {
+    "message": "輪對話",
+    "description": "Unit for conversation turns"
+  },
+  "noTurnsFound": {
+    "message": "當前頁面未找到對話",
+    "description": "Status when scan finds no conversations"
+  },
+  "batchScanBtn": {
+    "message": "批次",
+    "description": "Button to batch scan recent conversations from history"
+  },
+  "batchScanTitle": {
+    "message": "從側邊欄批次掃描 50 個對話",
+    "description": "Tooltip for batch scan button"
+  },
+  "batchSearching": {
+    "message": "正在讀取側邊欄...",
+    "description": "Status while searching browser history"
   }
 }

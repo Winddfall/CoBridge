@@ -8,7 +8,8 @@
     "activeTab",
     "scripting",
     "declarativeNetRequest",
-    "storage"
+    "storage",
+    "offscreen"
   ],
   "host_permissions": [
     "http://127.0.0.1/*",
@@ -21,14 +22,21 @@
 
     "*://www.doubao.com/*",
 
-    "*://chat.deepseek.com/*",
-
     "*://claude.ai/*",
 
-    "*://chatgpt.com/*"
+    "*://chatgpt.com/*",
+
+    "https://huggingface.co/*",
+    "https://*.huggingface.co/*",
+    "https://hf-mirror.com/*",
+    "https://*.hf-mirror.com/*"
   ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  },
   "background": {
-    "service_worker": "src/background/background.ts"
+    "service_worker": "src/background/background.ts",
+    "type": "module"
   },
   "action": {
     "default_popup": "src/popup/popup.html",
@@ -50,11 +58,20 @@
       "matches": [
         "*://gemini.google.com/*",
         "*://www.doubao.com/*",
-        "*://chat.deepseek.com/*",
         "*://claude.ai/*",
         "*://chatgpt.com/*"
       ],
       "js": ["src/content/contextSync.ts"]
+    },
+    {
+      "matches": [
+        "*://gemini.google.com/*",
+        "*://www.doubao.com/*",
+        "*://claude.ai/*",
+        "*://chatgpt.com/*"
+      ],
+      "js": ["src/content/turnObserver.ts"],
+      "run_at": "document_idle"
     }
   ]
 }

@@ -58,5 +58,65 @@
   "langTitle": {
     "message": "Mudar para português",
     "description": "Tooltip for language toggle button - shows what language it will switch to"
+  },
+  "searchTitle": {
+    "message": "Pesquisar histórico",
+    "description": "Header for the search section"
+  },
+  "searchPlaceholder": {
+    "message": "Pesquisar conversas...",
+    "description": "Placeholder text for search input"
+  },
+  "noResults": {
+    "message": "Nenhum resultado encontrado",
+    "description": "Message when search returns no results"
+  },
+  "searching": {
+    "message": "Pesquisando...",
+    "description": "Status while searching"
+  },
+  "justNow": {
+    "message": "agora",
+    "description": "Time display for very recent items"
+  },
+  "scanBtn": {
+    "message": "Escanear",
+    "description": "Button to scan current page for conversations"
+  },
+  "scanTitle": {
+    "message": "Escanear página atual",
+    "description": "Tooltip for scan button"
+  },
+  "scanning": {
+    "message": "Escaneando...",
+    "description": "Status while scanning page"
+  },
+  "scanSuccess": {
+    "message": "Escaneado",
+    "description": "Status after successful scan"
+  },
+  "scanFailed": {
+    "message": "Falha ao escanear (site não suportado?)",
+    "description": "Status when scan fails"
+  },
+  "turns": {
+    "message": "turnos",
+    "description": "Unit for conversation turns"
+  },
+  "noTurnsFound": {
+    "message": "Nenhuma conversa encontrada nesta página",
+    "description": "Status when scan finds no conversations"
+  },
+  "batchScanBtn": {
+    "message": "Lote",
+    "description": "Button to batch scan recent conversations from history"
+  },
+  "batchScanTitle": {
+    "message": "Digitalizar 50 conversas da barra lateral",
+    "description": "Tooltip for batch scan button"
+  },
+  "batchSearching": {
+    "message": "Lendo barra lateral...",
+    "description": "Status while searching browser history"
   }
 }

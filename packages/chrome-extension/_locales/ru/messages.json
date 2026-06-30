@@ -58,5 +58,65 @@
   "langTitle": {
     "message": "Переключить на русский",
     "description": "Tooltip for language toggle button - shows what language it will switch to"
+  },
+  "searchTitle": {
+    "message": "Поиск по истории",
+    "description": "Header for the search section"
+  },
+  "searchPlaceholder": {
+    "message": "Поиск по разговорам...",
+    "description": "Placeholder text for search input"
+  },
+  "noResults": {
+    "message": "Результаты не найдены",
+    "description": "Message when search returns no results"
+  },
+  "searching": {
+    "message": "Поиск...",
+    "description": "Status while searching"
+  },
+  "justNow": {
+    "message": "только что",
+    "description": "Time display for very recent items"
+  },
+  "scanBtn": {
+    "message": "Сканировать",
+    "description": "Button to scan current page for conversations"
+  },
+  "scanTitle": {
+    "message": "Сканировать текущую страницу",
+    "description": "Tooltip for scan button"
+  },
+  "scanning": {
+    "message": "Сканирование...",
+    "description": "Status while scanning page"
+  },
+  "scanSuccess": {
+    "message": "Просканировано",
+    "description": "Status after successful scan"
+  },
+  "scanFailed": {
+    "message": "Ошибка сканирования (неподдерживаемый сайт?)",
+    "description": "Status when scan fails"
+  },
+  "turns": {
+    "message": "ходов",
+    "description": "Unit for conversation turns"
+  },
+  "noTurnsFound": {
+    "message": "На странице не найдено разговоров",
+    "description": "Status when scan finds no conversations"
+  },
+  "batchScanBtn": {
+    "message": "Пакет",
+    "description": "Button to batch scan recent conversations from history"
+  },
+  "batchScanTitle": {
+    "message": "Пакетное сканирование 50 разговоров из боковой панели",
+    "description": "Tooltip for batch scan button"
+  },
+  "batchSearching": {
+    "message": "Чтение боковой панели...",
+    "description": "Status while searching browser history"
   }
 }

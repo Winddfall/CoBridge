@@ -58,5 +58,65 @@
   "langTitle": {
     "message": "Switch to English",
     "description": "Tooltip for language toggle button - shows what language it will switch to"
+  },
+  "searchTitle": {
+    "message": "搜索历史",
+    "description": "Header for the search section"
+  },
+  "searchPlaceholder": {
+    "message": "搜索对话...",
+    "description": "Placeholder text for search input"
+  },
+  "noResults": {
+    "message": "未找到结果",
+    "description": "Message when search returns no results"
+  },
+  "searching": {
+    "message": "搜索中...",
+    "description": "Status while searching"
+  },
+  "justNow": {
+    "message": "刚刚",
+    "description": "Time display for very recent items"
+  },
+  "scanBtn": {
+    "message": "扫描",
+    "description": "Button to scan current page for conversations"
+  },
+  "scanTitle": {
+    "message": "扫描当前页面的对话",
+    "description": "Tooltip for scan button"
+  },
+  "scanning": {
+    "message": "扫描中...",
+    "description": "Status while scanning page"
+  },
+  "scanSuccess": {
+    "message": "已扫描",
+    "description": "Status after successful scan"
+  },
+  "scanFailed": {
+    "message": "扫描失败（不支持的网站？）",
+    "description": "Status when scan fails"
+  },
+  "turns": {
+    "message": "轮对话",
+    "description": "Unit for conversation turns"
+  },
+  "noTurnsFound": {
+    "message": "当前页面未找到对话",
+    "description": "Status when scan finds no conversations"
+  },
+  "batchScanBtn": {
+    "message": "批量",
+    "description": "Button to batch scan recent conversations from history"
+  },
+  "batchScanTitle": {
+    "message": "从侧边栏批量扫描 50 个对话",
+    "description": "Tooltip for batch scan button"
+  },
+  "batchSearching": {
+    "message": "正在读取侧边栏...",
+    "description": "Status while reading sidebar conversations"
   }
 }

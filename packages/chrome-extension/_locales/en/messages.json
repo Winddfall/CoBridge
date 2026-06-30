@@ -58,5 +58,65 @@
   "langTitle": {
     "message": "切换为中文",
     "description": "Tooltip for language toggle button - shows what language it will switch to"
+  },
+  "searchTitle": {
+    "message": "Search History",
+    "description": "Header for the search section"
+  },
+  "searchPlaceholder": {
+    "message": "Search conversations...",
+    "description": "Placeholder text for search input"
+  },
+  "noResults": {
+    "message": "No results found",
+    "description": "Message when search returns no results"
+  },
+  "searching": {
+    "message": "Searching...",
+    "description": "Status while searching"
+  },
+  "justNow": {
+    "message": "just now",
+    "description": "Time display for very recent items"
+  },
+  "scanBtn": {
+    "message": "Scan",
+    "description": "Button to scan current page for conversations"
+  },
+  "scanTitle": {
+    "message": "Scan current page for conversations",
+    "description": "Tooltip for scan button"
+  },
+  "scanning": {
+    "message": "Scanning...",
+    "description": "Status while scanning page"
+  },
+  "scanSuccess": {
+    "message": "Scanned",
+    "description": "Status after successful scan"
+  },
+  "scanFailed": {
+    "message": "Scan failed (unsupported site?)",
+    "description": "Status when scan fails"
+  },
+  "turns": {
+    "message": "turns",
+    "description": "Unit for conversation turns"
+  },
+  "noTurnsFound": {
+    "message": "No conversations found on this page",
+    "description": "Status when scan finds no conversations"
+  },
+  "batchScanBtn": {
+    "message": "Batch",
+    "description": "Button to batch scan recent conversations from history"
+  },
+  "batchScanTitle": {
+    "message": "Batch scan 50 conversations from sidebar",
+    "description": "Tooltip for batch scan button"
+  },
+  "batchSearching": {
+    "message": "Reading sidebar...",
+    "description": "Status while reading sidebar conversations"
   }
 }
