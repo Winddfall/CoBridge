@@ -11,6 +11,7 @@ export function setSearchRequestEmbedding(fn: (text: string) => Promise<number[]
 }
 
 export function handleSearchConversations(request: any, sendResponse: (response: any) => void) {
+    // 按照键值来解构
     const { query, limit, platform } = request;
 
     if (!platform) {

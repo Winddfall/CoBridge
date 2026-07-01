@@ -14,7 +14,7 @@ interface SidebarConversation {
  */
 async function getSidebarConversations(tabId: number): Promise<SidebarConversation[]> {
     return new Promise((resolve) => {
-        chrome.tabs.sendMessage(tabId, { action: 'gv.getSidebarConversations' }, (response) => {
+        chrome.tabs.sendMessage(tabId, { action: 'cobridge.getSidebarConversations' }, (response) => {
             if (chrome.runtime.lastError || !response?.ok) {
                 resolve([]);
                 return;
@@ -59,7 +59,7 @@ function openBackgroundTab(url: string): Promise<chrome.tabs.Tab> {
  */
 function scanTab(tabId: number, expectedUrl?: string): Promise<{ pairs: any[]; count: number }> {
     return new Promise((resolve) => {
-        chrome.tabs.sendMessage(tabId, { action: 'gv.scanCurrentPage', expectedUrl }, (response) => {
+        chrome.tabs.sendMessage(tabId, { action: 'cobridge.scanCurrentPage', expectedUrl }, (response) => {
             if (chrome.runtime.lastError || !response?.ok) {
                 resolve({ pairs: [], count: 0 });
                 return;
@@ -81,7 +81,7 @@ async function vectorizeAndSavePairs(pairs: any[]): Promise<number> {
             await new Promise<void>((resolve) => {
                 chrome.runtime.sendMessage(
                     {
-                        type: 'gv.vectorizeAndSave',
+                        type: 'cobridge.vectorizeAndSave',
                         data: {
                             url: pair.url,
                             platform: pair.platform,

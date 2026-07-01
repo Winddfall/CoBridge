@@ -11,30 +11,36 @@ const platformNames: Record<string, string> = {
 };
 
 const PLATFORM_HOSTS: Record<string, string> = {
-    'chatgpt.com': 'chatgpt',
-    'claude.ai': 'claude',
-    'gemini.google.com': 'gemini',
-    'doubao.com': 'doubao',
+    'chatgpt.com': 'Chatgpt',
+    'claude.ai': 'Claude',
+    'gemini.google.com': 'Gemini',
+    'doubao.com': 'Doubao',
 };
 
+/** 从 URL 匹配平台 */
+function matchPlatform(url: string): string | null {
+    try {
+        // 提取域名
+        const hostname = new URL(url).hostname;
+        for (const [host, platform] of Object.entries(PLATFORM_HOSTS)) {
+            if (hostname.includes(host)) return platform;
+        }
+    } catch {
+        console.error('[CoBridge] Failed to match platform:', url);
+    }
+    return null;
+}
+
 /** 从当前活跃标签页检测平台 */
-async function detectCurrentPlatform(): Promise<string | null> {
-    return new Promise((resolve) => {
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            const url = tabs[0]?.url;
-            if (!url) { resolve(null); return; }
-            try {
-                const hostname = new URL(url).hostname;
-                for (const [host, platform] of Object.entries(PLATFORM_HOSTS)) {
-                    if (hostname.includes(host)) {
-                        resolve(platform);
-                        return;
-                    }
-                }
-            } catch { /* ignore */ }
-            resolve(null);
-        });
-    });
+async function detectCurrentPlatform() {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true}); // 标签页
+    const url = tab?.url; // 如果 tab 是 undefined 或 null，返回 undefined
+    if (url) {
+        return matchPlatform(url);
+    } else {
+        console.warn('[CoBridge] No active tab found');
+        return null;
+    }
 }
 
 function escapeHtml(text: string): string {
@@ -120,10 +126,13 @@ async function doSearch(
     const trimmed = query.trim();
 
     // 空查询：清空搜索结果
+    /*
     if (!trimmed) {
         resultsContainer.innerHTML = '';
         return;
     }
+
+     */
 
     // 无法检测平台时提示用户
     if (!platform) {
@@ -136,8 +145,9 @@ async function doSearch(
 
     // 语义搜索
     try {
+        // 给 background 发送搜索请求
         const response = await chrome.runtime.sendMessage({
-            type: 'gv.searchConversations',
+            type: 'cobridge.searchConversations',
             query: trimmed,
             limit: 5,
             platform,
@@ -214,22 +224,20 @@ function startBatchScan(batchBtn: HTMLButtonElement, statusEl: HTMLElement) {
 }
 
 /** 初始化搜索功能 */
-export function initSearch() {
-    const searchInput = document.getElementById('searchInput') as HTMLInputElement;
-    const searchResults = document.getElementById('searchResults')!;
-    const searchStatus = document.getElementById('searchStatus')!;
-    const batchScanBtn = document.getElementById('batchScanBtn') as HTMLButtonElement;
+export async function initSearch() {
+    const searchInput = document.getElementById('searchInput') as HTMLInputElement; // 输入框
+    const searchResults = document.getElementById('searchResults')!; // 搜索结果
+    const searchStatus = document.getElementById('searchStatus')!; // 搜索状态
+    const batchScanBtn = document.getElementById('batchScanBtn') as HTMLButtonElement; // 批量按钮
 
     let searchTimer: ReturnType<typeof setTimeout> | null = null;
     let searchGeneration = 0;
+    // 读值接口
     const getGeneration = () => searchGeneration;
-    let currentPlatform: string | null = null;
 
     // 检测当前平台
-    detectCurrentPlatform().then((p) => {
-        currentPlatform = p;
-        console.log('[CoBridge] Detected platform:', p);
-    });
+    const currentPlatform: string | null = await detectCurrentPlatform();
+    console.log('[CoBridge] Detected platform:', currentPlatform);
 
     // 输入搜索：防抖 300ms
     searchInput.addEventListener('input', () => {

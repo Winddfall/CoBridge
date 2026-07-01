@@ -43,37 +43,37 @@ async function ensureOffscreen(): Promise<void> {
 // 监听消息
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     // 同步到 Agent
-    if (request.type === "gv.syncToAgent") {
+    if (request.type === "cobridge.syncToAgent") {
         handleSyncToAgent(request, sendResponse);
         return true;
     }
 
     // 检查同步状态
-    if (request.type === "gv.checkSyncStatus") {
+    if (request.type === "cobridge.checkSyncStatus") {
         handleCheckSyncStatus(request, sendResponse);
         return true;
     }
 
     // 抓取图片
-    if (request.action === "fetchImage") {
+    if (request.action === "cobridge.fetchImage") {
         handleFetchImage(request, sendResponse);
         return true;
     }
 
     // 向量化并存储对话轮次
-    if (request.type === "gv.vectorizeAndSave") {
+    if (request.type === "cobridge.vectorizeAndSave") {
         handleVectorizeAndSave(request, sendResponse);
         return true;
     }
 
     // 语义搜索
-    if (request.type === "gv.searchConversations") {
+    if (request.type === "cobridge.searchConversations") {
         handleSearchConversations(request, sendResponse);
         return true;
     }
 
     // 跳转到对话并滚动定位
-    if (request.type === "gv.navigateToTurn") {
+    if (request.type === "cobridge.navigateToTurn") {
         handleNavigateToTurn(request, sendResponse);
         return true;
     }
@@ -88,7 +88,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 // 监听长连接（用于批量扫描等需要持续进度报告的场景）
 chrome.runtime.onConnect.addListener((port) => {
-    if (port.name === 'gv.batchScan') {
+    if (port.name === 'cobridge.batchScan') {
         handleBatchScan(port);
     }
 });

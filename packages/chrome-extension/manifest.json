@@ -61,17 +61,7 @@
         "*://claude.ai/*",
         "*://chatgpt.com/*"
       ],
-      "js": ["src/content/contextSync.ts"]
-    },
-    {
-      "matches": [
-        "*://gemini.google.com/*",
-        "*://www.doubao.com/*",
-        "*://claude.ai/*",
-        "*://chatgpt.com/*"
-      ],
-      "js": ["src/content/turnObserver.ts"],
-      "run_at": "document_idle"
+      "js": ["src/content/contextSync.ts","src/content/turnObserver.ts"]
     }
   ]
 }
