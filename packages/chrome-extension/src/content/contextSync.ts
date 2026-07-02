@@ -24,22 +24,18 @@ const ADAPTERS: Adapters = {
         user_selector: '',
         ai_selector: ''
     },
-    // gemini
     'gemini': {
         user_selector: 'div.user-query-container',
         ai_selector: '.response-content'
     },
-    // claude
     'claude': {
         user_selector: 'div[data-testid="user-message"]',
         ai_selector: 'div.font-claude-response'
     },
-    // chatgpt
     'chatgpt': {
         user_selector: '[data-message-author-role="user"]',
         ai_selector: '[data-message-author-role="assistant"]'
     },
-    // doubao
     'doubao': {
         user_selector: 'div[data-message-id]',
         ai_selector: 'div[data-message-id]'

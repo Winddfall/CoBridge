@@ -16,11 +16,12 @@ interface Adapters {
     [host: string]: AdapterConfig;
 }
 
+// 这里的 id_selector ：每一条消息（无论问答）都有一个唯一的 ID
 const ADAPTERS: Adapters = {
     default: { user_selector: '', ai_selector: '' },
     'gemini': { user_selector: 'div.query-content', ai_selector: '.response-content', id_selector: 'id' },
-    'claude': { user_selector: 'div[class="contents"]', ai_selector: 'div[class="contents"]' },
     'chatgpt': { user_selector: '[data-message-author-role="user"]', ai_selector: '[data-message-author-role="assistant"]', id_selector: 'data-message-id' },
+    'claude': { user_selector: 'div[class="contents"]', ai_selector: 'div[class="contents"]' },
     'doubao': { user_selector: 'div[data-message-id]', ai_selector: 'div[data-message-id]', id_selector: 'data-message-id' },
 };
 
@@ -36,17 +37,16 @@ function getMatchedAdapter(host: string) {
 
 // ── 状态 ──────────────────────────────────────────────────────
 
-let vectorizeTimer: ReturnType<typeof setTimeout> | null = null;
-let lastUserText = '';
+let extractTimer: ReturnType<typeof setTimeout> | null = null; // 向量化定时器
 let currentConversationId: string | null = null;
 
 // Gemini URL 缓存：拦截 history.pushState/replaceState 捕获最新对话 URL
 let geminiLastCapturedUrl: string | null = null;
 
-/** 从 URL 中提取会话 ID（平台特定） */
+/** 从 URL 中提取会话 ID */
 function extractConversationId(url: string): string | null {
     try {
-        const pathname = new URL(url).pathname;
+        const pathname = new URL(url).pathname; // 路径
         switch (AIname) {
             case 'chatgpt': {
                 const m = pathname.match(/\/c\/([a-zA-Z0-9-]+)/);
@@ -82,7 +82,7 @@ function onConversationChanged() {
     }, 1500);
 }
 
-/** 初始化 URL 变化检测（所有平台通用，替代原 Gemini 专用逻辑） */
+/** 初始化 URL 变化检测 */
 function initUrlChangeDetection() {
     const checkUrlChange = () => {
         // Gemini 特殊：同步更新 geminiLastCapturedUrl
@@ -128,56 +128,25 @@ function initUrlChangeDetection() {
     checkUrlChange();
 }
 
-/** 获取 Gemini 当前对话的 URL */
-function getGeminiUrl(): string {
-    // 1. 当前 URL 已包含 /app/xxx
-    const pathMatch = window.location.pathname.match(/\/app\/[a-zA-Z0-9]+/);
-    if (pathMatch) return `${window.location.origin}${pathMatch[0]}`;
-
-    // 2. 使用拦截到的最新 URL
-    if (geminiLastCapturedUrl) return geminiLastCapturedUrl;
-
-    // 3. 从侧边栏找到当前活跃（focused / selected）的对话链接
-    const activeLink = document.querySelector<HTMLAnchorElement>(
-        'gem-nav-list-item[data-test-id="conversation"] a[aria-current], ' +
-        'gem-nav-list-item[data-test-id="conversation"][class*="selected"] a, ' +
-        'gem-nav-list-item[data-test-id="conversation"][class*="active"] a'
-    );
-    if (activeLink) {
-        const href = activeLink.getAttribute('href');
-        if (href) {
-            const match = href.match(/\/app\/[a-zA-Z0-9]+/);
-            if (match) return `${window.location.origin}${match[0]}`;
-        }
-    }
-
-    // 4. 兜底
-    console.warn('[CoBridge] Gemini URL: could not detect conversation ID, falling back to', window.location.href);
-    return window.location.href;
-}
-
 /** 向 background 发送消息的通用封装 */
-function sendMessageToBackground(message: any): Promise<any> {
-    return new Promise((resolve) => {
-        chrome.runtime.sendMessage(message, (response) => {
-            if (chrome.runtime.lastError) {
-                console.warn('[CoBridge] Message failed:', chrome.runtime.lastError.message);
-                resolve(null);
-            } else {
-                resolve(response);
-            }
-        });
-    });
+async function sendMessageToBackground(message: any): Promise<any> {
+    try {
+        const response = await chrome.runtime.sendMessage(message);
+        return response;
+    } catch (err) {
+        console.warn('[CoBridge] Message failed:', err);
+        return null;
+    }
 }
 
 // ── 主入口 ────────────────────────────────────────────────────
 
-const host = window.location.hostname;
+const host: string = window.location.hostname;
 const { AIname, adapter } = getMatchedAdapter(host);
 
 console.log('[CoBridge] TurnObserver loaded on:', host, 'matched:', AIname);
 
-// 1. 监听 popup 发来的消息
+// 消息协议
 interface MessageRequest {
   action: string;
   expectedUrl?: string;
@@ -186,26 +155,32 @@ interface MessageRequest {
   messageId?: string;
 }
 
-chrome.runtime.onMessage.addListener((request: MessageRequest, _sender, sendResponse) => {
+// 监听广播消息
+chrome.runtime.onMessage.addListener((request: MessageRequest, sender, sendResponse) => {
   switch (request.action) {
-    case 'gv.scanCurrentPage':
-      scanAllTurnsFromDom(request.expectedUrl!)
-        .then((pairs) => sendResponse({ ok: true, count: pairs.length, pairs }))
-        .catch((err: any) => sendResponse({ ok: false, error: String(err) }));
-      return true;
-
-    case 'gv.scrollToTurn':
-      scrollToTurn(request.userMessage!, request.turnIndex!, request.messageId!)
-        .then((found: boolean) => sendResponse({ ok: true, found }));
-      return true;
-
-    case 'gv.getSidebarConversations':
+    case 'cobridge.scanCurrentPage':
+        (async()=> {
+            try {
+                const pairs = await scanAllTurnsFromDom(request.expectedUrl!);
+                sendResponse({ ok: true, count: pairs.length, pairs })
+            } catch(err: any) {
+                sendResponse({ ok: false, error: String(err) });
+            }
+        })();
+        return true;
+    case 'cobridge.scrollToTurn':
+        (async()=> {
+            const found: boolean = await scrollToTurn(request.userMessage!, request.turnIndex!, request.messageId!);
+            sendResponse({ ok: true, found });
+        })();
+        return true;
+    case 'cobridge.getSidebarConversations':
       sendResponse({ ok: true, conversations: getSidebarConversations() });
       return false;
   }
 });
 
-// 2. 启动 MutationObserver 实时监听 + URL 变化检测
+// 启动 MutationObserver 实时监听 + URL 变化检测
 if (AIname !== 'default') {
     const init = () => {
         startObserver();
@@ -223,85 +198,71 @@ if (AIname !== 'default') {
 function startObserver() {
     console.log('[CoBridge] MutationObserver started for:', AIname);
 
-    const observer = new MutationObserver((mutations) => {
+    // 监控网页 dom 变化的 observer
+    const observer = new MutationObserver((mutations: MutationRecord[]) => {
         let hasNewMessage = false;
+        // 遍历所有变化
         for (const mutation of mutations) {
+            // 子节点增删
             if (mutation.type === 'childList') {
+                // 新增节点
                 for (const node of mutation.addedNodes) {
+                    // 判断是否是新消息
                     if (node instanceof HTMLElement && isMessageContainer(node, adapter)) {
                         hasNewMessage = true;
+                        console.log('[CoBridge] New message found:', node);
                         break;
                     }
                 }
             }
+            // 文本内容变化
+            /*
             if (mutation.type === 'characterData' && mutation.target.parentElement) {
                 if (isMessageContainer(mutation.target.parentElement, adapter)) {
                     hasNewMessage = true;
                 }
+                console.log('[CoBridge] Text content changed:', mutation.target.textContent);
             }
             if (hasNewMessage) break;
+             */
         }
-
         if (!hasNewMessage) return;
 
-        if (vectorizeTimer) clearTimeout(vectorizeTimer);
-        vectorizeTimer = setTimeout(() => {
+        if (extractTimer) clearTimeout(extractTimer);
+        extractTimer = setTimeout(() => {
+            // 提取最新轮次
             extractLatestTurn();
             // 新消息到达时触发全量扫描
-            performAutoScan();
-        }, 2000);
+            // performAutoScan();
+        }, 1000);
     });
 
     observer.observe(document.body, {
-        childList: true,
-        subtree: true,
-        characterData: true,
+        childList: true, // 字节点的增删
+        subtree: true, // 是否监控所有后代节点
+        characterData: true, // 文本内容变化
     });
 }
 
+/** 判断元素是否属于用户消息容器 */
 function isMessageContainer(el: HTMLElement, cfg: AdapterConfig): boolean {
     if (!el.querySelectorAll) return false;
-    if (cfg.user_selector && el.matches(cfg.user_selector)) return true;
-    if (cfg.ai_selector && el.matches(cfg.ai_selector)) return true;
-    if (cfg.user_selector && el.querySelector(cfg.user_selector)) return true;
-    if (cfg.ai_selector && el.querySelector(cfg.ai_selector)) return true;
-    return false;
+    // 自身匹配 + 内部包含匹配的元素
+    return !!cfg.user_selector && (
+        el.matches(cfg.user_selector) ||
+        el.querySelector(cfg.user_selector) !== null
+    );
 }
 
 // ── 提取并发送（实时模式：只提取最后一轮）─────────────────────
 
 function extractLatestTurn() {
+    // 提取最后一轮对话
     const pair = extractLastPair(adapter);
     if (!pair) return;
-
-    const textKey = pair.user.slice(0, 100);
-    if (textKey === lastUserText) return;
-    lastUserText = textKey;
-
-    console.log('[CoBridge] Realtime turn:', pair.user.slice(0, 60));
-    sendTurnToBackground(pair.user, pair.turnIndex, pair.messageId);
-}
-
-// ── 手动扫描：提取页面上所有对话轮次（不保存到存储，仅返回数据供搜索显示）──
-
-/** 获取当前对话的规范 URL（无查询参数、无 hash） */
-function getConversationUrl(): string {
-    if (AIname === 'gemini') return getGeminiUrl();
-
-    // 每次都从当前 URL 实时提取，不依赖缓存状态（避免 SPA 导航导致的 stale URL）
-    const conversationId = extractConversationId(window.location.href);
-
-    if (conversationId) {
-        const base = window.location.origin;
-        switch (AIname) {
-            case 'chatgpt': return `${base}/c/${conversationId}`;
-            case 'claude': return `${base}/chat/${conversationId}`;
-            case 'doubao': return `${base}/chat/${conversationId}`;
-        }
-    }
-
-    // 兜底：去掉 query 和 hash
-    return window.location.origin + window.location.pathname;
+    console.log('[CoBridge] Realtime turn:', pair.queryString.slice(0, 100));
+    // 发送给 background
+    sendTurnToBackground(pair.queryString, pair.turnIndex, pair.messageId);
 }
 
 // ── 自动扫描 ────────────────────────────────────────────────────
@@ -309,12 +270,13 @@ function getConversationUrl(): string {
 /** 执行自动扫描（会话 URL 变化时触发） */
 async function performAutoScan() {
     console.log('[CoBridge] Auto-scan triggered for:', AIname);
-    const conversationUrl = getConversationUrl();
+    // const conversationUrl = getConversationUrl();
+    const conversationUrl = window.location.href;
     const pairs = await scanAllTurnsFromDom(conversationUrl);
     await savePairsToBackground(pairs);
 }
 
-/** 轻量 DOM 扫描（不滚动，仅读取当前 DOM 中的消息） */
+/** 轻量 DOM 扫描 */
 async function scanAllTurnsFromDom(conversationUrl: string): Promise<{
     user: string; url: string; platform: string; turnIndex: number; messageId: string;
 }[]> {
@@ -344,7 +306,7 @@ async function savePairsToBackground(
     console.log('[CoBridge] Auto-scan: saving', pairs.length, 'turns');
     for (const pair of pairs) {
         await sendMessageToBackground({
-            type: 'gv.vectorizeAndSave',
+            type: 'cobridge.vectorizeAndSave',
             data: {
                 url: pair.url,
                 platform: pair.platform,
@@ -361,29 +323,30 @@ async function savePairsToBackground(
 // ── DOM 提取逻辑 ──────────────────────────────────────────────
 
 /** 从消息元素中提取 DOM 消息 ID */
+// claude 没有消息 ID
 function extractMessageId(el: HTMLElement, cfg: AdapterConfig): string {
     if (!cfg.id_selector) return '';
-    return el.getAttribute(cfg.id_selector) || el.closest(`[${cfg.id_selector}]`)?.getAttribute(cfg.id_selector) || '';
+    return el.getAttribute(cfg.id_selector) || '';
 }
 
 /** 提取最后一轮对话 */
-function extractLastPair(cfg: AdapterConfig): { user: string; turnIndex: number; messageId: string } | null {
+function extractLastPair(cfg: AdapterConfig) {
     switch (AIname) {
         case 'gemini':
         case 'chatgpt': {
             const queries = document.querySelectorAll<HTMLElement>(cfg.user_selector);
             if (queries.length === 0) return null;
-            const userEl = queries[queries.length - 1];
-            const user = userEl.innerText?.trim() || '';
-            return user.length >= 2 ? { user, turnIndex: queries.length - 1, messageId: extractMessageId(userEl, cfg) } : null;
+            const queryEl = queries[queries.length - 1];
+            const queryString = queryEl.innerText?.trim() || '';
+            return { queryString, turnIndex: queries.length - 1, messageId: extractMessageId(queryEl, cfg) };
         }
         case 'doubao':
         case 'claude': {
             const msgs = document.querySelectorAll<HTMLElement>(cfg.user_selector);
-            if (msgs.length < 2) return null;
-            const userEl = msgs[msgs.length - 2];
-            const user = userEl.innerText?.trim() || '';
-            return user.length >= 2 ? { user, turnIndex: (msgs.length - 2) / 2, messageId: extractMessageId(userEl, cfg) } : null;
+            if (msgs.length === 0) return null;
+            const queryEl = msgs[msgs.length - 2];
+            const queryString = queryEl.innerText?.trim() || '';
+            return { queryString, turnIndex: (msgs.length - 2) / 2, messageId: extractMessageId(queryEl, cfg) };
         }
         default:
             return null;
@@ -516,13 +479,14 @@ function highlightTarget(el: HTMLElement) {
 
 // ── 发送到 background ─────────────────────────────────────────
 
-async function sendTurnToBackground(userMessage: string, turnIndex: number, messageId: string) {
+async function sendTurnToBackground(queryString: string, turnIndex: number, messageId: string) {
+    // 向量化并保存
     const response = await sendMessageToBackground({
-        type: 'gv.vectorizeAndSave',
+        type: 'cobridge.vectorizeAndSave',
         data: {
-            url: getConversationUrl(),
+            url: window.location.href,
             platform: AIname,
-            userMessage: userMessage.slice(0, 500),
+            userMessage: queryString.slice(0, 500),
             timestamp: Date.now(),
             turnIndex,
             messageId,

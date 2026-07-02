@@ -94,7 +94,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         console.log('[CoBridge] Offscreen: computing embedding for text length:', request.text?.length);
 
         // 动态导入 embedding 模块
-        import('./src/utils/embeddingService')
+        import('../utils/embeddingService')
             .then(({ getEmbedding }) => getEmbedding(request.text))
             .then((embedding) => {
                 console.log('[CoBridge] Offscreen: embedding computed, dimension:', embedding.length);
@@ -111,7 +111,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.type === 'offscreen.warmup') {
         console.log('[CoBridge] Offscreen: warming up model...');
 
-        import('./src/utils/embeddingService')
+        import('../utils/embeddingService')
             .then(({ getExtractor }) => getExtractor())
             .then(() => {
                 console.log('[CoBridge] Offscreen: model warmed up');

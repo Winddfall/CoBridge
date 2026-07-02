@@ -230,7 +230,8 @@ export async function initSearch() {
     const searchStatus = document.getElementById('searchStatus')!; // 搜索状态
     const batchScanBtn = document.getElementById('batchScanBtn') as HTMLButtonElement; // 批量按钮
 
-    let searchTimer: ReturnType<typeof setTimeout> | null = null;
+    // 在不同的环境中，setTimeout() 返回的类型不同，这样写能适应不同类型
+    let searchTimer: ReturnType<typeof setTimeout> | null = null; // 输入框定时器
     let searchGeneration = 0;
     // 读值接口
     const getGeneration = () => searchGeneration;

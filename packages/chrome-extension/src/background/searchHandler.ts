@@ -3,145 +3,82 @@
 import { cosineSimilarity } from '../utils/embeddingService';
 import { getAllTurns, type ConversationTurn } from '../utils/historyStore';
 
-// 这个函数会在 background.ts 中被调用，传入 requestEmbedding 函数
+interface searchResult {
+    data: [];
+    mode: 'empty' | 'semantic' | 'no-embeddings' | 'error';
+}
+
+const empty: searchResult = { data: [], mode: 'empty' };
+const noEmbeddings: searchResult = { data: [], mode: 'no-embeddings' };
+const error: searchResult = { data: [], mode: 'error' };
+
+// 词嵌入函数
 let requestEmbedding: ((text: string) => Promise<number[]>) | null = null;
 
+/** 设置词嵌入函数 */
 export function setSearchRequestEmbedding(fn: (text: string) => Promise<number[]>) {
     requestEmbedding = fn;
 }
 
-export function handleSearchConversations(request: any, sendResponse: (response: any) => void) {
+export async function handleSearchConversations(request: any) {
     // 按照键值来解构
     const { query, limit, platform } = request;
 
     if (!platform) {
-        sendResponse({ ok: false, error: 'platform is required' });
-        return;
+        throw new Error('platform is required');
     }
 
-    getAllTurns(platform)
-        .then((turns) => {
-            console.log('[CoBridge] Search: found', turns.length, 'records for platform:', platform);
-
-            if (turns.length === 0) {
-                sendResponse({ ok: true, data: [], mode: 'empty' });
-                return;
-            }
-
-            // 检查是否有嵌入向量可用
-            const withEmbeddings = turns.filter((t) => t.embedding && t.embedding.length > 0);
-            const hasEmbeddings = withEmbeddings.length > 0;
-
-            console.log('[CoBridge] Search:', withEmbeddings.length, '/', turns.length, 'records have embeddings');
-
-            if (!hasEmbeddings) {
-                // 无 embedding 时，用精确文本匹配兜底
-                console.log('[CoBridge] No embeddings available, using exact text match');
-                const results = exactTextSearch(query, turns, limit || 20);
-                sendResponse({ ok: true, data: results, mode: 'text-fallback' });
-                return;
-            }
-
-            // 语义搜索路径
-            console.log('[CoBridge] Using semantic search for query:', query);
-            semanticSearch(query, turns, limit || 20, sendResponse);
-        })
-        .catch((err: Error) => {
-            console.error('[CoBridge] Search failed:', err);
-            sendResponse({ ok: false, error: err.message });
-        });
+    // 获取指定平台的所有历史记录
+    const turns: ConversationTurn[] = await getAllTurns(platform);
+    console.log('[CoBridge] Search: found', turns.length, 'records for platform:', platform);
+    // 校验空数组
+    if (turns.length === 0) return empty;
+    // 校验空 embedding
+    const withEmbeddings = turns.filter((t: ConversationTurn) => t.embedding && t.embedding.length > 0);
+    console.log('[CoBridge] Search:', withEmbeddings.length, '/', turns.length, 'records have embeddings');
+    if (withEmbeddings.length === 0) return noEmbeddings;
+    console.log('[CoBridge] Using semantic search for query:', query);
+    // 语义搜索
+    return semanticSearch(query, turns, limit);
 }
 
-/** 语义搜索：嵌入向量余弦相似度 */
-function semanticSearch(
+/** 语义搜索 */
+async function semanticSearch(
     query: string,
     turns: ConversationTurn[],
     limit: number,
-    sendResponse: (response: any) => void,
 ) {
+    // 看不懂，先跳过
     if (!requestEmbedding) {
         console.error('[CoBridge] requestEmbedding not set for search');
-        sendResponse({ ok: true, data: [], mode: 'no-embeddings' });
-        return;
+        // todo
+        return ({ data: [], mode: 'no-embeddings' });
     }
 
-    requestEmbedding(query)
-        .then((queryEmbedding) => {
-            const SCORE_THRESHOLD = 0.5;
+    try {
+        // 计算查询语句的 embedding
+        const queryEmbedding: number[] = await requestEmbedding(query);
+        const SCORE_THRESHOLD = 0.5;
 
-            const results = turns
-                .map((turn) => {
-                    const semanticScore = turn.embedding?.length > 0
-                        ? cosineSimilarity(queryEmbedding, turn.embedding)
-                        : 0;
+        // 搜索结果
+        const results = turns
+            .map(turn=> {
+                // 计算当前轮次的语义相似度
+                const semanticScore = turn.embedding?.length > 0
+                    ? cosineSimilarity(queryEmbedding, turn.embedding)
+                    : 0;
+                return {
+                    ...turn, // 展开所有属性
+                    score: semanticScore, // 相似度得分
+                };
+            })
+            .filter(item => item.score >= SCORE_THRESHOLD) // 过滤出相似度大于等于阈值的记录
+            .sort((a, b) => b.score - a.score) // 根据相似度得分降序排序
+            .slice(0, limit); // 截取返回结果
 
-                    return {
-                        ...turn,
-                        score: semanticScore,
-                    };
-                })
-                .filter((item) => item.score >= SCORE_THRESHOLD)
-                .sort((a, b) => b.score - a.score)
-                .slice(0, limit);
-
-            sendResponse({ ok: true, data: results, mode: 'semantic' });
-        })
-        .catch((err: Error) => {
-            console.error('[CoBridge] Semantic search failed:', err.message);
-            sendResponse({ ok: true, data: [], mode: 'error' });
-        });
+        return { data: results, mode: 'semantic' };
+    } catch(err: unknown) {
+        const message = err instanceof Error ? err.message : 'Unknown error';
+        throw new Error(`[CoBridge] Search Failed: ${message}`);
+    }
 }
-
-/** 模糊文本匹配：无 embedding 时的兜底搜索（支持子串 + 字符级模糊匹配） */
-function exactTextSearch(
-    query: string,
-    turns: ConversationTurn[],
-    limit: number,
-): (ConversationTurn & { score: number })[] {
-    const queryNorm = query.toLowerCase().trim();
-    if (!queryNorm) return [];
-
-    // 将查询拆分为字符和词（支持中英文混合）
-    const queryChars = [...queryNorm];
-    // 英文按空格分词，中文逐字
-    const queryTokens = queryNorm.match(/[\u4e00-\u9fff]|[a-z0-9]+/gi) || [];
-
-    return turns
-        .map((turn) => {
-            const text = turn.userMessage.toLowerCase().trim();
-
-            // 1. 完全匹配
-            if (text === queryNorm) return { ...turn, score: 1.0 };
-
-            // 2. 记录包含查询（子串匹配）
-            if (text.includes(queryNorm)) {
-                const ratio = queryNorm.length / text.length;
-                return { ...turn, score: 0.6 + 0.35 * ratio }; // 0.6~0.95
-            }
-
-            // 3. 查询包含记录
-            if (queryNorm.includes(text)) {
-                const ratio = text.length / queryNorm.length;
-                return { ...turn, score: 0.5 + 0.3 * ratio }; // 0.5~0.8
-            }
-
-            // 4. Token 级模糊匹配（支持部分关键词命中）
-            if (queryTokens.length > 0) {
-                const matchedTokens = queryTokens.filter(t => text.includes(t));
-                const tokenRatio = matchedTokens.length / queryTokens.length;
-                if (tokenRatio > 0) {
-                    // token 命中的字符在查询中占的比例
-                    const matchedLength = matchedTokens.reduce((sum, t) => sum + t.length, 0);
-                    const lengthRatio = matchedLength / queryNorm.length;
-                    const score = 0.2 + 0.4 * tokenRatio * lengthRatio;
-                    if (score > 0.2) return { ...turn, score };
-                }
-            }
-
-            return { ...turn, score: 0 };
-        })
-        .filter((t) => t.score > 0)
-        .sort((a, b) => b.score - a.score)
-        .slice(0, limit);
-}
-

@@ -15,10 +15,8 @@
     "http://127.0.0.1/*",
     "http://localhost/*",
 
-    "*://*.googleusercontent.com/*",
+
     "*://gemini.google.com/*",
-    "*://googleusercontent.com/*",
-    "*://*.google.com/*",
 
     "*://www.doubao.com/*",
 

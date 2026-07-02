@@ -68,7 +68,16 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     // 语义搜索
     if (request.type === "cobridge.searchConversations") {
-        handleSearchConversations(request, sendResponse);
+        (async () => {
+            try {
+                const result = await handleSearchConversations(request);
+                // 统一在这里回复，成功路径唯一
+                sendResponse({ ok: true, data: result });
+            } catch (err: any) {
+                // 统一错误处理，不会遗漏
+                sendResponse({ ok: false, error: err.message });
+            }
+        })();
         return true;
     }
 

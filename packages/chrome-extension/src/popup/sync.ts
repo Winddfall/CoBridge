@@ -76,6 +76,7 @@ export async function initSync() {
         if (tip) tip.style.display = 'none';
 
         try {
+            // 当前标签页
             const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
             if (
@@ -92,6 +93,7 @@ export async function initSync() {
                 throw new Error(t('unsupportedSite'));
             }
 
+            // 给当前标签页上的 content script 发送消息
             const response = await chrome.tabs.sendMessage(tab.id, {
                 action: 'sync_to_agent'
             });

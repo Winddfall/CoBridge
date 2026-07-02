@@ -1,5 +1,6 @@
 // 对话历史存储：管理 chrome.storage.local 中的对话轮次记录
 
+// 对话对象
 export interface ConversationTurn {
     id: string;           // 唯一ID: `${platform}_${timestamp}_${index}`
     url: string;          // 对话页面 URL
@@ -11,9 +12,11 @@ export interface ConversationTurn {
     messageId: string;    // DOM 消息容器 ID（如有）
 }
 
+/** 获取平台对应的对话历史库键 */
 function getStorageKey(platform: string): string {
     return `cobridge_history_${platform}`;
 }
+
 const MAX_RECORDS = 200;
 const EMBEDDING_DEDUP_THRESHOLD = 0.95;
 
@@ -34,11 +37,9 @@ function cosineSimilarity(a: number[], b: number[]): number {
  * 获取指定平台的所有历史记录
  */
 export async function getAllTurns(platform: string): Promise<ConversationTurn[]> {
-    return new Promise((resolve) => {
-        chrome.storage.local.get([getStorageKey(platform)], (result) => {
-            resolve(result[getStorageKey(platform)] || []);
-        });
-    });
+    const storageKey = getStorageKey(platform);
+    const storage: { [key: string]: ConversationTurn[] } = await chrome.storage.local.get(storageKey);
+    return storage[storageKey] || [];
 }
 
 /**
