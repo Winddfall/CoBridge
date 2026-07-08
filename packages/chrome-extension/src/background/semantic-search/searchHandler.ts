@@ -1,7 +1,7 @@
 // 语义搜索：计算查询嵌入，与存储的对话向量比对相似度
 
-import { cosineSimilarity } from '../utils/embeddingService';
-import { getAllTurns, type ConversationTurn } from '../utils/historyStore';
+import { cosineSimilarity } from '../../utils/embeddingService';
+import { getAllTurns, type ConversationTurn } from '../../utils/historyStore';
 
 interface searchResult {
     data: [];
@@ -10,7 +10,7 @@ interface searchResult {
 
 const empty: searchResult = { data: [], mode: 'empty' };
 const noEmbeddings: searchResult = { data: [], mode: 'no-embeddings' };
-const error: searchResult = { data: [], mode: 'error' };
+const noRequestEmbedding = { data: [], mode: 'no-request embedding' };
 
 // 词嵌入函数
 let requestEmbedding: ((text: string) => Promise<number[]>) | null = null;
@@ -28,16 +28,13 @@ export async function handleSearchConversations(request: any) {
         throw new Error('platform is required');
     }
 
-    // 获取指定平台的所有历史记录
-    const turns: ConversationTurn[] = await getAllTurns(platform);
-    console.log('[CoBridge] Search: found', turns.length, 'records for platform:', platform);
-    // 校验空数组
-    if (turns.length === 0) return empty;
-    // 校验空 embedding
-    const withEmbeddings = turns.filter((t: ConversationTurn) => t.embedding && t.embedding.length > 0);
-    console.log('[CoBridge] Search:', withEmbeddings.length, '/', turns.length, 'records have embeddings');
-    if (withEmbeddings.length === 0) return noEmbeddings;
-    console.log('[CoBridge] Using semantic search for query:', query);
+    let turns: ConversationTurn[] = await getAllTurns(platform);
+    // 没有记录
+    if (turns.length === 0)     return empty;
+    // 没有向量
+    turns = turns.filter(t => t.embedding);
+    if (turns.length === 0)     return noEmbeddings;
+
     // 语义搜索
     return semanticSearch(query, turns, limit);
 }
@@ -50,9 +47,7 @@ async function semanticSearch(
 ) {
     // 看不懂，先跳过
     if (!requestEmbedding) {
-        console.error('[CoBridge] requestEmbedding not set for search');
-        // todo
-        return ({ data: [], mode: 'no-embeddings' });
+        return noRequestEmbedding;
     }
 
     try {
@@ -62,9 +57,10 @@ async function semanticSearch(
 
         // 搜索结果
         const results = turns
+            // map() 遍历所有记录，加上相似度得分
             .map(turn=> {
                 // 计算当前轮次的语义相似度
-                const semanticScore = turn.embedding?.length > 0
+                const semanticScore = turn.embedding?.length
                     ? cosineSimilarity(queryEmbedding, turn.embedding)
                     : 0;
                 return {

@@ -1,4 +1,4 @@
-import { getBase64Safe, getServerUrl, convertTableToMarkdown } from "../utils";
+import {convertTableToMarkdown, getBase64Safe, getServerUrl} from "../../utils";
 
 declare global {
     interface Window {
@@ -45,7 +45,6 @@ const ADAPTERS: Adapters = {
 // 检查脚本是不是第一次注入
 if (typeof window.COBRIDGE === 'undefined') {
     window.COBRIDGE = true;
-
     // 向浏览器控制台打印日志
     console.log('🚀 CoBridge Extension Active');
 
@@ -55,16 +54,18 @@ if (typeof window.COBRIDGE === 'undefined') {
     // sendResponse 是 Chrome 提前定义好的回调函数，直接使用即可
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         if (request.action === "sync_to_agent") {
-            // 抓取上下文并同步
-            captureDialogue().then(data => {
-                console.log('Captured data:', data);
-                return syncToAgent(data);
-            }).then(res => {
-                sendResponse({ status: "success", data: res }); // 返回同步结果给 Popup
-            }).catch(err => {
-                console.error('Sync failed:', err);
-                sendResponse({ status: "error", message: err.message || err.toString() });
-            });
+            (async () => {
+                // 抓取上下文并同步
+                try {
+                    const dialogue: any[] = await captureDialogue();
+                    console.log('Captured data:', dialogue);
+                    const response = syncToAgent(dialogue);
+                    sendResponse({ status: "success", data: response }); // 返回同步结果给 Popup
+                } catch (err: any) {
+                    console.error('Sync failed:', err);
+                    sendResponse({ status: "error", message: err.message });
+                }
+            })();
             return true; // 保持消息通道打开，以便异步发送响应
         }
     });
@@ -188,8 +189,8 @@ async function captureDialogue(): Promise<any[]> {
         };
     };
 
-    const buildConversation = async () => {
-        let conversation: any[] = [];
+    const buildDialogue = async () => {
+        let dialogue: any[] = [];
         switch (AIname) {
             case 'gemini':
             case 'chatgpt':
@@ -199,11 +200,11 @@ async function captureDialogue(): Promise<any[]> {
                     // 用户
                     console.log('query:', queries[i]);
                     const query = await extractNodeInfo(queries[i], 'user');
-                    if (query)   conversation.push(query);
+                    if (query)   dialogue.push(query);
                     // AI
                     console.log('response:', responses[i]);
                     const response = await extractNodeInfo(responses[i], 'assistant');
-                    if (response)   conversation.push(response);
+                    if (response)   dialogue.push(response);
                 }
                 break;
             case 'doubao':
@@ -213,35 +214,30 @@ async function captureDialogue(): Promise<any[]> {
                         // 用户
                         console.log('query:', messages[i]);
                         const query = await extractNodeInfo(messages[i], 'user');
-                        if (query)   conversation.push(query);
+                        if (query)   dialogue.push(query);
                     } else {
                         // AI
                         console.log('response:', messages[i]);
                         const response = await extractNodeInfo(messages[i], 'assistant');
-                        if (response)   conversation.push(response);
+                        if (response)   dialogue.push(response);
                     }
                 }
                 break;
             default:
                 return [];
         }
-        return conversation;
+        return dialogue;
     };
-
-    return buildConversation();
+    return buildDialogue();
 }
 
 // 同步到 Agent（通过后台 Service Worker 转发，避免 CORS 限制）
 async function syncToAgent(data: any[]) {
     console.log('📡 Syncing to Agent via background...', data);
     const url = await getServerUrl();
-    return new Promise((resolve, reject) => {
-        chrome.runtime.sendMessage({ type: 'gv.syncToAgent', url, data }, (response) => {
-            if (response && response.ok) {
-                resolve(response.data);
-            } else {
-                reject(new Error(response?.error || 'Agent not responding.'));
-            }
-        });
-    });
+    try {
+        return await chrome.runtime.sendMessage({type: "cobridge.syncToAgent", url, data});
+    } catch (err: any) {
+
+    }
 }

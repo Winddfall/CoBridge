@@ -9,35 +9,42 @@ const MAX_LOAD_RETRIES = 3;
 
 // HuggingFace 主站和镜像站
 const REMOTE_HOSTS = [
-    'https://hf-mirror.com',      // 镜像站（国内更稳定）
+    'https://hf-mirror.com',      // 镜像站
     'https://huggingface.co',     // 主站
 ];
 
 let extractor: any = null;
 let loadingPromise: Promise<any> | null = null;
 
-// 检测当前环境是否是 offscreen document
-const isOffscreen = typeof window !== 'undefined' && window.location?.pathname?.includes('offscreen');
-
-// 动态导入 transformers.js（仅在 offscreen document 中使用）
+// 动态导入 transformers.js
 let transformersModule: any = null;
 async function loadTransformers() {
-    if (!transformersModule) {
+    if (!transformersModule) { // 只加载一次
         transformersModule = await import('@xenova/transformers');
         // Cache API 不支持 chrome-extension:// 协议，必须禁用浏览器缓存
-        transformersModule.env.useBrowserCache = false;
+        transformersModule.env.useBrowserCache = true;
+        // Chrome 扩展环境中禁用本地模型加载（扩展中没有 /models/ 目录）
+        transformersModule.env.allowLocalModels = false;
+        // 正确配置 ONNX Runtime Web 的 WASM 参数
+        // 注意：transformers.js 的 env 没有 wasm 属性，正确路径是 env.backends.onnx.wasm
+        const onnxWasm = transformersModule.env.backends?.onnx?.wasm;
+        if (onnxWasm) {
+            onnxWasm.numThreads = 1;      // 禁用多线程 worker
+            onnxWasm.proxy = false;       // 禁用 proxy worker
+            onnxWasm.wasmPaths = chrome.runtime.getURL('wasm/');
+        }
     }
     return transformersModule;
 }
 
 /**
- * 用指定的远程主机尝试加载模型
+ * 用指定的远程服务器尝试加载模型
  */
 async function tryLoadWithHost(host: string): Promise<any> {
+    // 提取 pipeline 函数和 env 配置对象
     const { pipeline, env } = await loadTransformers();
     env.remoteHost = host;
-    console.log(`[CoBridge] Trying to load model from: ${host}`);
-
+    // 竞速模式
     return Promise.race([
         pipeline('feature-extraction', MODEL_NAME, { quantized: true }),
         new Promise<never>((_, reject) =>
@@ -47,88 +54,84 @@ async function tryLoadWithHost(host: string): Promise<any> {
 }
 
 /**
- * 初始化并获取嵌入模型（仅在 offscreen document 中使用）
- * 带有多主机回退和重试逻辑
+ * 尝试从所有远程服务器加载模型
  */
-export async function getExtractor(): Promise<any> {
-    if (!isOffscreen) {
-        throw new Error('getExtractor() can only be called in offscreen document');
-    }
+async function loadExtractorWithRetry(): Promise<any> {
+    let lastError: Error | null = null;
 
-    if (extractor) return extractor;
-    if (loadingPromise) return loadingPromise;
+    for (const host of REMOTE_HOSTS) {
+        for (let attempt = 1; attempt <= MAX_LOAD_RETRIES; attempt++) {
+            try {
+                const pipe = await tryLoadWithHost(host);
+                console.log(`[CoBridge] Embedding model loaded successfully from ${host} (attempt ${attempt})`);
+                return pipe;
+            } catch (err: any) {
+                lastError = err;
+                console.warn(
+                    `[CoBridge] Model load failed from ${host} (attempt ${attempt}/${MAX_LOAD_RETRIES}):`,
+                    err.message
+                );
 
-    console.log('[CoBridge] Loading embedding model:', MODEL_NAME);
-
-    loadingPromise = (async () => {
-        let lastError: Error | null = null;
-
-        // 对每个主机重试
-        for (const host of REMOTE_HOSTS) {
-            for (let attempt = 1; attempt <= MAX_LOAD_RETRIES; attempt++) {
-                try {
-                    const pipe = await tryLoadWithHost(host);
-                    extractor = pipe;
-                    console.log(`[CoBridge] Embedding model loaded successfully from ${host} (attempt ${attempt})`);
-                    return pipe;
-                } catch (err: any) {
-                    lastError = err;
-                    console.warn(
-                        `[CoBridge] Model load failed from ${host} (attempt ${attempt}/${MAX_LOAD_RETRIES}):`,
-                        err.message
-                    );
-
-                    // 如果不是最后一次尝试，等待后重试（指数退避）
-                    if (attempt < MAX_LOAD_RETRIES) {
-                        const delay = 1000 * Math.pow(2, attempt - 1); // 1s, 2s, 4s
-                        console.log(`[CoBridge] Retrying in ${delay}ms...`);
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                    }
+                if (attempt < MAX_LOAD_RETRIES) {
+                    const delay = 1000 * Math.pow(2, attempt - 1); // 1s, 2s, 4s
+                    console.log(`[CoBridge] Retrying in ${delay}ms...`);
+                    // 等待
+                    await new Promise(resolve => setTimeout(resolve, delay));
                 }
             }
-            console.warn(`[CoBridge] All attempts failed for host: ${host}, trying next...`);
         }
+        console.warn(`[CoBridge] All attempts failed for host: ${host}, trying next...`);
+    }
 
-        // 所有主机和重试都失败
-        console.error('[CoBridge] Embedding model load failed on all hosts');
-        throw lastError || new Error('All model loading attempts failed');
-    })();
+    console.error('[CoBridge] Embedding model load failed on all hosts');
+    throw lastError || new Error('All model loading attempts failed');
+}
 
-    loadingPromise.catch(() => {
-        // 失败后重置 promise，允许下次重试
-        loadingPromise = null;
-    });
-
+/**
+ *
+ */
+export async function getExtractor(): Promise<any> {
+    // 只有当 loadingPromise 为 null 的时候才会执行这里，也就是说一旦 loadExtractorWithRetry() 执行成功，以后就再也不会执行这里
+    if (!loadingPromise) {
+        console.log('[CoBridge] Loading embedding model:', MODEL_NAME);
+        loadingPromise = (async () => {
+            try {
+                const extractor = await loadExtractorWithRetry();
+                return extractor;
+            } catch (err) {
+                loadingPromise = null;
+                throw err;
+            }
+        })();
+    }
     return loadingPromise;
 }
 
 /**
- * 计算文本的嵌入向量（384 维）
+ * 计算文本的嵌入向量
  * 注意：此函数只能在 offscreen document 中调用
  * 在 Service Worker 中，请使用 requestEmbeddingFromOffscreen 函数
  */
 export async function getEmbedding(text: string): Promise<number[]> {
-    if (!isOffscreen) {
-        throw new Error('getEmbedding() can only be called in offscreen document. Use requestEmbeddingFromOffscreen() in Service Worker.');
-    }
-
-    console.log('[CoBridge] Computing embedding in offscreen document');
+    console.log('[CoBridge] Computing embedding');
+    //
     const pipe = await getExtractor();
     const output = await pipe(text, { pooling: 'mean', normalize: true });
     return Array.from(output.data as Float32Array);
 }
 
 /**
- * 计算两个向量的余弦相似度（纯计算，无模型依赖）
+ * 计算两个向量的余弦相似度
  */
 export function cosineSimilarity(a: number[], b: number[]): number {
     if (a.length !== b.length) return 0;
-    let dot = 0, normA = 0, normB = 0;
+    let dot: number = 0, normA: number = 0, normB: number = 0; // dot 是点积结果，normA normB 是a,b平方
     for (let i = 0; i < a.length; i++) {
         dot += a[i] * b[i];
         normA += a[i] * a[i];
         normB += b[i] * b[i];
     }
+    // 归一化
     const denom = Math.sqrt(normA) * Math.sqrt(normB);
-    return denom === 0 ? 0 : dot / denom;
+    return dot / denom;
 }

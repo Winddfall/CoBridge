@@ -8,7 +8,7 @@
 interface AdapterConfig {
     user_selector: string;
     ai_selector: string;
-    id_selector?: string;  // 消息容器上的 ID 属性名，如 'data-message-id'
+    id_selector?: string;  // 消息容器上的 ID 属性名
 }
 
 interface Adapters {
@@ -18,14 +18,35 @@ interface Adapters {
 
 // 这里的 id_selector ：每一条消息（无论问答）都有一个唯一的 ID
 const ADAPTERS: Adapters = {
-    default: { user_selector: '', ai_selector: '' },
-    'gemini': { user_selector: 'div.query-content', ai_selector: '.response-content', id_selector: 'id' },
-    'chatgpt': { user_selector: '[data-message-author-role="user"]', ai_selector: '[data-message-author-role="assistant"]', id_selector: 'data-message-id' },
-    'claude': { user_selector: 'div[class="contents"]', ai_selector: 'div[class="contents"]' },
-    'doubao': { user_selector: 'div[data-message-id]', ai_selector: 'div[data-message-id]', id_selector: 'data-message-id' },
+    default: {
+        user_selector: '',
+        ai_selector: ''
+    },
+    'gemini': {
+        user_selector: 'div.query-content',
+        ai_selector: '.response-content',
+        id_selector: 'id'
+    },
+    'chatgpt': {
+        user_selector: '[data-message-author-role="user"]',
+        ai_selector: '[data-message-author-role="assistant"]',
+        id_selector: 'data-message-id'
+    },
+    // claude 平台没有消息 ID
+    'claude': {
+        user_selector: 'div[class="contents"]',
+        ai_selector: 'div[class="contents"]'
+    },
+    'doubao': {
+        user_selector: 'div[data-message-id]',
+        ai_selector: 'div[data-message-id]',
+        id_selector: 'data-message-id'
+    },
 };
 
 function getMatchedAdapter(host: string) {
+    // 特殊处理 chat.openai.com，它不包含 'chatgpt' 子串
+    if (host.includes('chat.openai.com')) return { AIname: 'chatgpt', adapter: ADAPTERS['chatgpt'] };
     for (const key of Object.keys(ADAPTERS)) {
         if (key === 'default') continue;
         if (host.includes(key)) {
@@ -37,11 +58,8 @@ function getMatchedAdapter(host: string) {
 
 // ── 状态 ──────────────────────────────────────────────────────
 
-let extractTimer: ReturnType<typeof setTimeout> | null = null; // 向量化定时器
+let extractTimer: ReturnType<typeof setTimeout> | null = null; // 向量化的定时器
 let currentConversationId: string | null = null;
-
-// Gemini URL 缓存：拦截 history.pushState/replaceState 捕获最新对话 URL
-let geminiLastCapturedUrl: string | null = null;
 
 /** 从 URL 中提取会话 ID */
 function extractConversationId(url: string): string | null {
@@ -85,14 +103,6 @@ function onConversationChanged() {
 /** 初始化 URL 变化检测 */
 function initUrlChangeDetection() {
     const checkUrlChange = () => {
-        // Gemini 特殊：同步更新 geminiLastCapturedUrl
-        if (AIname === 'gemini') {
-            const match = window.location.pathname.match(/\/app\/[a-zA-Z0-9]+/);
-            if (match) {
-                geminiLastCapturedUrl = `${window.location.origin}${match[0]}`;
-            }
-        }
-
         const newId = extractConversationId(window.location.href);
         if (newId && newId !== currentConversationId) {
             const oldId = currentConversationId;
@@ -131,8 +141,7 @@ function initUrlChangeDetection() {
 /** 向 background 发送消息的通用封装 */
 async function sendMessageToBackground(message: any): Promise<any> {
     try {
-        const response = await chrome.runtime.sendMessage(message);
-        return response;
+        return await chrome.runtime.sendMessage(message);
     } catch (err) {
         console.warn('[CoBridge] Message failed:', err);
         return null;
@@ -146,13 +155,13 @@ const { AIname, adapter } = getMatchedAdapter(host);
 
 console.log('[CoBridge] TurnObserver loaded on:', host, 'matched:', AIname);
 
-// 消息协议
+// 语义搜索功能，消息协议
 interface MessageRequest {
   action: string;
-  expectedUrl?: string;
-  userMessage?: string;
-  turnIndex?: number;
-  messageId?: string;
+  expectedUrl: string;
+  userMessage: string;
+  turnIndex: number;
+  messageId: string;
 }
 
 // 监听广播消息
@@ -169,14 +178,15 @@ chrome.runtime.onMessage.addListener((request: MessageRequest, sender, sendRespo
         })();
         return true;
     case 'cobridge.scrollToTurn':
-        (async()=> {
-            const found: boolean = await scrollToTurn(request.userMessage!, request.turnIndex!, request.messageId!);
-            sendResponse({ ok: true, found });
+        (async ()=> {
+            try {
+                const found: boolean = await scrollToTurn(request.turnIndex, request.messageId);
+                sendResponse({ ok: true, found });
+            } catch (err: any) {
+                sendResponse({ ok: false, error: String(err) });
+            }
         })();
         return true;
-    case 'cobridge.getSidebarConversations':
-      sendResponse({ ok: true, conversations: getSidebarConversations() });
-      return false;
   }
 });
 
@@ -196,8 +206,6 @@ if (AIname !== 'default') {
 // ── MutationObserver ──────────────────────────────────────────
 
 function startObserver() {
-    console.log('[CoBridge] MutationObserver started for:', AIname);
-
     // 监控网页 dom 变化的 observer
     const observer = new MutationObserver((mutations: MutationRecord[]) => {
         let hasNewMessage = false;
@@ -215,32 +223,22 @@ function startObserver() {
                     }
                 }
             }
-            // 文本内容变化
-            /*
-            if (mutation.type === 'characterData' && mutation.target.parentElement) {
-                if (isMessageContainer(mutation.target.parentElement, adapter)) {
-                    hasNewMessage = true;
-                }
-                console.log('[CoBridge] Text content changed:', mutation.target.textContent);
-            }
-            if (hasNewMessage) break;
-             */
         }
         if (!hasNewMessage) return;
 
+        /* 防抖逻辑 */
         if (extractTimer) clearTimeout(extractTimer);
+        // 这里 extractTimer 的值是一个数字
         extractTimer = setTimeout(() => {
-            // 提取最新轮次
+            // 提取最新轮次并发送给 background
             extractLatestTurn();
-            // 新消息到达时触发全量扫描
-            // performAutoScan();
-        }, 1000);
+            extractTimer = null;
+        }, 5000);
     });
 
     observer.observe(document.body, {
         childList: true, // 字节点的增删
         subtree: true, // 是否监控所有后代节点
-        characterData: true, // 文本内容变化
     });
 }
 
@@ -257,12 +255,56 @@ function isMessageContainer(el: HTMLElement, cfg: AdapterConfig): boolean {
 // ── 提取并发送（实时模式：只提取最后一轮）─────────────────────
 
 function extractLatestTurn() {
+    /** 提取最后一轮对话 */
+    const extractLastPair = (cfg: AdapterConfig) => {
+        switch (AIname) {
+            case 'gemini':
+            case 'chatgpt': {
+                const queries = document.querySelectorAll<HTMLElement>(cfg.user_selector);
+                if (queries.length === 0) return null;
+                const queryEl: HTMLElement = queries[queries.length - 1];
+                let queryString: string = queryEl.innerText?.trim() || '';
+                if (AIname === 'gemini') queryString = queryString.slice(4); // 去掉 "你说\n\n" 前缀
+                return { queryString, turnIndex: queries.length - 1, messageId: extractMessageId(queryEl, cfg) };
+            }
+            case 'doubao':
+            case 'claude': {
+                const msgs = document.querySelectorAll<HTMLElement>(cfg.user_selector);
+                if (msgs.length === 0) return null;
+                const queryEl: HTMLElement = msgs[msgs.length - 2];
+                const queryString: string = queryEl.innerText?.trim() || '';
+                return { queryString, turnIndex: (msgs.length - 2) / 2, messageId: extractMessageId(queryEl, cfg) };
+            }
+            default:
+                return null;
+        }
+    }
     // 提取最后一轮对话
     const pair = extractLastPair(adapter);
     if (!pair) return;
     console.log('[CoBridge] Realtime turn:', pair.queryString.slice(0, 100));
     // 发送给 background
     sendTurnToBackground(pair.queryString, pair.turnIndex, pair.messageId);
+}
+
+async function sendTurnToBackground(queryString: string, turnIndex: number, messageId: string) {
+    // 向量化并保存
+    const response = await sendMessageToBackground({
+        type: 'cobridge.vectorizeAndSave',
+        data: {
+            url: window.location.href,
+            platform: AIname,
+            userMessage: queryString.slice(0, 500),
+            timestamp: Date.now(),
+            turnIndex,
+            messageId,
+        }
+    });
+    if (response?.ok) {
+        console.log('[CoBridge] Turn saved');
+    } else if (response) {
+        console.warn('[CoBridge] Save failed:', response?.error);
+    }
 }
 
 // ── 自动扫描 ────────────────────────────────────────────────────
@@ -273,6 +315,7 @@ async function performAutoScan() {
     // const conversationUrl = getConversationUrl();
     const conversationUrl = window.location.href;
     const pairs = await scanAllTurnsFromDom(conversationUrl);
+    console.log('pairs', pairs)
     await savePairsToBackground(pairs);
 }
 
@@ -329,30 +372,6 @@ function extractMessageId(el: HTMLElement, cfg: AdapterConfig): string {
     return el.getAttribute(cfg.id_selector) || '';
 }
 
-/** 提取最后一轮对话 */
-function extractLastPair(cfg: AdapterConfig) {
-    switch (AIname) {
-        case 'gemini':
-        case 'chatgpt': {
-            const queries = document.querySelectorAll<HTMLElement>(cfg.user_selector);
-            if (queries.length === 0) return null;
-            const queryEl = queries[queries.length - 1];
-            const queryString = queryEl.innerText?.trim() || '';
-            return { queryString, turnIndex: queries.length - 1, messageId: extractMessageId(queryEl, cfg) };
-        }
-        case 'doubao':
-        case 'claude': {
-            const msgs = document.querySelectorAll<HTMLElement>(cfg.user_selector);
-            if (msgs.length === 0) return null;
-            const queryEl = msgs[msgs.length - 2];
-            const queryString = queryEl.innerText?.trim() || '';
-            return { queryString, turnIndex: (msgs.length - 2) / 2, messageId: extractMessageId(queryEl, cfg) };
-        }
-        default:
-            return null;
-    }
-}
-
 /** 提取页面上所有对话轮次 */
 function extractAllPairs(cfg: AdapterConfig): { user: string; turnIndex: number; messageId: string }[] {
     const pairs: { user: string; turnIndex: number; messageId: string }[] = [];
@@ -362,7 +381,8 @@ function extractAllPairs(cfg: AdapterConfig): { user: string; turnIndex: number;
         case 'chatgpt': {
             const queries = document.querySelectorAll<HTMLElement>(cfg.user_selector);
             for (let i = 0; i < queries.length; i++) {
-                const user = queries[i].innerText?.trim() || '';
+                let user = queries[i].innerText?.trim() || '';
+                if (AIname === 'gemini') user = user.slice(4);
                 if (user.length >= 2) pairs.push({ user, turnIndex: i, messageId: extractMessageId(queries[i], cfg) });
             }
             break;
@@ -384,28 +404,33 @@ function extractAllPairs(cfg: AdapterConfig): { user: string; turnIndex: number;
 // ── 滚动定位到指定对话 ─────────────────────────────────────────
 
 /** 在 DOM 中查找目标消息元素 */
-function findTargetElement(_userMessage: string, _turnIndex: number, messageId: string): HTMLElement | null {
+async function findTargetElement(messageId: string) {
     // 仅通过 messageId 精确匹配
-    if (messageId && adapter.id_selector) {
-        const el = document.querySelector<HTMLElement>(`[${adapter.id_selector}="${messageId}"]`);
-        if (el) {
-            console.log('[CoBridge] Matched by messageId:', messageId);
-            return el;
+    if (adapter.id_selector) {
+        const selector = `[${adapter.id_selector}="${messageId}"]`;
+        const retries = 10;
+        // 轮询查找
+        for (let i = 0;i < retries; i++) {
+            const el= document.querySelector<HTMLElement>(selector);
+            if (el) return el;
+            await new Promise(resolve => setTimeout(resolve, 200));
         }
         console.warn('[CoBridge] messageId not found in DOM:', messageId);
     } else {
-        console.warn('[CoBridge] No messageId or id_selector for platform:', AIname);
+        console.warn('[CoBridge] No id_selector for platform:', AIname);
     }
-
     return null;
 }
 
-async function scrollToTurn(userMessage: string, turnIndex: number, messageId: string): Promise<boolean> {
+/** 滚动定位到指定对话 */
+async function scrollToTurn(turnIndex: number, messageId: string): Promise<boolean> {
     console.log('[CoBridge] scrollToTurn:', { messageId, turnIndex, platform: AIname });
 
     // 仅通过 messageId 精确查找，找到就高亮并滚动
-    const target = findTargetElement(userMessage, turnIndex, messageId);
+    const target = await findTargetElement(messageId);
     if (target) {
+        console.log('target', target);
+        // 滚动并高亮
         highlightTarget(target);
         return true;
     }
@@ -414,7 +439,7 @@ async function scrollToTurn(userMessage: string, turnIndex: number, messageId: s
     return false;
 }
 
-function highlightTarget(el: HTMLElement) {
+function highlightTarget(el: any) {
     // 找到最近的可滚动父容器，手动滚动到目标位置
     let parent: HTMLElement | null = el.parentElement;
     while (parent && parent !== document.body) {
@@ -475,97 +500,4 @@ function highlightTarget(el: HTMLElement) {
         scrollTargets.forEach(t => t.removeEventListener('scroll', scrollHandler));
         setTimeout(() => overlay.remove(), 500);
     }, 3000);
-}
-
-// ── 发送到 background ─────────────────────────────────────────
-
-async function sendTurnToBackground(queryString: string, turnIndex: number, messageId: string) {
-    // 向量化并保存
-    const response = await sendMessageToBackground({
-        type: 'cobridge.vectorizeAndSave',
-        data: {
-            url: window.location.href,
-            platform: AIname,
-            userMessage: queryString.slice(0, 500),
-            timestamp: Date.now(),
-            turnIndex,
-            messageId,
-        },
-    });
-    if (response?.ok) {
-        console.log('[CoBridge] Turn saved');
-    } else if (response) {
-        console.warn('[CoBridge] Save failed:', response?.error);
-    }
-}
-
-// ── 侧边栏对话列表抓取 ─────────────────────────────────────────
-
-/** 各平台侧边栏选择器 */
-const SIDEBAR_SELECTORS: Record<string, { linkSelector: string; titleSelector: string }> = {
-    chatgpt: {
-        linkSelector: 'nav a[href*="/c/"]',
-        titleSelector: '', // 直接用 textContent
-    },
-    claude: {
-        linkSelector: 'a[href*="/chat/"]',
-        titleSelector: '',
-    },
-    gemini: {
-        linkSelector: 'gem-nav-list-item[data-test-id="conversation"] a[href*="/app/"]',
-        titleSelector: '.title-text',
-    },
-    doubao: {
-        linkSelector: 'a[href*="/chat/"]',
-        titleSelector: '',
-    },
-};
-
-/**
- * 从当前页面的侧边栏读取对话链接列表
- * 返回 { url, title } 数组，按在侧边栏中出现的顺序排列
- */
-function getSidebarConversations(): { url: string; title: string }[] {
-    const selectors = SIDEBAR_SELECTORS[AIname];
-    if (!selectors) {
-        console.warn('[CoBridge] No sidebar selector for platform:', AIname);
-        return [];
-    }
-
-    const links = document.querySelectorAll<HTMLAnchorElement>(selectors.linkSelector);
-    const results: { url: string; title: string }[] = [];
-
-    for (const link of links) {
-        const href = link.getAttribute('href');
-        if (!href) continue;
-
-        // 构造完整 URL（Gemini 的 href 是 /app/xxx 格式）
-        let url: string;
-        if (AIname === 'gemini') {
-            const match = href.match(/(\/app\/[a-zA-Z0-9]+)/);
-            url = match ? `${window.location.origin}${match[1]}` : `${window.location.origin}${href}`;
-        } else {
-            url = href.startsWith('http') ? href : `${window.location.origin}${href}`;
-        }
-
-        // 提取标题
-        let title = '';
-        if (selectors.titleSelector) {
-            const titleEl = link.querySelector(selectors.titleSelector);
-            title = titleEl?.textContent?.trim() || '';
-        }
-        if (!title) {
-            // fallback：取链接本身的文本内容
-            title = link.textContent?.trim() || '';
-        }
-        // 清理标题（去掉多余空白和操作按钮文字）
-        title = title.replace(/\s+/g, ' ').trim().slice(0, 100);
-
-        if (title) {
-            results.push({ url, title });
-        }
-    }
-
-    console.log(`[CoBridge] Found ${results.length} conversations in sidebar`);
-    return results;
 }

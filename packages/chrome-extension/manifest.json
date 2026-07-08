@@ -59,7 +59,7 @@
         "*://claude.ai/*",
         "*://chatgpt.com/*"
       ],
-      "js": ["src/content/contextSync.ts","src/content/turnObserver.ts"]
+      "js": ["src/content/context-sync/catchContext.ts","src/content/semantic-search/turnObserver.ts"]
     }
   ]
 }

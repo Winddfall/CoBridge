@@ -1,13 +1,6 @@
 // Offscreen Document：在有完整 DOM API 的环境中运行 embedding 逻辑
-// 解决 Service Worker 中无法使用 URL.createObjectURL 的问题
 
 console.log('[CoBridge] Offscreen document script starting...');
-
-// ── 拦截 fetch：对模型 JSON 文件下载增加重试 + 校验 ─────────────
-// transformers.js 内部通过 fetch 下载 config.json / tokenizer.json 等文件，
-// 网络不稳定时 response body 会被截断，导致 JSON.parse 失败。
-// 在 transformers.js 加载之前拦截 fetch，对 JSON 响应做完整性校验并自动重试。
-
 const FETCH_MAX_RETRIES = 3;
 const MODEL_HOSTS = ['huggingface.co', 'hf-mirror.com'];
 
@@ -30,7 +23,14 @@ globalThis.fetch = async function (
         return _originalFetch(input, init);
     }
 
-    const isJsonFile = url.endsWith('.json');
+    let pathName = '';
+    try {
+        pathName = new URL(url).pathname.toLowerCase();
+    } catch {
+        pathName = url.toLowerCase();
+    }
+
+    const isJsonPath = pathName.endsWith('.json');
     let lastError: Error | null = null;
 
     for (let attempt = 1; attempt <= FETCH_MAX_RETRIES; attempt++) {
@@ -41,8 +41,10 @@ globalThis.fetch = async function (
                 throw new Error(`HTTP ${response.status} ${response.statusText}`);
             }
 
-            // 对 JSON 文件做完整性校验（防止截断）
-            if (isJsonFile) {
+            // 对 JSON 响应做完整性校验（防止截断）
+            const contentType = response.headers.get('content-type')?.toLowerCase() || '';
+            const shouldValidateJson = isJsonPath || contentType.includes('application/json');
+            if (shouldValidateJson) {
                 const text = await response.text();
                 try {
                     JSON.parse(text); // 验证 JSON 完整性
@@ -80,48 +82,41 @@ console.log('[CoBridge] Fetch interceptor installed for model downloads');
 // ── 消息监听 ──────────────────────────────────────────────────
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    console.log('[CoBridge] Offscreen: received message:', request.type);
-
     // 响应 ping 消息，表示 offscreen document 已准备好
     if (request.type === 'offscreen.ping') {
         console.log('[CoBridge] Offscreen: responding to ping');
         sendResponse({ ok: true, ready: true });
         return false;
     }
-
     // 其他消息需要异步处理
     if (request.type === 'offscreen.getEmbedding') {
         console.log('[CoBridge] Offscreen: computing embedding for text length:', request.text?.length);
-
-        // 动态导入 embedding 模块
-        import('../utils/embeddingService')
-            .then(({ getEmbedding }) => getEmbedding(request.text))
-            .then((embedding) => {
+        (async () => {
+            try {
+                const { getEmbedding } = await import('../utils/embeddingService');
+                const embedding = await getEmbedding(request.text);
                 console.log('[CoBridge] Offscreen: embedding computed, dimension:', embedding.length);
                 sendResponse({ ok: true, embedding });
-            })
-            .catch((err: Error) => {
+            } catch (err: any) {
                 console.error('[CoBridge] Offscreen: embedding failed:', err.message);
                 sendResponse({ ok: false, error: err.message });
-            });
-
-        return true; // keep channel open for async
+            }
+        })();
+        return true;
     }
-
     if (request.type === 'offscreen.warmup') {
         console.log('[CoBridge] Offscreen: warming up model...');
-
-        import('../utils/embeddingService')
-            .then(({ getExtractor }) => getExtractor())
-            .then(() => {
+        (async () => {
+            try {
+                const { getExtractor } = await import('../utils/embeddingService');
+                await getExtractor();
                 console.log('[CoBridge] Offscreen: model warmed up');
                 sendResponse({ ok: true });
-            })
-            .catch((err: Error) => {
+            } catch (err: any) {
                 console.error('[CoBridge] Offscreen: warmup failed:', err.message);
                 sendResponse({ ok: false, error: err.message });
-            });
-
+            }
+        })();
         return true;
     }
 

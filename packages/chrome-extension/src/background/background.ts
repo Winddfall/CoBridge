@@ -1,18 +1,108 @@
 // Background Service Worker 入口
 // 职责：接收消息，分发到对应的 handler
 
-import { handleSyncToAgent, handleCheckSyncStatus } from './syncHandler';
-import { handleFetchImage } from './fetchImageHandler';
-import { handleVectorizeAndSave, setRequestEmbedding } from './vectorizeHandler';
-import { handleSearchConversations, setSearchRequestEmbedding } from './searchHandler';
-import { handleBatchScan } from './batchScanHandler';
+import {handleCheckSyncStatus, handleSyncToAgent} from './context-sync/syncHandler';
+import {handleFetchImage} from './context-sync/fetchImageHandler';
+import {handleVectorizeAndSave, setRequestEmbedding} from './semantic-search/vectorizeHandler';
+import {handleSearchConversations, setSearchRequestEmbedding} from './semantic-search/searchHandler';
+import {handleNavigateToTurn} from './semantic-search/navigateHandler';
 
 // 初始化时设置 requestEmbedding 函数
-setRequestEmbedding(requestEmbeddingFromOffscreen);
-setSearchRequestEmbedding(requestEmbeddingFromOffscreen);
+setRequestEmbedding(requestEmbeddingFromOffscreen); // 存入
+setSearchRequestEmbedding(requestEmbeddingFromOffscreen); // 检索
 
 // Offscreen document 状态
 let offscreenCreated = false;
+let warmupPromise: Promise<void> | null = null;
+let warmupCompleted = false;
+
+// 监听消息
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    switch (request.type) {
+        // 同步到 Agent
+        case "cobridge.syncToAgent":
+            handleSyncToAgent(request, sendResponse);
+            return true;
+        // 检查同步状态
+        case "cobridge.checkSyncStatus":
+            handleCheckSyncStatus(request, sendResponse);
+            return true;
+        // 抓取照片
+        case "cobridge.fetchImage":
+            handleFetchImage(request, sendResponse);
+            return true;
+        // 向量化并存储
+        case "cobridge.vectorizeAndSave":
+            (async () => {
+                try {
+                    const result = await handleVectorizeAndSave(request);
+                    sendResponse({ ok: true, data: result });
+                } catch (err: any) {
+                    sendResponse({ ok: false, error: err.message });
+                }
+            })();
+            return true;
+        // 语义搜索
+        case "cobridge.searchConversations":
+            (async () => {
+                try {
+                    const result = await handleSearchConversations(request);
+                    // 保持与 popup 约定：data 为数组，mode 为搜索模式
+                    sendResponse({ ok: true, data: result.data, mode: result.mode });
+                } catch (err: any) {
+                    // 统一错误处理，不会遗漏
+                    sendResponse({ ok: false, error: err.message });
+                }
+            })();
+            return true;
+        // 滚动到对话位置
+        case "cobridge.navigateToTurn":
+            (async () => {
+                try {
+                    const result = await handleNavigateToTurn(request);
+                    // 统一在这里回复，成功路径唯一
+                    sendResponse({ ok: true, data: result });
+                } catch (err: any) {
+                    // 统一错误处理，不会遗漏
+                    sendResponse({ ok: false, error: err.message });
+                }
+            })();
+            return true;
+    }
+});
+
+/**
+ * 非阻塞预热 embedding 模型（失败不影响主流程）
+ */
+async function warmupEmbeddingModel(reason: string): Promise<void> {
+    if (warmupCompleted) return;
+    if (warmupPromise) return warmupPromise;
+
+    warmupPromise = (async () => {
+        try {
+            await ensureOffscreen();
+            const ready = await waitForOffscreenReady(20, 300);
+            if (!ready) {
+                console.warn(`[CoBridge] Warmup skipped: offscreen not ready (${reason})`);
+                return;
+            }
+
+            const response = await chrome.runtime.sendMessage({ type: 'offscreen.warmup' });
+            if (response?.ok) {
+                warmupCompleted = true;
+                console.log(`[CoBridge] Embedding model warmup completed (${reason})`);
+            } else {
+                console.warn(`[CoBridge] Embedding model warmup failed (${reason}):`, response?.error || 'unknown');
+            }
+        } catch (err: any) {
+            console.warn(`[CoBridge] Embedding model warmup error (${reason}):`, err?.message || err);
+        } finally {
+            warmupPromise = null;
+        }
+    })();
+
+    return warmupPromise;
+}
 
 /**
  * 确保 offscreen document 已创建
@@ -40,87 +130,16 @@ async function ensureOffscreen(): Promise<void> {
     }
 }
 
-// 监听消息
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    // 同步到 Agent
-    if (request.type === "cobridge.syncToAgent") {
-        handleSyncToAgent(request, sendResponse);
-        return true;
-    }
-
-    // 检查同步状态
-    if (request.type === "cobridge.checkSyncStatus") {
-        handleCheckSyncStatus(request, sendResponse);
-        return true;
-    }
-
-    // 抓取图片
-    if (request.action === "cobridge.fetchImage") {
-        handleFetchImage(request, sendResponse);
-        return true;
-    }
-
-    // 向量化并存储对话轮次
-    if (request.type === "cobridge.vectorizeAndSave") {
-        handleVectorizeAndSave(request, sendResponse);
-        return true;
-    }
-
-    // 语义搜索
-    if (request.type === "cobridge.searchConversations") {
-        (async () => {
-            try {
-                const result = await handleSearchConversations(request);
-                // 统一在这里回复，成功路径唯一
-                sendResponse({ ok: true, data: result });
-            } catch (err: any) {
-                // 统一错误处理，不会遗漏
-                sendResponse({ ok: false, error: err.message });
-            }
-        })();
-        return true;
-    }
-
-    // 跳转到对话并滚动定位
-    if (request.type === "cobridge.navigateToTurn") {
-        handleNavigateToTurn(request, sendResponse);
-        return true;
-    }
-
-    // Ping 消息（用于检查 offscreen document 是否准备好）
-    // 注意：这个消息会被 background 自己接收到，需要忽略
-    if (request.type === "offscreen.ping") {
-        // 不处理，让 offscreen document 处理
-        return false;
-    }
-});
-
-// 监听长连接（用于批量扫描等需要持续进度报告的场景）
-chrome.runtime.onConnect.addListener((port) => {
-    if (port.name === 'cobridge.batchScan') {
-        handleBatchScan(port);
-    }
-});
+// 启动后异步预热模型（不阻塞正常消息处理）
+void warmupEmbeddingModel('startup');
 
 /**
- * 等待 offscreen document 准备好（通过 ping 消息确认）
+ * 等待 offscreen document 准备好
  */
 async function waitForOffscreenReady(maxRetries = 10, delay = 500): Promise<boolean> {
     for (let i = 0; i < maxRetries; i++) {
         try {
-            const response = await new Promise<any>((resolve, reject) => {
-                chrome.runtime.sendMessage(
-                    { type: 'offscreen.ping' },
-                    (response) => {
-                        if (chrome.runtime.lastError) {
-                            reject(new Error(chrome.runtime.lastError.message));
-                        } else {
-                            resolve(response);
-                        }
-                    }
-                );
-            });
-
+            const response = await chrome.runtime.sendMessage({ type: 'offscreen.ping' });
             if (response?.ready) {
                 console.log('[CoBridge] Offscreen document is ready');
                 return true;
@@ -137,30 +156,18 @@ async function waitForOffscreenReady(maxRetries = 10, delay = 500): Promise<bool
 }
 
 /**
- * 处理 embedding 请求：确保 offscreen document 存在，然后转发请求
- */
-async function handleEmbeddingRequest(
-    request: { text: string },
-    sendResponse: (response: any) => void,
-) {
-    console.log('[CoBridge] Handling embedding request, text length:', request.text?.length);
-
-    try {
-        const embedding = await requestEmbeddingFromOffscreen(request.text);
-        sendResponse({ ok: true, embedding });
-    } catch (err: any) {
-        console.error('[CoBridge] handleEmbeddingRequest failed:', err.message);
-        sendResponse({ ok: false, error: err.message });
-    }
-}
-
-/**
- * 通过 offscreen document 计算 embedding（供 vectorizeHandler 调用）
+ * requestEmbedding
+ * 通过 offscreen document 计算 embedding
  */
 async function requestEmbeddingFromOffscreen(text: string): Promise<number[]> {
     console.log('[CoBridge] requestEmbeddingFromOffscreen: text length:', text.length);
 
     await ensureOffscreen();
+
+    // 兜底：若启动预热未完成，这里等待一次；失败不阻塞主流程
+    if (!warmupCompleted) {
+        await warmupEmbeddingModel('on-demand');
+    }
 
     // 等待 offscreen document 准备好
     const ready = await waitForOffscreenReady();
@@ -170,105 +177,14 @@ async function requestEmbeddingFromOffscreen(text: string): Promise<number[]> {
 
     console.log('[CoBridge] Offscreen document ready, sending embedding request...');
 
-    return new Promise((resolve, reject) => {
-        chrome.runtime.sendMessage(
-            { type: 'offscreen.getEmbedding', text },
-            (response) => {
-                if (chrome.runtime.lastError) {
-                    console.error('[CoBridge] Failed to send to offscreen:', chrome.runtime.lastError.message);
-                    reject(new Error(chrome.runtime.lastError.message));
-                    return;
-                }
-                console.log('[CoBridge] Offscreen response:', response);
-                if (response?.ok) {
-                    resolve(response.embedding);
-                } else {
-                    reject(new Error(response?.error || 'Embedding failed'));
-                }
-            }
-        );
-    });
-}
-
-/**
- * 跳转到对话并滚动定位（在 background 中重试，不受 popup 生命周期影响）
- */
-function handleNavigateToTurn(request: any, sendResponse: (response: any) => void) {
-    const { url, userMessage, turnIndex, messageId } = request;
-    const MAX_RETRIES = 15;
-    const RETRY_DELAY = 1000;
-
-    function tryScroll(tabId: number, attempt = 1) {
-        chrome.tabs.sendMessage(tabId, {
-            action: 'gv.scrollToTurn',
-            userMessage,
-            turnIndex,
-            messageId,
-        }, (response) => {
-            if (chrome.runtime.lastError) {
-                // content script 还没加载，重试
-                if (attempt < MAX_RETRIES) {
-                    setTimeout(() => tryScroll(tabId, attempt + 1), RETRY_DELAY);
-                }
-                return;
-            }
-            // 跨会话跳转时 messageId 不在当前 DOM 中，found=false 是正常的，无需重试
-            if (response?.found) {
-                console.log('[CoBridge] scrollToTurn: found and highlighted');
-            }
-        });
+    // 给 offscreen 发请求，计算 embedding
+    const response = await chrome.runtime.sendMessage({ type: 'offscreen.getEmbedding', text });
+    if (!response?.ok) {
+        // 失败后异步触发下一轮预热，提升后续请求成功率
+        void warmupEmbeddingModel('retry-after-failure');
+        throw new Error(response?.error || 'Embedding failed');
     }
 
-    // 按 pathname 匹配已有 tab（忽略 query 参数和 hash）
-    let targetPathname: string;
-    try {
-        targetPathname = new URL(url).pathname;
-    } catch {
-        targetPathname = '';
-    }
-
-    const findAndActivateTab = (tabs: chrome.tabs.Tab[]) => {
-        // 优先找 pathname 完全匹配的 tab
-        const matched = targetPathname
-            ? tabs.find(t => {
-                try { return new URL(t.url || '').pathname === targetPathname; }
-                catch { return false; }
-            })
-            : tabs[0];
-
-        if (matched?.id) {
-            chrome.tabs.update(matched.id, { active: true });
-            if (matched.windowId) {
-                chrome.windows.update(matched.windowId, { focused: true });
-            }
-            tryScroll(matched.id);
-            sendResponse({ ok: true, existing: true });
-            return true;
-        }
-        return false;
-    };
-
-    // 查询同域名的所有 tab
-    let originPattern: string;
-    try {
-        originPattern = new URL(url).origin + '/*';
-    } catch {
-        originPattern = url;
-    }
-
-    chrome.tabs.query({ url: originPattern }, (tabs) => {
-        if (findAndActivateTab(tabs)) return;
-
-        chrome.tabs.create({ url }, (tab) => {
-            if (!tab.id) { sendResponse({ ok: false }); return; }
-            const listener = (tabId: number, changeInfo: chrome.tabs.TabChangeInfo) => {
-                if (tabId === tab.id && changeInfo.status === 'complete') {
-                    chrome.tabs.onUpdated.removeListener(listener);
-                    setTimeout(() => tryScroll(tabId), 2000);
-                }
-            };
-            chrome.tabs.onUpdated.addListener(listener);
-            sendResponse({ ok: true, newTab: true });
-        });
-    });
+    console.log('[CoBridge] Offscreen response:', response);
+    return response.embedding;
 }

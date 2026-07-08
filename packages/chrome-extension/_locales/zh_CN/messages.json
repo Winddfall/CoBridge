@@ -60,7 +60,7 @@
     "description": "Tooltip for language toggle button - shows what language it will switch to"
   },
   "searchTitle": {
-    "message": "搜索历史",
+    "message": "语义搜索",
     "description": "Header for the search section"
   },
   "searchPlaceholder": {
