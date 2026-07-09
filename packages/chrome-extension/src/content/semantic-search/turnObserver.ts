@@ -282,7 +282,7 @@ function extractLatestTurn() {
     // 提取最后一轮对话
     const pair = extractLastPair(adapter);
     if (!pair) return;
-    console.log('[CoBridge] Realtime turn:', pair.queryString.slice(0, 100));
+    // console.log('[CoBridge] Realtime turn:', pair.queryString.slice(0, 100));
     // 发送给 background
     sendTurnToBackground(pair.queryString, pair.turnIndex, pair.messageId);
 }
@@ -403,22 +403,78 @@ function extractAllPairs(cfg: AdapterConfig): { user: string; turnIndex: number;
 
 // ── 滚动定位到指定对话 ─────────────────────────────────────────
 
-/** 在 DOM 中查找目标消息元素 */
-async function findTargetElement(messageId: string) {
-    // 仅通过 messageId 精确匹配
-    if (adapter.id_selector) {
-        const selector = `[${adapter.id_selector}="${messageId}"]`;
-        const retries = 10;
-        // 轮询查找
-        for (let i = 0;i < retries; i++) {
-            const el= document.querySelector<HTMLElement>(selector);
-            if (el) return el;
-            await new Promise(resolve => setTimeout(resolve, 200));
+/** 在 DOM 中查找目标消息元素，处理虚拟滚动场景 */
+async function findTargetElement(messageId: string, turnIndex: number) {
+    /** 找到聊天区域的可滚动容器 */
+    function findScrollContainer(): HTMLElement | null {
+        // 优先通过已有消息元素向上找滚动容器
+        const anyMsg = document.querySelector<HTMLElement>(adapter.user_selector);
+        if (anyMsg) {
+            let parent = anyMsg.parentElement;
+            while (parent && parent !== document.body) {
+                const style = getComputedStyle(parent);
+                const overflow = style.overflow + style.overflowY;
+                if ((overflow.includes('auto') || overflow.includes('scroll')) && parent.scrollHeight > parent.clientHeight + 10) {
+                    return parent;
+                }
+                parent = parent.parentElement;
+            }
         }
-        console.warn('[CoBridge] messageId not found in DOM:', messageId);
-    } else {
-        console.warn('[CoBridge] No id_selector for platform:', AIname);
+        return null;
     }
+
+    const selector = `[${adapter.id_selector}="${messageId}"]`;
+
+    // 第一轮：直接查找（元素可能已在视口附近）
+    const direct = document.querySelector<HTMLElement>(selector);
+    if (direct) return direct;
+
+    // 第二轮：滚动探测，应对虚拟滚动
+    const container = findScrollContainer();
+    if (!container) {
+        console.warn('[CoBridge] No scroll container found');
+        return null;
+    }
+
+    // 根据 turnIndex 估算目标的大致滚动位置
+    const totalMessages = document.querySelectorAll<HTMLElement>(adapter.user_selector).length;
+    // const totalMessages = document.querySelectorAll([data-message-author-role="user"]).length
+    const ratio = totalMessages > 0 ? Math.max(0, Math.min(1, turnIndex / totalMessages)) : 0;
+    const estimatedTop = ratio * container.scrollHeight;
+
+    // 跳到估算位置，触发虚拟列表渲染
+    container.scrollTop = estimatedTop;
+    await new Promise(r => setTimeout(r, 300));
+
+    let el = document.querySelector<HTMLElement>(selector);
+    if (el) return el;
+
+    // 从估算位置向上探测（每次滚动一屏）
+    const step = container.clientHeight;
+    const maxProbes = 10;
+    let probeTop = estimatedTop;
+
+    for (let i = 0; i < maxProbes; i++) {
+        probeTop = Math.max(0, probeTop - step);
+        container.scrollTop = probeTop;
+        await new Promise(r => setTimeout(r, 200));
+        el = document.querySelector<HTMLElement>(selector);
+        if (el) return el;
+        if (probeTop === 0) break;
+    }
+
+    // 向下探测（从估算位置往下）
+    probeTop = estimatedTop;
+    for (let i = 0; i < maxProbes; i++) {
+        probeTop = Math.min(container.scrollHeight - container.clientHeight, probeTop + step);
+        container.scrollTop = probeTop;
+        await new Promise(r => setTimeout(r, 200));
+        el = document.querySelector<HTMLElement>(selector);
+        if (el) return el;
+        if (probeTop >= container.scrollHeight - container.clientHeight) break;
+    }
+
+    console.warn('[CoBridge] messageId not found after scroll probing:', messageId);
     return null;
 }
 
@@ -427,7 +483,7 @@ async function scrollToTurn(turnIndex: number, messageId: string): Promise<boole
     console.log('[CoBridge] scrollToTurn:', { messageId, turnIndex, platform: AIname });
 
     // 仅通过 messageId 精确查找，找到就高亮并滚动
-    const target = await findTargetElement(messageId);
+    const target = await findTargetElement(messageId, turnIndex);
     if (target) {
         console.log('target', target);
         // 滚动并高亮
@@ -464,9 +520,10 @@ function highlightTarget(el: any) {
         position: absolute;
         pointer-events: none;
         z-index: 2147483647;
-        border-radius: 4px;
-        transition: opacity 0.5s;
-        box-shadow: 0 0 0 3px oklch(0.55 0.17 155), 0 0 12px oklch(0.55 0.17 155 / 0.3);
+        border-radius: 6px;
+        transition: opacity 0.6s ease-out;
+        background: rgba(87, 99, 221, 0.22);
+        border-left: 3px solid #5763DD;
     `;
 
     const updatePosition = () => {

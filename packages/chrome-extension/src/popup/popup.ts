@@ -10,9 +10,17 @@ import { initSearch } from './search';
 initTheme();
 applyLang(getCurrentLang());
 initLangToggle();
+console.log('初始化语言和主题完成！');
 
 // 等待 DOM 就绪后初始化交互功能
-document.addEventListener('DOMContentLoaded', async () => {
+async function init() {
     await initSync();
     await initSearch();
-});
+    console.log('所有功能模块初始化完成！');
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}

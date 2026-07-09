@@ -32,7 +32,7 @@ function copyFiles() {
       }
 
       // 处理 offscreen.html：更新脚本引用
-      const offscreenHtmlPath = resolve(__dirname, 'dist/offscreen.html')
+      const offscreenHtmlPath = resolve(__dirname, 'dist/src/offscreen/offscreen.html')
       if (existsSync(offscreenHtmlPath)) {
         let html = readFileSync(offscreenHtmlPath, 'utf-8')
         // 查找编译后的 offscreen JS 文件
@@ -57,7 +57,8 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        offscreen: 'offscreen.html',
+        popup: 'src/popup/popup.html',
+        offscreen: 'src/offscreen/offscreen.html',
       },
     },
   },

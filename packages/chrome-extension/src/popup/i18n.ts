@@ -86,6 +86,12 @@ export function applyLang(lang: Lang) {
         if (msg) el.title = msg;
     });
 
+    document.querySelectorAll<HTMLInputElement>('[data-i18n-placeholder]').forEach((el) => {
+        const key = el.dataset.i18nPlaceholder!;
+        const msg = t(key);
+        if (msg) el.placeholder = msg;
+    });
+
     const statusText = document.getElementById('status-text');
     if (statusText) statusText.textContent = t(connectionKey);
 

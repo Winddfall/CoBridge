@@ -39,7 +39,7 @@ export async function getAllTurns(platform: string): Promise<ConversationTurn[]>
 export async function saveTurn(turn: ConversationTurn) {
     let turns: ConversationTurn[] = await getAllTurns(turn.platform);
     const storageKey: string = getStorageKey(turn.platform);
-    // 去重
+    // 去重（第二层保险）
     const exist = turns.some(t => t.userMessage === turn.userMessage);
     if (exist) {
         console.log('[CoBridge] Skipping, turn already exists');

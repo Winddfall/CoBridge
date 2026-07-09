@@ -79,8 +79,6 @@ globalThis.fetch = async function (
 
 console.log('[CoBridge] Fetch interceptor installed for model downloads');
 
-// ── 消息监听 ──────────────────────────────────────────────────
-
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     // 响应 ping 消息，表示 offscreen document 已准备好
     if (request.type === 'offscreen.ping') {

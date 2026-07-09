@@ -112,7 +112,7 @@ async function ensureOffscreen(): Promise<void> {
 
     try {
         await chrome.offscreen.createDocument({
-            url: 'offscreen.html',
+            url: 'src/offscreen/offscreen.html',
             reasons: [chrome.offscreen.Reason.WORKERS],
             justification: 'Run transformers.js for embedding computation',
         });
