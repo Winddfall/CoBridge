@@ -42,11 +42,14 @@ const ADAPTERS: Adapters = {
         ai_selector: 'div[data-message-id]',
         id_selector: 'data-message-id'
     },
+    'deepseek': {
+        user_selector: '[data-virtual-list-item-key]',
+        ai_selector: '[data-virtual-list-item-key]',
+        id_selector: 'data-virtual-list-item-key'
+    }
 };
 
 function getMatchedAdapter(host: string) {
-    // 特殊处理 chat.openai.com，它不包含 'chatgpt' 子串
-    if (host.includes('chat.openai.com')) return { AIname: 'chatgpt', adapter: ADAPTERS['chatgpt'] };
     for (const key of Object.keys(ADAPTERS)) {
         if (key === 'default') continue;
         if (host.includes(key)) {
@@ -152,7 +155,6 @@ async function sendMessageToBackground(message: any): Promise<any> {
 
 const host: string = window.location.hostname;
 const { AIname, adapter } = getMatchedAdapter(host);
-
 console.log('[CoBridge] TurnObserver loaded on:', host, 'matched:', AIname);
 
 // 语义搜索功能，消息协议
@@ -245,6 +247,10 @@ function startObserver() {
 /** 判断元素是否属于用户消息容器 */
 function isMessageContainer(el: HTMLElement, cfg: AdapterConfig): boolean {
     if (!el.querySelectorAll) return false;
+    if (AIname === 'deepseek') { // 偶数是 AI 消息，不提取
+        const key = el.getAttribute('data-virtual-list-item-key');
+        if (key && Number(key) % 2 == 0) return false;
+    }
     // 自身匹配 + 内部包含匹配的元素
     return !!cfg.user_selector && (
         el.matches(cfg.user_selector) ||
@@ -268,9 +274,11 @@ function extractLatestTurn() {
                 return { queryString, turnIndex: queries.length - 1, messageId: extractMessageId(queryEl, cfg) };
             }
             case 'doubao':
-            case 'claude': {
+            case 'claude':
+            case 'deepseek': {
                 const msgs = document.querySelectorAll<HTMLElement>(cfg.user_selector);
                 if (msgs.length === 0) return null;
+                // 倒数第二个是用户消息
                 const queryEl: HTMLElement = msgs[msgs.length - 2];
                 const queryString: string = queryEl.innerText?.trim() || '';
                 return { queryString, turnIndex: (msgs.length - 2) / 2, messageId: extractMessageId(queryEl, cfg) };
@@ -281,6 +289,7 @@ function extractLatestTurn() {
     }
     // 提取最后一轮对话
     const pair = extractLastPair(adapter);
+
     if (!pair) return;
     // console.log('[CoBridge] Realtime turn:', pair.queryString.slice(0, 100));
     // 发送给 background
@@ -365,8 +374,7 @@ async function savePairsToBackground(
 
 // ── DOM 提取逻辑 ──────────────────────────────────────────────
 
-/** 从消息元素中提取 DOM 消息 ID */
-// claude 没有消息 ID
+/** 从消息元素中提取 MessageId */
 function extractMessageId(el: HTMLElement, cfg: AdapterConfig): string {
     if (!cfg.id_selector) return '';
     return el.getAttribute(cfg.id_selector) || '';
@@ -388,7 +396,8 @@ function extractAllPairs(cfg: AdapterConfig): { user: string; turnIndex: number;
             break;
         }
         case 'doubao':
-        case 'claude': {
+        case 'claude':
+        case 'deepseek': {
             const msgs = document.querySelectorAll<HTMLElement>(cfg.user_selector);
             for (let i = 0; i + 1 < msgs.length; i += 2) {
                 const user = msgs[i].innerText?.trim() || '';

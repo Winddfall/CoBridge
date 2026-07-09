@@ -40,6 +40,10 @@ const ADAPTERS: Adapters = {
         user_selector: 'div[data-message-id]',
         ai_selector: 'div[data-message-id]'
     },
+    'deepseek': {
+        user_selector: '.ds-message',
+        ai_selector: '.ds-message'
+    },
 };
 
 // 检查脚本是不是第一次注入
@@ -103,6 +107,7 @@ async function captureDialogue(): Promise<any[]> {
                 responses = Array.from(document.querySelectorAll<HTMLElement>(adapter.ai_selector));
                 break;
             case 'doubao':
+            case 'deepseek':
                 // 一次性提取所有消息
                 messages = Array.from(document.querySelectorAll<HTMLElement>(adapter.user_selector));
                 break;
@@ -208,6 +213,7 @@ async function captureDialogue(): Promise<any[]> {
                 }
                 break;
             case 'doubao':
+            case 'deepseek':
                 // 豆包是一次性抓取所有消息，再交替写入
                 for (let i = 0; i < messages.length; i++) {
                     if (i % 2 === 0) {

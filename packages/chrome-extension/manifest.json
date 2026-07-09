@@ -24,6 +24,8 @@
 
     "*://chatgpt.com/*",
 
+    "*://chat.deepseek.com/*",
+
     "https://huggingface.co/*",
     "https://*.huggingface.co/*",
     "https://hf-mirror.com/*",
@@ -57,7 +59,8 @@
         "*://gemini.google.com/*",
         "*://www.doubao.com/*",
         "*://claude.ai/*",
-        "*://chatgpt.com/*"
+        "*://chatgpt.com/*",
+        "*://chat.deepseek.com/*"
       ],
       "js": ["src/content/context-sync/catchContext.ts","src/content/semantic-search/turnObserver.ts"]
     }

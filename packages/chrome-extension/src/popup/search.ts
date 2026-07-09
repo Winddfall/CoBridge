@@ -9,6 +9,7 @@ const platformNames: Record<string, string> = {
     claude: 'Claude',
     gemini: 'Gemini',
     doubao: 'Doubao',
+    deepseek: 'DeepSeek',
 };
 
 /** 从当前活跃标签页检测平台 */
@@ -18,6 +19,7 @@ async function detectCurrentPlatform() {
         'claude.ai': 'claude',
         'gemini.google.com': 'gemini',
         'doubao.com': 'doubao',
+        'deepseek.com': 'deepseek',
     };
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true}); // 活跃标签页
     const url = tab?.url; // 如果 tab 是 undefined 或 null，返回 undefined

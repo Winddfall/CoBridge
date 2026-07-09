@@ -87,7 +87,8 @@ export async function initSync() {
                     !tab.url.includes('gemini.google.com') &&
                     !tab.url.includes('chatgpt.com') &&
                     !tab.url.includes('claude.ai') &&
-                    !tab.url.includes('www.doubao.com')
+                    !tab.url.includes('www.doubao.com') &&
+                    !tab.url.includes('chat.deepseek.com')
                 )
             ) {
                 throw new Error(t('unsupportedSite'));
