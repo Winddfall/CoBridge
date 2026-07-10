@@ -6,7 +6,6 @@
   "description": "__MSG_extDescription__",
   "permissions": [
     "activeTab",
-    "scripting",
     "declarativeNetRequest",
     "storage",
     "offscreen"
@@ -62,7 +61,7 @@
         "*://chatgpt.com/*",
         "*://chat.deepseek.com/*"
       ],
-      "js": ["src/content/context-sync/catchContext.ts","src/content/semantic-search/turnObserver.ts"]
+      "js": ["src/content/context-sync/catchContext.ts", "src/content/semantic-search/turnObserver.ts"]
     }
   ]
 }

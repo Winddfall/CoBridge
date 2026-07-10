@@ -7,6 +7,10 @@
     "message": "Синхронизируйте ваши веб-диалоги с ИИ с локальным агентом.",
     "description": "Extension description"
   },
+  "contextSyncTitle": {
+    "message": "Синхронизация контекста",
+    "description": "Header for the context sync section"
+  },
   "portLabel": {
     "message": "Порт",
     "description": "Label for the server port input"

@@ -1,9 +1,4 @@
-// 对话轮次监听与扫描器
-// 两种模式：
-//   1. MutationObserver 实时监听新对话
-//   2. 手动扫描当前页面所有对话（由 popup 触发）
-
-// ── 适配器配置 ────────────────────────────────────────────────
+import { extractConversationId } from '../../utils';
 
 interface AdapterConfig {
     user_selector: string;
@@ -64,54 +59,23 @@ function getMatchedAdapter(host: string) {
 let extractTimer: ReturnType<typeof setTimeout> | null = null; // 向量化的定时器
 let currentConversationId: string | null = null;
 
-/** 从 URL 中提取会话 ID */
-function extractConversationId(url: string): string | null {
-    try {
-        const pathname = new URL(url).pathname; // 路径
-        switch (AIname) {
-            case 'chatgpt': {
-                const m = pathname.match(/\/c\/([a-zA-Z0-9-]+)/);
-                return m ? m[1] : null;
-            }
-            case 'claude': {
-                const m = pathname.match(/\/chat\/([a-zA-Z0-9-]+)/);
-                return m ? m[1] : null;
-            }
-            case 'gemini': {
-                const m = pathname.match(/\/app\/([a-zA-Z0-9]+)/);
-                return m ? m[1] : null;
-            }
-            case 'doubao': {
-                const m = pathname.match(/\/chat\/([a-zA-Z0-9-]+)/);
-                return m ? m[1] : null;
-            }
-            default:
-                return null;
-        }
-    } catch {
-        return null;
-    }
-}
-
 let autoScanTimer: ReturnType<typeof setTimeout> | null = null;
-
-/** 会话 URL 变化时触发自动扫描 */
-function onConversationChanged() {
-    if (autoScanTimer) clearTimeout(autoScanTimer);
-    autoScanTimer = setTimeout(() => {
-        performAutoScan();
-    }, 1500);
-}
 
 /** 初始化 URL 变化检测 */
 function initUrlChangeDetection() {
+    // 检查对话ID，执行自动扫描
     const checkUrlChange = () => {
-        const newId = extractConversationId(window.location.href);
+        const newId = extractConversationId(window.location.href, AIname);
         if (newId && newId !== currentConversationId) {
             const oldId = currentConversationId;
             currentConversationId = newId;
             console.log('[CoBridge] Conversation changed:', oldId, '->', newId);
-            onConversationChanged();
+            // 对 performAutoScan() 做防抖处理
+            if (autoScanTimer) clearTimeout(autoScanTimer);
+            autoScanTimer = setTimeout(() => {
+                performAutoScan();
+                autoScanTimer = null;
+            }, 1500);
         }
     };
 
@@ -259,10 +223,9 @@ function isMessageContainer(el: HTMLElement, cfg: AdapterConfig): boolean {
 }
 
 // ── 提取并发送（实时模式：只提取最后一轮）─────────────────────
-
 function extractLatestTurn() {
     /** 提取最后一轮对话 */
-    const extractLastPair = (cfg: AdapterConfig) => {
+    const extractLastTurn = (cfg: AdapterConfig) => {
         switch (AIname) {
             case 'gemini':
             case 'chatgpt': {
@@ -287,33 +250,34 @@ function extractLatestTurn() {
                 return null;
         }
     }
-    // 提取最后一轮对话
-    const pair = extractLastPair(adapter);
 
-    if (!pair) return;
-    // console.log('[CoBridge] Realtime turn:', pair.queryString.slice(0, 100));
-    // 发送给 background
-    sendTurnToBackground(pair.queryString, pair.turnIndex, pair.messageId);
-}
-
-async function sendTurnToBackground(queryString: string, turnIndex: number, messageId: string) {
-    // 向量化并保存
-    const response = await sendMessageToBackground({
-        type: 'cobridge.vectorizeAndSave',
-        data: {
-            url: window.location.href,
-            platform: AIname,
-            userMessage: queryString.slice(0, 500),
-            timestamp: Date.now(),
-            turnIndex,
-            messageId,
+    /** 将最后一轮对话发送给 background ，以待保存 */
+    const sendTurnToBackground = async (queryString: string, turnIndex: number, messageId: string) => {
+        // 向量化并保存
+        const response = await sendMessageToBackground({
+            type: 'cobridge.vectorizeAndSave',
+            data: {
+                url: window.location.href,
+                platform: AIname,
+                userMessage: queryString.slice(0, 500),
+                timestamp: Date.now(),
+                turnIndex,
+                messageId,
+            }
+        });
+        if (response?.ok) {
+            console.log('[CoBridge] Turn saved');
+        } else if (response) {
+            console.warn('[CoBridge] Save failed:', response?.error);
         }
-    });
-    if (response?.ok) {
-        console.log('[CoBridge] Turn saved');
-    } else if (response) {
-        console.warn('[CoBridge] Save failed:', response?.error);
     }
+
+    // 提取最后一轮对话
+    const lastQueryTurn = extractLastTurn(adapter);
+
+    if (!lastQueryTurn) return;
+    // 发送给 background
+    sendTurnToBackground(lastQueryTurn.queryString, lastQueryTurn.turnIndex, lastQueryTurn.messageId);
 }
 
 // ── 自动扫描 ────────────────────────────────────────────────────
@@ -333,7 +297,31 @@ async function scanAllTurnsFromDom(conversationUrl: string): Promise<{
     user: string; url: string; platform: string; turnIndex: number; messageId: string;
 }[]> {
     if (AIname === 'default') return [];
-
+    /** 提取页面上所有提问轮次 */
+    const extractAllPairs = (cfg: AdapterConfig): { user: string; turnIndex: number; messageId: string }[] => {
+        const queryTurns: { user: string; turnIndex: number; messageId: string }[] = [];
+        switch (AIname) {
+            case 'gemini':
+            case 'chatgpt':
+                const queries = document.querySelectorAll<HTMLElement>(cfg.user_selector);
+                for (let i = 0; i < queries.length; i++) {
+                    let user = queries[i].innerText?.trim() || '';
+                    if (AIname === 'gemini') user = user.slice(4);
+                    if (user.length >= 2) queryTurns.push({ user, turnIndex: i, messageId: extractMessageId(queries[i], cfg) });
+                }
+                break;
+            case 'doubao':
+            case 'claude':
+            case 'deepseek':
+                const msgs = document.querySelectorAll<HTMLElement>(cfg.user_selector);
+                for (let i = 0; i + 1 < msgs.length; i += 2) {
+                    const user = msgs[i].innerText?.trim() || '';
+                    if (user.length >= 2) queryTurns.push({ user, turnIndex: i / 2, messageId: extractMessageId(msgs[i], cfg) });
+                }
+                break;
+        }
+        return queryTurns;
+    }
     const allPairs = extractAllPairs(adapter);
     if (allPairs.length === 0) {
         console.log('[CoBridge] Auto-scan: no messages in DOM');
@@ -380,42 +368,12 @@ function extractMessageId(el: HTMLElement, cfg: AdapterConfig): string {
     return el.getAttribute(cfg.id_selector) || '';
 }
 
-/** 提取页面上所有对话轮次 */
-function extractAllPairs(cfg: AdapterConfig): { user: string; turnIndex: number; messageId: string }[] {
-    const pairs: { user: string; turnIndex: number; messageId: string }[] = [];
-
-    switch (AIname) {
-        case 'gemini':
-        case 'chatgpt': {
-            const queries = document.querySelectorAll<HTMLElement>(cfg.user_selector);
-            for (let i = 0; i < queries.length; i++) {
-                let user = queries[i].innerText?.trim() || '';
-                if (AIname === 'gemini') user = user.slice(4);
-                if (user.length >= 2) pairs.push({ user, turnIndex: i, messageId: extractMessageId(queries[i], cfg) });
-            }
-            break;
-        }
-        case 'doubao':
-        case 'claude':
-        case 'deepseek': {
-            const msgs = document.querySelectorAll<HTMLElement>(cfg.user_selector);
-            for (let i = 0; i + 1 < msgs.length; i += 2) {
-                const user = msgs[i].innerText?.trim() || '';
-                if (user.length >= 2) pairs.push({ user, turnIndex: i / 2, messageId: extractMessageId(msgs[i], cfg) });
-            }
-            break;
-        }
-    }
-
-    return pairs;
-}
-
 // ── 滚动定位到指定对话 ─────────────────────────────────────────
 
 /** 在 DOM 中查找目标消息元素，处理虚拟滚动场景 */
 async function findTargetElement(messageId: string, turnIndex: number) {
     /** 找到聊天区域的可滚动容器 */
-    function findScrollContainer(): HTMLElement | null {
+    const findScrollContainer = (): HTMLElement | null => {
         // 优先通过已有消息元素向上找滚动容器
         const anyMsg = document.querySelector<HTMLElement>(adapter.user_selector);
         if (anyMsg) {

@@ -7,6 +7,10 @@
     "message": "Synchronisez vos conversations IA web vers votre agent local.",
     "description": "Extension description"
   },
+  "contextSyncTitle": {
+    "message": "Synchronisation du contexte",
+    "description": "Header for the context sync section"
+  },
   "portLabel": {
     "message": "Port",
     "description": "Label for the server port input"

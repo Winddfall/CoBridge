@@ -77,6 +77,7 @@ function renderResults(
     container.innerHTML = '';
 
     // 显示搜索模式标签
+    /*
     if (searchMode && results.length > 0) {
         const modeLabel = document.createElement('div');
         modeLabel.className = 'search-mode-label';
@@ -85,6 +86,8 @@ function renderResults(
         modeLabel.style.cssText = 'font-size: 10px; color: var(--muted-foreground); padding: 4px 8px; text-align: right;';
         container.appendChild(modeLabel);
     }
+
+     */
 
     if (results.length === 0) {
         container.innerHTML = `<div class="search-empty">${t('noResults')}</div>`;

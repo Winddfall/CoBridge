@@ -7,6 +7,10 @@
     "message": "ウェブ上のAI会話をローカルエージェントにシームレスに同期します。",
     "description": "Extension description"
   },
+  "contextSyncTitle": {
+    "message": "コンテキスト同期",
+    "description": "Header for the context sync section"
+  },
   "portLabel": {
     "message": "ポート",
     "description": "Label for the server port input"

@@ -7,6 +7,10 @@
     "message": "웹 AI 대화를 로컬 에이전트에 원활하게 동기화합니다.",
     "description": "Extension description"
   },
+  "contextSyncTitle": {
+    "message": "컨텍스트 동기화",
+    "description": "Header for the context sync section"
+  },
   "portLabel": {
     "message": "포트",
     "description": "Label for the server port input"

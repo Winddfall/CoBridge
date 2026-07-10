@@ -3,3 +3,4 @@ export * from './serverPort';
 export * from './markdownHelper';
 export * from './embeddingService';
 export * from './historyStore';
+export * from './urlHelper';

@@ -7,6 +7,10 @@
     "message": "將網頁端 AI 對話無縫同步至本機 Agent。",
     "description": "Extension description"
   },
+  "contextSyncTitle": {
+    "message": "上下文同步",
+    "description": "Header for the context sync section"
+  },
   "portLabel": {
     "message": "服務連接埠",
     "description": "Label for the server port input"
