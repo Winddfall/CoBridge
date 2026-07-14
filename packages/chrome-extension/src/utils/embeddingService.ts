@@ -21,7 +21,7 @@ let transformersModule: any = null;
 async function loadTransformers() {
     if (!transformersModule) { // 只加载一次
         transformersModule = await import('@xenova/transformers');
-        // Cache API 不支持 chrome-extension:// 协议，必须禁用浏览器缓存
+        // 启用浏览器缓存
         transformersModule.env.useBrowserCache = true;
         // Chrome 扩展环境中禁用本地模型加载（扩展中没有 /models/ 目录）
         transformersModule.env.allowLocalModels = false;
