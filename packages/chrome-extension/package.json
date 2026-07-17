@@ -19,6 +19,7 @@
     "vite": "^8.0.13"
   },
   "dependencies": {
+    "@types/dom-chromium-ai": "^0.0.17",
     "@xenova/transformers": "^2.17.2"
   }
 }

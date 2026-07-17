@@ -126,5 +126,9 @@
   "tip_search": {
     "message": "搜尋你的歷史對話",
     "description": "Description message shown above the search section"
+  },
+  "showRecentTopics": {
+    "message": "顯示近日話題",
+    "description": "Label for the toggle button to show/hide recent topic tags"
   }
 }

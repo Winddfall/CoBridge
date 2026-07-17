@@ -126,5 +126,9 @@
   "tip_search": {
     "message": "会話履歴を検索",
     "description": "Description message shown above the search section"
+  },
+  "showRecentTopics": {
+    "message": "最近のトピックを表示",
+    "description": "Label for the toggle button to show/hide recent topic tags"
   }
 }

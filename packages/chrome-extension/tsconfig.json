@@ -7,7 +7,7 @@
     "isolatedModules": true,
     "esModuleInterop": true,
     "allowJs": true,
-    "types": ["chrome"],
+    "types": ["chrome", "dom-chromium-ai"],
     "resolveJsonModule": true
   },
   "include": ["src/**/*"]

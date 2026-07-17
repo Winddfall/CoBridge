@@ -7,6 +7,7 @@ import {handleVectorizeAndSave, setRequestEmbedding} from './semantic-search/vec
 import {handleSearchConversations, setSearchRequestEmbedding} from './semantic-search/searchHandler';
 import {handleNavigateToTurn} from './semantic-search/navigateHandler';
 import {warmupEmbeddingModel, requestEmbedding} from './semantic-search/offscreenHandler';
+import {historyKey, shouldRefresh, refreshTopics, DEBOUNCE_MS} from '../utils/topicsManager';
 
 // 初始化时设置 requestEmbedding 函数
 setRequestEmbedding(requestEmbedding); // 存入
@@ -69,3 +70,46 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 // 启动后异步预热模型（不阻塞正常消息处理）
 void warmupEmbeddingModel('startup');
+
+// ── 近日话题：实时监听与刷新 ──────────────────────────────────────
+
+const PLATFORMS = ['chatgpt', 'claude', 'gemini', 'doubao', 'deepseek'];
+const HISTORY_KEYS = PLATFORMS.map(p => historyKey(p));
+const refreshTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
+function debouncedRefresh(platform: string): void {
+  const existing = refreshTimers.get(platform);
+  if (existing) clearTimeout(existing);
+  refreshTimers.set(platform, setTimeout(() => {
+    refreshTimers.delete(platform);
+    void refreshTopics(platform);
+  }, DEBOUNCE_MS));
+}
+
+// 监听 cobridge_history_* 变化，自动刷新话题
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName !== 'local') return;
+  for (const key of HISTORY_KEYS) {
+    if (!(key in changes)) continue;
+    const platform = key.replace('cobridge_history_', '');
+    (async () => {
+      if (await shouldRefresh(platform)) {
+        debouncedRefresh(platform);
+      }
+    })();
+  }
+});
+
+// 处理 popup 发来的刷新请求（24h 缓存过期场景）
+chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
+  if (request.type !== 'cobridge.refreshTopics') return false;
+  (async () => {
+    try {
+      await refreshTopics(request.platform);
+      sendResponse({ ok: true });
+    } catch (err: any) {
+      sendResponse({ ok: false, error: err.message });
+    }
+  })();
+  return true;
+});

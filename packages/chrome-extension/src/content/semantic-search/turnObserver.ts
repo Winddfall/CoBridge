@@ -292,7 +292,7 @@ async function performAutoScan() {
     await savePairsToBackground(pairs);
 }
 
-/** 轻量 DOM 扫描 */
+/** 扫描所有对话 */
 async function scanAllTurnsFromDom(conversationUrl: string): Promise<{
     user: string; url: string; platform: string; turnIndex: number; messageId: string;
 }[]> {

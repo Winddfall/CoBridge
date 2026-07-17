@@ -126,5 +126,9 @@
   "tip_search": {
     "message": "Rechercher dans vos conversations",
     "description": "Description message shown above the search section"
+  },
+  "showRecentTopics": {
+    "message": "Afficher les sujets récents",
+    "description": "Label for the toggle button to show/hide recent topic tags"
   }
 }

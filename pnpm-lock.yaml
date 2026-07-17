@@ -10,6 +10,9 @@ importers:
 
   packages/chrome-extension:
     dependencies:
+      '@types/dom-chromium-ai':
+        specifier: ^0.0.17
+        version: 0.0.17
       '@xenova/transformers':
         specifier: ^2.17.2
         version: 2.17.2
@@ -590,6 +593,10 @@ packages:
       '@types/filesystem': 0.0.36
       '@types/har-format': 1.2.16
     dev: true
+
+  /@types/dom-chromium-ai@0.0.17:
+    resolution: {integrity: sha512-UnSAIVKONaY2vTAM4TkPpwdKeGgg3tPCwNP3KxR+U8bLYC2rQU7UrgW9LIVx0B02dKZxuPA6a0Q5wvyW5Rk6nw==}
+    dev: false
 
   /@types/filesystem@0.0.36:
     resolution: {integrity: sha512-vPDXOZuannb9FZdxgHnqSwAG/jvdGM8Wq+6N4D/d80z+D4HWH+bItqsZaVRQykAn6WEVeEkLm2oQigyHtgb0RA==}

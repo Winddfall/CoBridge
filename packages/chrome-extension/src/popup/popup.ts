@@ -5,6 +5,7 @@ import { initLangToggle, applyLang, getCurrentLang } from './i18n';
 import { initTheme } from './theme';
 import initSync from './sync';
 import { initSearch } from './search';
+import { initRecentTopics } from './recentTopics';
 
 // 初始化语言和主题（立即执行，不等 DOMContentLoaded）
 initTheme();
@@ -16,6 +17,7 @@ console.log('初始化语言和主题完成！');
 async function init() {
     await initSync();
     await initSearch();
+    await initRecentTopics();
     console.log('所有功能模块初始化完成！');
 }
 
