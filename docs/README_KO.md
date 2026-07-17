@@ -279,10 +279,10 @@ pnpm --filter vscode-extension compile
 
 ## Star 추세
 
-<a href="https://www.star-history.com/?repos=Winddfall%2FCoBridge&type=date&legend=top-left">
+<a href="https://www.star-history.com/?repos=winddfall%2FCoBridge&type=date&legend=top-left">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/image?repos=Winddfall/CoBridge&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/image?repos=Winddfall/CoBridge&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/image?repos=Winddfall/CoBridge&type=date&legend=top-left" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=winddfall/CoBridge&type=date&theme=dark&legend=top-left&sealed_token=zw9Oavm1rqg6R0n7UZTsEWrb5rj1Qxs9CuaFO5bOogRT0Ldbqz9vjde5BgOPoBQIxjLF8pLdT5wacj7hN8-HlNkdR1uutXd8MWrknnGVwFcxweiPs-lbxBLzcqB86_uQ2euzN-YbkiJTTxC3qeS_ZZ5kwPjVrm5o5N06Wm9_WmxUbsrjAmEwNjogBDIC" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=winddfall/CoBridge&type=date&legend=top-left&sealed_token=zw9Oavm1rqg6R0n7UZTsEWrb5rj1Qxs9CuaFO5bOogRT0Ldbqz9vjde5BgOPoBQIxjLF8pLdT5wacj7hN8-HlNkdR1uutXd8MWrknnGVwFcxweiPs-lbxBLzcqB86_uQ2euzN-YbkiJTTxC3qeS_ZZ5kwPjVrm5o5N06Wm9_WmxUbsrjAmEwNjogBDIC" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=winddfall/CoBridge&type=date&legend=top-left&sealed_token=zw9Oavm1rqg6R0n7UZTsEWrb5rj1Qxs9CuaFO5bOogRT0Ldbqz9vjde5BgOPoBQIxjLF8pLdT5wacj7hN8-HlNkdR1uutXd8MWrknnGVwFcxweiPs-lbxBLzcqB86_uQ2euzN-YbkiJTTxC3qeS_ZZ5kwPjVrm5o5N06Wm9_WmxUbsrjAmEwNjogBDIC" />
  </picture>
 </a>
