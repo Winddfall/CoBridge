@@ -3,7 +3,7 @@
 
 import { initLangToggle, applyLang, getCurrentLang } from './i18n';
 import { initTheme } from './theme';
-import { initSync } from './sync';
+import initSync from './sync';
 import { initSearch } from './search';
 
 // 初始化语言和主题（立即执行，不等 DOMContentLoaded）

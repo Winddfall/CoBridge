@@ -20,8 +20,8 @@
     "description": "Button text to sync conversation"
   },
   "tip": {
-    "message": "긴 대화의 경우 모든 컨텍스트가 로드되도록 위로 스크롤하세요.",
-    "description": "Tip message shown below the sync button"
+    "message": "대화 컨텍스트를 로컬 Agent에 동기화",
+    "description": "description message shown above the sync button"
   },
   "agentOnline": {
     "message": "에이전트 온라인",
@@ -68,7 +68,7 @@
     "description": "Header for the search section"
   },
   "searchPlaceholder": {
-    "message": "대화 검색...",
+    "message": "대화 검색",
     "description": "Placeholder text for search input"
   },
   "noResults": {
@@ -122,5 +122,9 @@
   "batchSearching": {
     "message": "사이드바 읽는 중...",
     "description": "Status while searching browser history"
+  },
+  "tip_search": {
+    "message": "대화 기록 검색",
+    "description": "Description message shown above the search section"
   }
 }

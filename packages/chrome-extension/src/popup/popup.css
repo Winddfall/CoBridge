@@ -1,17 +1,17 @@
 /* ── Design Tokens (from style/tailwind.css) ──────────────────── */
 :root {
-  --background: oklch(0.98 0.002 250);
+  --background: oklch(0.947 0.003 286.349);
   --foreground: oklch(0.14 0.004 285);
-  --card: oklch(0.995 0.001 250);
+  --card: oklch(0.965 0.004 286.324);
   --card-foreground: oklch(0.14 0.004 285);
   --popover: oklch(0.995 0.001 250);
   --popover-foreground: oklch(0.14 0.004 285);
   --primary: oklch(0.55 0.17 155);
-  --primary-foreground: oklch(0.99 0 0);
+  --primary-foreground: oklch(0.965 0.001 17.178);
   --secondary: oklch(0.95 0.004 250);
   --secondary-foreground: oklch(0.38 0.006 250);
-  --muted: oklch(0.96 0.003 250);
-  --muted-foreground: oklch(0.5 0.01 250);
+  --muted: oklch(0.959 0.004 286.324);
+  --muted-foreground: oklch(0.447 0.008 248.014);
   --accent: rgba(95, 104, 195, 0.12);
   --accent-foreground: oklch(0.14 0.004 285);
   --destructive: oklch(0.6 0.22 25);
@@ -25,7 +25,7 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --tip: #5763DD;
-  --well: oklch(0.955 0.004 250);
+  --well: oklch(1 0 0);
   --well-shadow: oklch(0 0 0 / 0.06);
   --well-highlight: oklch(1 0 0 / 0.6);
 }
@@ -42,10 +42,10 @@
   --secondary: oklch(0.24 0.008 285);
   --secondary-foreground: oklch(0.72 0.006 250);
   --muted: oklch(0.2 0.006 285);
-  --muted-foreground: oklch(0.56 0.008 250);
+  --muted-foreground: oklch(0.601 0.012 256.724);
   --accent: rgba(95, 104, 195, 0.12);
   --accent-foreground: oklch(0.72 0.006 250);
-  --destructive: oklch(0.6 0.22 25);
+  --destructive: oklch(0.527 0.181 23.786);
   --destructive-foreground: oklch(0.12 0.01 285);
   --border: oklch(0.3 0.008 285);
   --input: oklch(0.3 0.008 285);
@@ -126,7 +126,7 @@ h1 {
 #status-indicator {
   display: flex;
   align-items: center;
-  font-size: 13px;
+  font-size: 12px;
   padding: 4px 8px;
   border-radius: 12px;
   background-color: var(--muted);
@@ -200,7 +200,7 @@ h1 {
   background-color: var(--well);
   border-radius: var(--radius-lg);
   padding: 12px;
-  box-shadow: inset 0 1px 3px var(--well-shadow), inset 0 -1px 0 var(--well-highlight);
+  box-shadow: inset 0 1px 3px var(--well-shadow), inset 0 -1px 0 var(--well-highlight), 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -219,12 +219,13 @@ padding-bottom: 8px;
 }
 
 .well-header {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--muted-foreground);
   margin-bottom: 12px;
   text-align: left;
   transition: color 0.3s ease;
+  letter-spacing: 1px;
 }
 
 /* ── Port Row ───────────────────────────────────────────────── */
@@ -274,7 +275,7 @@ padding-bottom: 8px;
 
 /* ── Primary Button ──────────────────────────────────────────── */
 .primary-btn {
-  width: 100%;
+  width: 90%;
   padding: 15px;
   background: linear-gradient(135deg, #5763DD, #D394F2);
   color: var(--primary-foreground);
@@ -315,20 +316,18 @@ padding-bottom: 8px;
   color: var(--muted-foreground);
   line-height: 1.5;
   text-align: left;
-  /*background-color: var(--card);
-  padding: 8px 12px;
-  border-radius: var(--radius-md);
-  /*transition: background-color 0.3s ease, color 0.3s ease;*/
+  letter-spacing: 0.5px;
 }
 
 /* ── Status Message ──────────────────────────────────────────── */
 .status-msg {
   margin-top: 5px;
-  font-size: 14px;
+  font-size: 12px;
   color: var(--tip);
   min-height: 0;
   line-height: 1.4;
   transition: color 0.3s ease;
+  font-weight: 500; /* 或 600 */
 }
 
 .status-msg:empty {

@@ -20,8 +20,8 @@
     "description": "Button text to sync conversation"
   },
   "tip": {
-    "message": "长对话请向上滑动以确保加载所有上下文",
-    "description": "Tip message shown below the sync button"
+    "message": "将对话上下文同步到本地 Agent",
+    "description": "description message shown above the sync button"
   },
   "agentOnline": {
     "message": "Agent 在线",
@@ -68,7 +68,7 @@
     "description": "Header for the search section"
   },
   "searchPlaceholder": {
-    "message": "搜索对话...",
+    "message": "搜索对话",
     "description": "Placeholder text for search input"
   },
   "noResults": {
@@ -122,5 +122,9 @@
   "batchSearching": {
     "message": "正在读取侧边栏...",
     "description": "Status while reading sidebar conversations"
+  },
+  "tip_search": {
+    "message": "搜索你的历史对话",
+    "description": "Description message shown above the search section"
   }
 }

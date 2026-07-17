@@ -3,8 +3,8 @@
 // 在 offscreen document 中：直接使用 transformers.js 计算 embedding
 // 注意：使用动态导入避免在 Service Worker 中加载 transformers.js
 
-const MODEL_NAME = 'Xenova/bge-base-zh-v1.5';
-const LOAD_TIMEOUT = 120000; // 120 秒超时（大模型下载需要更长时间）
+const MODEL_NAME = 'Xenova/bge-m3';
+const LOAD_TIMEOUT = 300000; // 300 秒超时
 const MAX_LOAD_RETRIES = 3;
 
 // HuggingFace 主站和镜像站
@@ -13,34 +13,31 @@ const REMOTE_HOSTS = [
     'https://huggingface.co',     // 主站
 ];
 
-let extractor: any = null;
 let loadingPromise: Promise<any> | null = null;
-
-// 动态导入 transformers.js
 let transformersModule: any = null;
-async function loadTransformers() {
-    if (!transformersModule) { // 只加载一次
-        transformersModule = await import('@xenova/transformers');
-        // 启用浏览器缓存
-        transformersModule.env.useBrowserCache = true;
-        // Chrome 扩展环境中禁用本地模型加载（扩展中没有 /models/ 目录）
-        transformersModule.env.allowLocalModels = false;
-        // 正确配置 ONNX Runtime Web 的 WASM 参数
-        // 注意：transformers.js 的 env 没有 wasm 属性，正确路径是 env.backends.onnx.wasm
-        const onnxWasm = transformersModule.env.backends?.onnx?.wasm;
-        if (onnxWasm) {
-            onnxWasm.numThreads = 1;      // 禁用多线程 worker
-            onnxWasm.proxy = false;       // 禁用 proxy worker
-            onnxWasm.wasmPaths = chrome.runtime.getURL('wasm/');
-        }
-    }
-    return transformersModule;
-}
 
 /**
  * 用指定的远程服务器尝试加载模型
  */
 async function tryLoadWithHost(host: string): Promise<any> {
+    const loadTransformers = async () => {
+        if (!transformersModule) { // 只加载一次
+            transformersModule = await import('@xenova/transformers');
+            // 启用浏览器缓存
+            transformersModule.env.useBrowserCache = true;
+            // Chrome 扩展环境中禁用本地模型加载（扩展中没有 /models/ 目录）
+            transformersModule.env.allowLocalModels = false;
+            // 使用本地 wasm 文件，避免 CDN 加载被 CSP 阻止
+            const onnxWasm = transformersModule.env.backends?.onnx?.wasm;
+            if (onnxWasm) {
+                onnxWasm.numThreads = 1;      // 禁用多线程 worker
+                onnxWasm.proxy = false;       // 禁用 proxy worker
+                onnxWasm.wasmPaths = chrome.runtime.getURL('wasm/');
+            }
+        }
+        return transformersModule;
+    }
+
     // 提取 pipeline 函数和 env 配置对象
     const { pipeline, env } = await loadTransformers();
     env.remoteHost = host;
@@ -88,7 +85,7 @@ async function loadExtractorWithRetry(): Promise<any> {
 }
 
 /**
- *
+ * 单例模式管理器：只加载模型一次
  */
 export async function getExtractor(): Promise<any> {
     // 只有当 loadingPromise 为 null 的时候才会执行这里，也就是说一旦 loadExtractorWithRetry() 执行成功，以后就再也不会执行这里
@@ -99,10 +96,12 @@ export async function getExtractor(): Promise<any> {
                 const extractor = await loadExtractorWithRetry();
                 return extractor;
             } catch (err) {
-                loadingPromise = null;
+                loadingPromise = null; // 加载失败时重置 loadingPromise
                 throw err;
             }
         })();
+    } else {
+        console.log('[CoBridge] getExtractor: returning existing loadingPromise (model still loading or loaded)');
     }
     return loadingPromise;
 }
@@ -112,10 +111,10 @@ export async function getExtractor(): Promise<any> {
  * 注意：此函数只能在 offscreen document 中调用
  * 在 Service Worker 中，请使用 requestEmbeddingFromOffscreen 函数
  */
-export async function getEmbedding(text: string): Promise<number[]> {
+export async function computeEmbedding(text: string): Promise<number[]> {
     console.log('[CoBridge] Computing embedding');
-    //
     const pipe = await getExtractor();
+    console.log("[CoBridge] Current device:", pipe.device);
     const output = await pipe(text, { pooling: 'mean', normalize: true });
     return Array.from(output.data as Float32Array);
 }

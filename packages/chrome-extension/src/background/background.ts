@@ -3,10 +3,10 @@
 
 import {handleCheckSyncStatus, handleSyncToAgent} from './context-sync/syncHandler';
 import {handleFetchImage} from './context-sync/fetchImageHandler';
-import {handleVectorizeAndSave, setRequestEmbedding} from './semantic-search/vectorizeHandler';
+import {handleVectorizeAndSave, setRequestEmbedding} from './semantic-search/vectorizeSaveHandler';
 import {handleSearchConversations, setSearchRequestEmbedding} from './semantic-search/searchHandler';
 import {handleNavigateToTurn} from './semantic-search/navigateHandler';
-import { warmupEmbeddingModel, requestEmbedding} from './semantic-search/offscreenHandler';
+import {warmupEmbeddingModel, requestEmbedding} from './semantic-search/offscreenHandler';
 
 // 初始化时设置 requestEmbedding 函数
 setRequestEmbedding(requestEmbedding); // 存入

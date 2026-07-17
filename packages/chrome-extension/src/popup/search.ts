@@ -185,8 +185,6 @@ export async function initSearch() {
     const searchInput = document.getElementById('searchInput') as HTMLInputElement; // 输入框
     const searchResults = document.getElementById('searchResults')!; // 搜索结果
 
-    // 在不同的环境中，setTimeout() 返回的类型不同，这样写能适应不同类型
-    let searchTimer: ReturnType<typeof setTimeout> | null = null; // 输入框定时器
     let searchGeneration = 0;
     // 读值接口
     const getGeneration = () => searchGeneration;
@@ -199,21 +197,19 @@ export async function initSearch() {
     searchResults.innerHTML = '';
 
     // 输入搜索：防抖 300ms
+    let searchTimer: any = null; // 输入框定时器
     searchInput.addEventListener('input', () => {
-        if (searchTimer) clearTimeout(searchTimer);
-        const gen = ++searchGeneration;
+        clearTimeout(searchTimer);
+        const gen = ++searchGeneration; // 生成新的请求序列号
 
-        // 空输入：立即清空，不走防抖
+        // 空输入：立即清空结果，不显示“未找到结果”
         if (!searchInput.value.trim()) {
             searchResults.innerHTML = '';
             return;
-        } else {
-            console.log('[CoBridge] Search input:', searchInput.value);
         }
 
         searchTimer = setTimeout(() => {
             doSearch(searchInput.value, currentPlatform, searchResults, getGeneration, gen);
-            searchTimer = null;
-        }, 300);
+        }, 200);
     });
 }

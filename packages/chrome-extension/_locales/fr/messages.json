@@ -20,8 +20,8 @@
     "description": "Button text to sync conversation"
   },
   "tip": {
-    "message": "Pour les longues conversations, faites défiler vers le haut pour charger tout le contexte.",
-    "description": "Tip message shown below the sync button"
+    "message": "Synchroniser le contexte de conversation vers l'Agent local",
+    "description": "description message shown above the sync button"
   },
   "agentOnline": {
     "message": "Agent en ligne",
@@ -68,7 +68,7 @@
     "description": "Header for the search section"
   },
   "searchPlaceholder": {
-    "message": "Rechercher des conversations...",
+    "message": "Rechercher des conversations",
     "description": "Placeholder text for search input"
   },
   "noResults": {
@@ -122,5 +122,9 @@
   "batchSearching": {
     "message": "Lecture de la barre latérale...",
     "description": "Status while searching browser history"
+  },
+  "tip_search": {
+    "message": "Rechercher dans vos conversations",
+    "description": "Description message shown above the search section"
   }
 }

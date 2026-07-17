@@ -1,4 +1,5 @@
 // Offscreen Document：在有完整 DOM API 的环境中运行 embedding 逻辑
+import { getExtractor, computeEmbedding } from '../utils/embeddingService';
 
 console.log('[CoBridge] Offscreen document script starting...');
 const FETCH_MAX_RETRIES = 3;
@@ -91,8 +92,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         console.log('[CoBridge] Offscreen: computing embedding for text length:', request.text?.length);
         (async () => {
             try {
-                const { getEmbedding } = await import('../utils/embeddingService');
-                const embedding = await getEmbedding(request.text);
+                const embedding: number[] = await computeEmbedding(request.text);
                 console.log('[CoBridge] Offscreen: embedding computed, dimension:', embedding.length);
                 sendResponse({ ok: true, embedding });
             } catch (err: any) {
@@ -104,12 +104,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
     if (request.type === 'offscreen.warmup') {
         console.log('[CoBridge] Offscreen: warming up model...');
+        // 立刻回复发送方：我已经收到指令并开始在后台下载了。防止2分钟内没下载完，异步通道被浏览器暴力强行关闭。
+        sendResponse({ ok: true, status: 'downloading_started' });
+
         (async () => {
             try {
-                const { getExtractor } = await import('../utils/embeddingService');
                 await getExtractor();
                 console.log('[CoBridge] Offscreen: model warmed up');
-                sendResponse({ ok: true });
             } catch (err: any) {
                 console.error('[CoBridge] Offscreen: warmup failed:', err.message);
                 sendResponse({ ok: false, error: err.message });
@@ -121,5 +122,3 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     // 忽略其他消息
     return false;
 });
-
-console.log('[CoBridge] Offscreen document message listener registered');

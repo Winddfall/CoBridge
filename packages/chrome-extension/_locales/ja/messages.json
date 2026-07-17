@@ -20,8 +20,8 @@
     "description": "Button text to sync conversation"
   },
   "tip": {
-    "message": "長い会話では、すべてのコンテキストを読み込むために上にスクロールしてください。",
-    "description": "Tip message shown below the sync button"
+    "message": "会話コンテキストをローカル Agent に同期",
+    "description": "description message shown above the sync button"
   },
   "agentOnline": {
     "message": "エージェント オンライン",
@@ -68,7 +68,7 @@
     "description": "Header for the search section"
   },
   "searchPlaceholder": {
-    "message": "会話を検索...",
+    "message": "会話を検索",
     "description": "Placeholder text for search input"
   },
   "noResults": {
@@ -122,5 +122,9 @@
   "batchSearching": {
     "message": "サイドバーを読み取り中...",
     "description": "Status while searching browser history"
+  },
+  "tip_search": {
+    "message": "会話履歴を検索",
+    "description": "Description message shown above the search section"
   }
 }

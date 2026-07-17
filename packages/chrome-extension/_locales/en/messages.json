@@ -20,8 +20,8 @@
     "description": "Button text to sync conversation"
   },
   "tip": {
-    "message": "For long conversations, please scroll up to ensure all context is loaded.",
-    "description": "Tip message shown below the sync button"
+    "message": "Sync conversation context to local Agent",
+    "description": "description message shown above the sync button"
   },
   "agentOnline": {
     "message": "Agent Online",
@@ -68,7 +68,7 @@
     "description": "Header for the search section"
   },
   "searchPlaceholder": {
-    "message": "Search conversations...",
+    "message": "Search conversations",
     "description": "Placeholder text for search input"
   },
   "noResults": {
@@ -122,5 +122,9 @@
   "batchSearching": {
     "message": "Reading sidebar...",
     "description": "Status while reading sidebar conversations"
+  },
+  "tip_search": {
+    "message": "Search through your conversations",
+    "description": "Description message shown above the search section"
   }
 }

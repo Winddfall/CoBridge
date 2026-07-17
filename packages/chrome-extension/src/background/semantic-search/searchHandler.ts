@@ -53,7 +53,7 @@ async function semanticSearch(
     try {
         // 计算查询语句的 embedding
         const queryEmbedding: number[] = await requestEmbedding(query);
-        const SCORE_THRESHOLD = 0.5;
+        const SCORE_THRESHOLD = 0.7;
 
         // 搜索结果
         const results = turns

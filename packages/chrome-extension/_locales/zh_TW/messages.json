@@ -20,8 +20,8 @@
     "description": "Button text to sync conversation"
   },
   "tip": {
-    "message": "長對話請向上滑動以確保載入所有上下文",
-    "description": "Tip message shown below the sync button"
+    "message": "將對話上下文同步到本地 Agent",
+    "description": "description message shown above the sync button"
   },
   "agentOnline": {
     "message": "Agent 上線",
@@ -68,7 +68,7 @@
     "description": "Header for the search section"
   },
   "searchPlaceholder": {
-    "message": "搜尋對話...",
+    "message": "搜尋對話",
     "description": "Placeholder text for search input"
   },
   "noResults": {
@@ -122,5 +122,9 @@
   "batchSearching": {
     "message": "正在讀取側邊欄...",
     "description": "Status while searching browser history"
+  },
+  "tip_search": {
+    "message": "搜尋你的歷史對話",
+    "description": "Description message shown above the search section"
   }
 }

@@ -4,7 +4,7 @@ import { t, setStatusKey, setConnectionKey } from './i18n';
 
 const DEFAULT_PORT = 3030;
 
-export async function initSync() {
+async function initSync() {
     const syncBtn = document.getElementById('syncBtn') as HTMLInputElement;
     const status = document.getElementById('status')!;
     const tip = document.getElementById('tip');
@@ -61,7 +61,6 @@ export async function initSync() {
             const raw = parseInt(portInput.value, 10);
             if (!raw || raw < 1 || raw > 65535) return;
             if (raw === Number(currentPort)) return;
-
             currentPort = String(raw);
             await chrome.storage.sync.set({ contextSyncPort: currentPort });
             await checkConnection();
@@ -119,3 +118,5 @@ export async function initSync() {
         }
     });
 }
+
+export default initSync
