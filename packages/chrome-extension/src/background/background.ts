@@ -1,5 +1,6 @@
 // Background Service Worker 入口
 // 职责：接收消息，分发到对应的 handler
+console.log('[CoBridge] Background service worker loaded.');
 
 import {handleCheckSyncStatus, handleSyncToAgent} from './context-sync/syncHandler';
 import {handleFetchImage} from './context-sync/fetchImageHandler';
@@ -8,6 +9,7 @@ import {handleSearchConversations, setSearchRequestEmbedding} from './semantic-s
 import {handleNavigateToTurn} from './semantic-search/navigateHandler';
 import {warmupEmbeddingModel, requestEmbedding} from './semantic-search/offscreenHandler';
 import {historyKey, shouldRefresh, refreshTopics, DEBOUNCE_MS} from '../utils/topicsManager';
+import {refreshProfile} from './autocomplete/profileManager';
 
 // 初始化时设置 requestEmbedding 函数
 setRequestEmbedding(requestEmbedding); // 存入
@@ -70,6 +72,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 // 启动后异步预热模型（不阻塞正常消息处理）
 void warmupEmbeddingModel('startup');
+
+// 异步预生成用户画像（不阻塞，下次补全时可直接使用缓存）
+void refreshProfile();
 
 // ── 近日话题：实时监听与刷新 ──────────────────────────────────────
 

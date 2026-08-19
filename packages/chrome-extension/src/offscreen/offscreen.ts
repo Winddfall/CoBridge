@@ -88,7 +88,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         return false;
     }
     // 其他消息需要异步处理
-    if (request.type === 'offscreen.getEmbedding') {
+    if (request.type === 'offscreen.computeEmbedding') {
         console.log('[CoBridge] Offscreen: computing embedding for text length:', request.text?.length);
         (async () => {
             try {

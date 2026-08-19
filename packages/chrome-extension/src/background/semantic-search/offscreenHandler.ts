@@ -103,7 +103,7 @@ export async function requestEmbedding(text: string): Promise<number[]> {
     console.log('[CoBridge] Offscreen document ready, sending embedding request...');
 
     // 给 offscreen 发请求，计算 embedding
-    const response = await chrome.runtime.sendMessage({ type: 'offscreen.getEmbedding', text });
+    const response = await chrome.runtime.sendMessage({ type: 'offscreen.computeEmbedding', text });
     if (!response?.ok) {
         // 失败后异步触发下一轮预热，提升后续请求成功率
         void warmupEmbeddingModel('retry-after-failure');
